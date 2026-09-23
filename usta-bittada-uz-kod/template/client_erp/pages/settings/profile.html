@@ -1,0 +1,35 @@
+{% extends "client_erp/base.html" %}
+{% block title %}Sozlamalar{% endblock %}
+{% block content %}
+<h2 style="font-size:20px;font-weight:900;margin-bottom:16px"><i class="fas fa-cog mr-2" style="color:var(--text2)"></i>Sozlamalar</h2>
+<div class="ce-card" style="margin-bottom:12px">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:12px"><i class="fas fa-user mr-1" style="color:var(--accent2)"></i>Profil</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px">
+        <div><span style="color:var(--text2)">Ism:</span> <b>{{ user.full_name }}</b></div>
+        <div><span style="color:var(--text2)">Telefon:</span> <b>{{ user.phone }}</b></div>
+        <div><span style="color:var(--text2)">Username:</span> <code style="background:var(--surface2);padding:2px 6px;border-radius:4px">{{ user.username }}</code></div>
+        <div><span style="color:var(--text2)">Tashkilot:</span> <b>{{ user.organization|default:"—" }}</b></div>
+    </div>
+</div>
+<div class="ce-card">
+    <h3 style="font-size:15px;font-weight:700;margin-bottom:12px"><i class="fas fa-lock mr-1" style="color:var(--warning)"></i>Parol o'zgartirish</h3>
+    <input class="ce-input" id="sp-cur" type="password" placeholder="Joriy parol" style="margin-bottom:8px">
+    <input class="ce-input" id="sp-new" type="password" placeholder="Yangi parol (min 6 belgi)" style="margin-bottom:8px">
+    <input class="ce-input" id="sp-cfm" type="password" placeholder="Yangi parolni tasdiqlash" style="margin-bottom:12px">
+    <button class="ce-btn ce-btn-primary" onclick="changePass()"><i class="fas fa-key"></i> O'zgartirish</button>
+    <div id="sp-msg" style="margin-top:8px;font-size:13px;font-weight:600;display:none"></div>
+</div>
+<script>
+async function changePass(){
+    const c=document.getElementById('sp-cur').value,n=document.getElementById('sp-new').value,cf=document.getElementById('sp-cfm').value;
+    if(!c||!n){alert('Barcha maydonlarni to\'ldiring');return;}
+    if(n!==cf){alert('Parollar mos kelmaydi');return;}
+    const r=await fetch(window.location.pathname+'password/',{method:'POST',headers:{'X-CSRFToken':'{{ csrf_token }}','Content-Type':'application/json'},body:JSON.stringify({current:c,new_password:n})});
+    const d=await r.json();
+    const msg=document.getElementById('sp-msg');
+    if(d.ok){msg.style.color='var(--accent)';msg.textContent='Parol o\'zgartirildi!';document.getElementById('sp-cur').value='';document.getElementById('sp-new').value='';document.getElementById('sp-cfm').value='';}
+    else{msg.style.color='var(--danger)';msg.textContent=d.error||'Xato';}
+    msg.style.display='block';
+}
+</script>
+{% endblock %}

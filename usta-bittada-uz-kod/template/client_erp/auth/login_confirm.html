@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }} — Bittada Usta</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #0f1117; color: #e5e7eb;
+    min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .card { background: #171a21; border: 1px solid rgba(255,255,255,.08); border-radius: 22px;
+    padding: 36px 28px; max-width: 380px; width: 100%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.4); }
+  .ic { font-size: 56px; margin-bottom: 16px; }
+  h1 { font-size: 22px; font-weight: 800; margin-bottom: 10px; }
+  p { font-size: 14px; color: #9ca3af; line-height: 1.6; }
+  .ok h1 { color: #22c55e; }
+  .rejected h1, .expired h1 { color: #f59e0b; }
+  .hint { margin-top: 20px; font-size: 12px; color: #6b7280; }
+</style>
+</head>
+<body>
+  <div class="card {{ state }}">
+    <div class="ic">{% if state == 'ok' %}✅{% elif state == 'rejected' %}🚫{% else %}⏳{% endif %}</div>
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    {% if state == 'ok' %}<div class="hint">Bu oynani yopishingiz mumkin.</div>{% endif %}
+  </div>
+</body>
+</html>

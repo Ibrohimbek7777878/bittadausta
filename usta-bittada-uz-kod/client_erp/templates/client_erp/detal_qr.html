@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ card.title }} — Detal QR</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body { font-family:'Segoe UI', Arial, sans-serif; background:#e8f4fb; color:#1f2937; overflow:hidden; }
+.brand { position:absolute; top:10px; left:14px; z-index:5; font-size:12.5px; color:#4b5563; letter-spacing:.5px; text-shadow:0 1px 2px rgba(255,255,255,.6); }
+/* 2026-09-08: 64px juda kichik edi — telefon kamerasi fokus qila olmay
+   skanerlay olmasdi (QR-kodning o'zi to'g'ri, faqat ko'rsatish o'lchami
+   muammo edi, pyzbar bilan tasdiqlangan). 112px'ga kattalashtirildi. */
+.qr-badge { position:absolute; top:10px; right:14px; z-index:5; width:112px; height:112px; background:#fff; border-radius:12px; padding:8px; box-shadow:0 2px 8px rgba(0,0,0,.35); }
+.qr-badge img { width:100%; height:100%; display:block; }
+#viewport { position:absolute; inset:0; }
+#viewport canvas { display:block; touch-action:none; cursor:grab; }
+.hint { position:absolute; top:84px; left:14px; z-index:5; font-size:11.5px; color:#374151; background:rgba(255,255,255,.75); padding:5px 10px; border-radius:20px; }
+
+/* ── Pastki asboblar paneli — foydalanuvchi so'roviga ko'ra faqat 2 ta
+   kerakli tugma qoldi: Ro'yxat va Markazga (Yoyish/Yashirish foydasiz
+   topilgani uchun OLIB TASHLANDI, 2026-09-04). ── */
+.toolbar { position:absolute; left:0; right:0; bottom:0; z-index:7; display:flex; gap:8px; padding:10px 10px calc(10px + env(safe-area-inset-bottom)); background:linear-gradient(0deg, rgba(0,0,0,.55), transparent); }
+.tool-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; background:rgba(255,255,255,.95); border:none; border-radius:12px; padding:10px 12px; font-size:11.5px; font-weight:700; color:#1f2937; cursor:pointer; }
+.tool-btn .ic { font-size:20px; }
+
+.panel-card { position:absolute; left:0; right:0; bottom:68px; z-index:6; background:#fff; border-radius:16px 16px 0 0; padding:16px 18px 20px; box-shadow:0 -4px 20px rgba(0,0,0,.25); max-height:40vh; overflow-y:auto; }
+.panel-code { display:inline-block; background:#f59e0b; color:#111; font-weight:800; font-size:12px; padding:2px 8px; border-radius:6px; margin-bottom:6px; }
+.panel-name { font-size:16px; font-weight:800; margin-bottom:10px; }
+.panel-row { display:flex; gap:8px; font-size:13.5px; color:#374151; padding:4px 0; border-top:1px solid #f3f4f6; }
+.panel-row:first-of-type { border-top:none; }
+.panel-label { color:#9ca3af; flex:none; width:76px; }
+.panel-val { font-weight:600; }
+
+/* ── Detallar ro'yxati (sirg'aluvchi panel) ── */
+.list-panel { position:absolute; top:0; right:0; bottom:0; width:82%; max-width:340px; z-index:8; background:#fff; box-shadow:-4px 0 20px rgba(0,0,0,.3); transform:translateX(100%); transition:transform .25s; display:flex; flex-direction:column; }
+.list-panel.open { transform:translateX(0); }
+.list-head { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #f3f4f6; }
+.list-title { font-size:15px; font-weight:800; }
+.list-close { background:#f3f4f6; border:none; width:32px; height:32px; border-radius:50%; font-size:16px; cursor:pointer; }
+.list-body { flex:1; overflow-y:auto; padding:6px 10px; }
+.list-item { display:flex; align-items:center; gap:10px; padding:10px 8px; border-radius:10px; cursor:pointer; }
+.list-item:active, .list-item.active { background:#fef3c7; }
+.list-item-code { background:#f59e0b; color:#111; font-weight:800; font-size:11px; padding:2px 6px; border-radius:5px; flex:none; }
+.list-item-name { font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+.list-group { margin-bottom:4px; }
+.list-group-hdr { display:flex; align-items:center; justify-content:space-between; padding:12px 10px; background:#f8f9fa; border-radius:10px; font-size:14px; font-weight:800; cursor:pointer; }
+.list-group-count { font-size:12px; color:#9ca3af; font-weight:600; }
+.list-group-body { padding-left:6px; }
+.overlay { position:absolute; inset:0; z-index:7; background:rgba(0,0,0,.35); display:none; }
+.overlay.show { display:block; }
+
+.card-static { background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.08); max-width:520px; margin:16px auto; }
+.img-wrap { position:relative; background:#111; }
+.img-wrap img { width:100%; display:block; }
+.info { padding:16px 18px 20px; }
+.title { font-size:18px; font-weight:800; }
+.meta { margin-top:10px; display:flex; flex-direction:column; gap:6px; font-size:13.5px; color:#374151; }
+.meta-row { display:flex; gap:8px; align-items:center; }
+.meta-ic { width:18px; text-align:center; }
+.share-btn { display:block; width:100%; border:none; border-radius:10px; padding:13px; font-size:14.5px; font-weight:700; cursor:pointer; margin-top:16px; background:#111827; color:#fff; }
+</style>
+</head>
+<body>
+{% if has_3d %}
+<div id="viewport"></div>
+<div class="brand">🛋️ Bittada — {{ card.title }}</div>
+<div class="qr-badge"><img src="/mini/detal/{{ card.short_code }}/qr/" alt="QR"></div>
+<div class="hint" id="hint">Aylantirish uchun torting · Panelga bosing</div>
+
+<div class="panel-card" id="panelCard" hidden>
+  <div class="panel-code" id="pCode"></div>
+  <div class="panel-name" id="pName"></div>
+  <div class="panel-row"><span class="panel-label">O'lcham</span><span class="panel-val" id="pSize"></span></div>
+  <div class="panel-row"><span class="panel-label">Material</span><span class="panel-val" id="pMaterial"></span></div>
+  <div class="panel-row" id="pEdgesRow" hidden><span class="panel-label">Kromka</span><span class="panel-val" id="pEdges"></span></div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+<div class="list-panel" id="listPanel">
+  <div class="list-head">
+    <div class="list-title">📋 Detallar ro'yxati ({{ card.panel_data|length }})</div>
+    <button class="list-close" id="listClose">✕</button>
+  </div>
+  <div class="list-body" id="listBody"></div>
+</div>
+
+<div class="toolbar">
+  <button class="tool-btn" id="btnList"><span class="ic">📋</span>Ro'yxat</button>
+  <button class="tool-btn" id="btnReset"><span class="ic">🔄</span>Markazga</button>
+</div>
+
+<script src="/static/voice/js/three.min.js"></script>
+<script id="panelData" type="application/json">{{ panel_data_json|safe }}</script>
+<script>
+(function () {
+  var PARTS = JSON.parse(document.getElementById('panelData').textContent);
+  var viewport = document.getElementById('viewport');
+  var w = viewport.clientWidth, h = viewport.clientHeight;
+
+  var scene = new THREE.Scene();
+  // 2026-09-11 (TZ-Detal-QR-Bazis-Oblaka §2.2): qora fon (0x0f1115) o'rniga
+  // Bazis-uslub vertikal ko'k-osmon gradient — Canvas-tekstura orqali
+  // (WebGL versiyasidan mustaqil, barcha brauzerda ishlaydi).
+  (function () {
+    var gc = document.createElement('canvas');
+    gc.width = 2; gc.height = 256;
+    var gctx = gc.getContext('2d');
+    var grad = gctx.createLinearGradient(0, 0, 0, 256);
+    grad.addColorStop(0, '#bfe3f7');
+    grad.addColorStop(0.55, '#e8f4fb');
+    grad.addColorStop(1, '#f6fbfd');
+    gctx.fillStyle = grad;
+    gctx.fillRect(0, 0, 2, 256);
+    var bgTex = new THREE.CanvasTexture(gc);
+    bgTex.colorSpace = THREE.SRGBColorSpace;
+    scene.background = bgTex;
+  })();
+  var camera = new THREE.PerspectiveCamera(45, w / h, 0.01, 200);
+  // 2026-09-08: telefonda (ochiq quyosh yorug'ligida) rasm xira/shaffofdek
+  // ko'rinib, panellarni farqlab bo'lmas edi — yorug'lik kuchi oshirildi.
+  scene.add(new THREE.AmbientLight(0xffffff, 0.85));
+  var dir = new THREE.DirectionalLight(0xffffff, 1.0); dir.position.set(2, 3, 2); scene.add(dir);
+  var dir2 = new THREE.DirectionalLight(0xffffff, 0.5); dir2.position.set(-2, -1, -2); scene.add(dir2);
+
+  function boundsOf(parts) {
+    var minX = 1e9, minY = 1e9, minZ = 1e9, maxX = -1e9, maxY = -1e9, maxZ = -1e9;
+    parts.forEach(function (p) {
+      for (var i = 0; i < p.positions.length; i += 3) {
+        var x = p.positions[i], y = p.positions[i + 1], z = p.positions[i + 2];
+        if (x < minX) minX = x; if (x > maxX) maxX = x;
+        if (y < minY) minY = y; if (y > maxY) maxY = y;
+        if (z < minZ) minZ = z; if (z > maxZ) maxZ = z;
+      }
+    });
+    return { cx: (minX + maxX) / 2, cy: (minY + maxY) / 2, cz: (minZ + maxZ) / 2,
+             size: Math.max(maxX - minX, maxY - minY, maxZ - minZ, 0.2) };
+  }
+
+  var b = boundsOf(PARTS);
+
+  var meshGroup = new THREE.Group();
+  var meshes = [];
+  // Teshik/mahkamlagich-nuqta belgisi (2026-09-05, TZ-Detal-QR-Hole-
+  // Drilling-Research) — kichik qizil sfera, panel yuzasida. `holes`
+  // bo'lmagan fayllarda (evristika mos kelmasa) hech narsa chizilmaydi.
+  var holeGeo = new THREE.SphereGeometry(1, 10, 8);
+  var holeMat = new THREE.MeshBasicMaterial({ color: 0xef4444 });
+
+  // 2026-09-11 (TZ-Detal-QR-Bazis-Oblaka §2.6): umumiy (generic) LDSP-uslub
+  // tekstura, material rangiga moslab tint qilinadi. Bazisning ANIQ tekstura-
+  // faylini olib bo'lmaydi (tasdiqlangan — .b3d faylda rasm yo'q, faqat nom),
+  // shuning uchun Canvas orqali proceduraviy yog'och-tola naqsh yaratiladi —
+  // "yassi rang"dan farqli, tekstura-hissi beradi. Bitta marta yaratilib,
+  // har panelda RANGI moslab qayta ishlatiladi (unikal tekstura emas, tint).
+  function makeWoodTexture(color) {
+    var c = document.createElement('canvas');
+    c.width = 256; c.height = 256;
+    var ctx = c.getContext('2d');
+    var r = Math.round(color.r * 255), g = Math.round(color.g * 255), b = Math.round(color.b * 255);
+    ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+    ctx.fillRect(0, 0, 256, 256);
+    // Vertikal tola chiziqlari — teksturaga o'xshatish uchun (2026-09-11:
+    // avvalgi opacity 0.05-0.06 juda kuchsiz edi, ekranda deyarli sezilmas
+    // bo'lib ko'rinardi — kontrast oshirildi).
+    var darker = 'rgba(0,0,0,0.16)', lighter = 'rgba(255,255,255,0.12)';
+    for (var x = 0; x < 256; x += 3) {
+      var jitter = Math.sin(x * 0.13) * 2 + Math.sin(x * 0.7) * 0.6;
+      ctx.strokeStyle = (x % 6 === 0) ? darker : lighter;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x + jitter, 0);
+      ctx.lineTo(x + jitter, 256);
+      ctx.stroke();
+    }
+    var tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+
+  // Box/triplanar UV: har uchburchakning normaliga qarab ENG MOS o'qni
+  // (X/Y/Z qaysi biri normalga eng yaqin — demak yuza SHU tekislikka
+  // qaraydi) tanlab, qolgan ikki o'qdan UV chiqaradi. mm birligini
+  // tekstura-takrorlanish uchun 300mm = 1 tekstura-davr qilib bo'lamiz —
+  // panel kattaligi qanday bo'lishidan qat'iy nazar tekstura zichligi
+  // bir xil ko'rinadi.
+  function computeBoxUV(positions, indices) {
+    var uv = new Float32Array(positions.length / 3 * 2);
+    // ⚠️ `positions` METRDA (build_panel_mesh scale=0.001 bilan hisoblagan),
+    // shuning uchun tekstura-davr ham METRDA beriladi — avvalgi versiyada
+    // ikki marta /1000 qilinib, UV deyarli 0'ga tenglashib qolgan edi
+    // (tekstura butun panelni bitta davr sifatida qoplab, sezilmas darajada
+    // yumshoq ko'rinardi — "tekstura ko'rinmayapti" muammosining sababi).
+    var UNIT_M = 0.3; // 300mm = 1 tekstura davri
+    for (var t = 0; t < indices.length; t += 3) {
+      var ia = indices[t], ib = indices[t + 1], ic = indices[t + 2];
+      var ax = positions[ia * 3], ay = positions[ia * 3 + 1], az = positions[ia * 3 + 2];
+      var bx = positions[ib * 3], by = positions[ib * 3 + 1], bz = positions[ib * 3 + 2];
+      var cx = positions[ic * 3], cy = positions[ic * 3 + 1], cz = positions[ic * 3 + 2];
+      var e1x = bx - ax, e1y = by - ay, e1z = bz - az;
+      var e2x = cx - ax, e2y = cy - ay, e2z = cz - az;
+      var nx = e1y * e2z - e1z * e2y, ny = e1z * e2x - e1x * e2z, nz = e1x * e2y - e1y * e2x;
+      var anx = Math.abs(nx), any = Math.abs(ny), anz = Math.abs(nz);
+      [ia, ib, ic].forEach(function (vi) {
+        var px = positions[vi * 3], py = positions[vi * 3 + 1], pz = positions[vi * 3 + 2];
+        var u, v;
+        if (anx >= any && anx >= anz) { u = py; v = pz; }
+        else if (any >= anx && any >= anz) { u = px; v = pz; }
+        else { u = px; v = py; }
+        uv[vi * 2] = u / UNIT_M;
+        uv[vi * 2 + 1] = v / UNIT_M;
+      });
+    }
+    return uv;
+  }
+
+  PARTS.forEach(function (p, i) {
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(p.positions), 3));
+    geo.setIndex(new THREE.BufferAttribute(new Uint32Array(p.indices), 1));
+    geo.computeVertexNormals();
+    var panelColor = new THREE.Color(p.color[0], p.color[1], p.color[2]);
+    var woodTex = makeWoodTexture(panelColor);
+    geo.setAttribute('uv', new THREE.BufferAttribute(computeBoxUV(p.positions, p.indices), 2));
+    var mat = new THREE.MeshStandardMaterial({ map: woodTex, color: 0xffffff, roughness: 0.85, metalness: 0.03, side: THREE.DoubleSide, transparent: true, opacity: 1 });
+    var mesh = new THREE.Mesh(geo, mat);
+    // 2026-09-04: raycasting uchun har meshga panel-ma'lumot + asl rang biriktiriladi.
+    // ⚠️ `.clone()` SHART — `mat.color`ning O'ZI emas, nusxasi saqlanadi (aks holda
+    // tanlangan panel sariqqa o'zgarganda asl rang ham o'zgarib qolar edi).
+    mesh.userData = { panel: p, index: i, baseColor: mat.color.clone() };
+    meshGroup.add(mesh);
+    meshes.push(mesh);
+
+    (p.holes || []).forEach(function (hpt) {
+      var dot = new THREE.Mesh(holeGeo, holeMat);
+      dot.scale.setScalar(b.size * 0.012);
+      dot.position.set(hpt.x, hpt.y, hpt.z);
+      meshGroup.add(dot);
+    });
+  });
+
+  meshGroup.position.set(-b.cx, -b.cy, -b.cz);
+  scene.add(meshGroup);
+
+  // 2026-09-11 (TZ-Detal-QR-Bazis-Oblaka §2.5): o'lcham-yozuvlar — Bazis
+  // kabi strelka+mm-raqam. HAR panelda emas (415 ta panelli faylda
+  // o'qib bo'lmas ekranga aylanardi) — faqat GURUH (mebel-bo'lak, masalan
+  // "Shkaf") darajasida, umumiy gabarit (kenglik/balandlik) ko'rsatiladi.
+  // Sprite — doim kameraga qaraydi, panel tekstura/rangidan MUSTAQIL —
+  // shuning uchun tekstura qo'shilishi bilan o'lcham hech qachon
+  // yashirilib/xiralashib qolmaydi.
+  function makeLabelSprite(text) {
+    var c = document.createElement('canvas');
+    var pad = 14, fontSize = 40;
+    c.width = 512; c.height = 96;
+    var ctx = c.getContext('2d');
+    ctx.font = '700 ' + fontSize + 'px Arial';
+    var tw = ctx.measureText(text).width;
+    c.width = Math.max(160, tw + pad * 2);
+    ctx = c.getContext('2d');
+    ctx.font = '700 ' + fontSize + 'px Arial';
+    ctx.fillStyle = 'rgba(17,24,39,0.88)';
+    ctx.roundRect ? (ctx.beginPath(), ctx.roundRect(0, 0, c.width, c.height, 14), ctx.fill())
+                  : ctx.fillRect(0, 0, c.width, c.height);
+    ctx.fillStyle = '#fff';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, pad, c.height / 2 + 2);
+    var tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    var sm = new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true });
+    var sprite = new THREE.Sprite(sm);
+    var aspect = c.width / c.height;
+    var h0 = b.size * 0.045;
+    sprite.scale.set(h0 * aspect, h0, 1);
+    sprite.renderOrder = 999;
+    return sprite;
+  }
+
+  // 2026-09-11 TUZATISH: ko'p-bo'lakli fayllarda (masalan 6+ mebel-guruh)
+  // har guruhga labellar chizish ekranni chalkashtirib, o'qib bo'lmas
+  // qilib qo'ygani aniqlandi (Playwright screenshot bilan tasdiqlangan) —
+  // Bazis ham odatda faqat ENG KATTA (asosiy) bo'lakларning gabaritini
+  // ko'rsatadi. Endi: guruhlar HAJM (maydon) bo'yicha saralanadi, faqat
+  // ENG KATTA 3 tasiga label chiziladi — qolganlari uchun o'lcham
+  // (agar kerak bo'lsa) panelni bosib, kartochkada ko'rinadi.
+  (function buildDimensionLabels() {
+    var byGroup = {};
+    PARTS.forEach(function (p) {
+      var g = p.group || '';
+      if (!byGroup[g]) byGroup[g] = { minX: 1e9, minY: 1e9, minZ: 1e9, maxX: -1e9, maxY: -1e9, maxZ: -1e9 };
+      var acc = byGroup[g];
+      for (var i = 0; i < p.positions.length; i += 3) {
+        var x = p.positions[i], y = p.positions[i + 1], z = p.positions[i + 2];
+        if (x < acc.minX) acc.minX = x; if (x > acc.maxX) acc.maxX = x;
+        if (y < acc.minY) acc.minY = y; if (y > acc.maxY) acc.maxY = y;
+        if (z < acc.minZ) acc.minZ = z; if (z > acc.maxZ) acc.maxZ = z;
+      }
+    });
+    var groups = Object.keys(byGroup).map(function (g) {
+      var acc = byGroup[g];
+      var widthMm = Math.round((acc.maxX - acc.minX) * 1000);
+      var heightMm = Math.round((acc.maxY - acc.minY) * 1000);
+      return { g: g, acc: acc, widthMm: widthMm, heightMm: heightMm, area: widthMm * heightMm };
+    }).filter(function (x) { return x.widthMm >= 30 && x.heightMm >= 30; });
+    groups.sort(function (a, b2) { return b2.area - a.area; });
+    var MAX_LABELED_GROUPS = 3;
+    groups.slice(0, MAX_LABELED_GROUPS).forEach(function (item) {
+      var acc = item.acc;
+      var cx = (acc.minX + acc.maxX) / 2 - b.cx, topY = acc.maxY - b.cy, midY = (acc.minY + acc.maxY) / 2 - b.cy;
+      var frontZ = acc.maxZ - b.cz;
+      var wLabel = makeLabelSprite(item.widthMm + ' mm');
+      wLabel.position.set(cx, topY + b.size * 0.06, frontZ);
+      scene.add(wLabel);
+      var hLabel = makeLabelSprite(item.heightMm + ' mm');
+      hLabel.position.set(acc.maxX - b.cx + b.size * 0.06, midY, frontZ);
+      scene.add(hLabel);
+    });
+  })();
+
+  // 2026-09-11 (TZ-Detal-QR-Bazis-Oblaka §2.1): boshlang'ich burchak
+  // Bazis-uslub OLD-KO'RINISHGA (front elevation) yaqinlashtirildi —
+  // avvalgi rotX=-0.35 deyarli tepadan qarardi ("noqulay" deb topilgan,
+  // Playwright bilan ikki marta tasdiqlangan). Endi rotX deyarli tekis
+  // (kamera panel balandligida), rotY esa hajmni ko'rsatish uchun yengil
+  // burchak bilan.
+  var rotX = -0.08, rotY = 0.42, dist = b.size * 1.7;
+
+  var renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(w, h);
+  viewport.appendChild(renderer.domElement);
+
+  // 2026-09-05: kamera Y formulasidagi DOIMIY qo'shimcha (`+ b.size*0.3`)
+  // OLIB TASHLANDI — bu `dist`ga mutanosib EMAS edi, shuning uchun kuchli
+  // yaqinlashtirilganda (dist kichik bo'lganda) kamera panelga tushmasdan
+  // "tepada osilib qolgandek" ko'rinib, faqat yuqoridan qarardi
+  // (foydalanuvchi: "yaqinlashtirilganda tepaga ko'tarilib ketayapti").
+  // Endi sof orbit-kamera — barcha uch koordinata `dist`ga mutanosib.
+  function render() {
+    camera.position.set(
+      dist * Math.cos(rotX) * Math.sin(rotY),
+      dist * Math.sin(rotX),
+      dist * Math.cos(rotX) * Math.cos(rotY)
+    );
+    camera.lookAt(0, 0, 0);
+    renderer.render(scene, camera);
+  }
+  render();
+
+  // ── Aylantirish — sichqoncha/barmoq bilan torting (2026-09-04: sezgirlik
+  // pasaytirildi — avval juda tez/keskin aylanardi, "buzilgandek" tuyular edi). ──
+  var dragging = false, lastX = 0, lastY = 0, moved = false;
+  var canvasEl = renderer.domElement;
+  var ROTATE_SPEED = 0.0045;
+  canvasEl.addEventListener('pointerdown', function (e) {
+    dragging = true; moved = false; lastX = e.clientX; lastY = e.clientY;
+    canvasEl.style.cursor = 'grabbing';
+  });
+  window.addEventListener('pointerup', function (e) {
+    dragging = false;
+    canvasEl.style.cursor = 'grab';
+    if (!moved) onTap(e);
+  });
+  window.addEventListener('pointermove', function (e) {
+    if (!dragging) return;
+    var dx = e.clientX - lastX, dy = e.clientY - lastY;
+    if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+    rotY += dx * ROTATE_SPEED;
+    rotX += dy * ROTATE_SPEED;
+    rotX = Math.max(-1.4, Math.min(1.4, rotX));
+    lastX = e.clientX; lastY = e.clientY;
+    render();
+  });
+
+  // 2026-09-04: maksimal darajada yaqinlashtirish — minimal masofa juda
+  // kichik mutlaq qiymatga tushirildi (b.size ga bog'liq emas), shunda
+  // katta (400+ panel) faylda ham bitta kichik detalga to'liq yaqinlashish
+  // mumkin bo'ladi ("juda kam yaqinlashtirilyapti" tuzatildi).
+  var MIN_DIST = 0.01, MAX_DIST = b.size * 8;
+  canvasEl.addEventListener('wheel', function (e) {
+    e.preventDefault();
+    dist *= (e.deltaY > 0 ? 1.15 : 0.85);
+    dist = Math.max(MIN_DIST, Math.min(MAX_DIST, dist));
+    render();
+  }, { passive: false });
+  // Barmoq bilan pinch-zoom (mobil) — ikkita barmoq orasidagi masofa asosida.
+  var pinchStartDist = null, pinchStartCam = null;
+  canvasEl.addEventListener('touchstart', function (e) {
+    if (e.touches.length === 2) {
+      var dx0 = e.touches[0].clientX - e.touches[1].clientX;
+      var dy0 = e.touches[0].clientY - e.touches[1].clientY;
+      pinchStartDist = Math.sqrt(dx0 * dx0 + dy0 * dy0);
+      pinchStartCam = dist;
+    }
+  }, { passive: true });
+  canvasEl.addEventListener('touchmove', function (e) {
+    if (e.touches.length === 2 && pinchStartDist) {
+      var dx1 = e.touches[0].clientX - e.touches[1].clientX;
+      var dy1 = e.touches[0].clientY - e.touches[1].clientY;
+      var d1 = Math.sqrt(dx1 * dx1 + dy1 * dy1);
+      dist = Math.max(MIN_DIST, Math.min(MAX_DIST, pinchStartCam * (pinchStartDist / d1)));
+      render();
+    }
+  }, { passive: true });
+  canvasEl.addEventListener('touchend', function () { pinchStartDist = null; });
+
+  window.addEventListener('resize', function () {
+    w = viewport.clientWidth; h = viewport.clientHeight;
+    camera.aspect = w / h; camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+    render();
+  });
+
+  // ── Raycasting — panel tanlash. Tanlangach QOLGAN barcha panellar
+  // SHAFFOF bo'lib qoladi (izolyatsiya, 2026-09-04 — foydalanuvchi so'rovi,
+  // botdagi "Izolyatsiya qilish"ga o'xshash). ──
+  var raycaster = new THREE.Raycaster();
+  var pointer = new THREE.Vector2();
+  var selected = null;
+  var SELECT_COLOR = new THREE.Color(0xf59e0b);
+  var DIM_OPACITY = 0.12;
+
+  function selectMesh(mesh) {
+    if (selected) { selected.material.color.copy(selected.userData.baseColor); }
+    selected = mesh;
+    if (!selected) {
+      meshes.forEach(function (m) { m.material.opacity = 1; });
+      document.getElementById('panelCard').hidden = true;
+      render();
+      return;
+    }
+    selected.material.color.copy(SELECT_COLOR);
+    meshes.forEach(function (m) { m.material.opacity = (m === selected) ? 1 : DIM_OPACITY; });
+    showPanel(selected.userData.panel);
+    render();
+  }
+
+  function onTap(e) {
+    var rect = canvasEl.getBoundingClientRect();
+    pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    pointer.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(pointer, camera);
+    var hits = raycaster.intersectObjects(meshes, false);
+    selectMesh(hits.length ? hits[0].object : null);
+  }
+
+  function showPanel(p) {
+    var hint = document.getElementById('hint'); if (hint) hint.hidden = true;
+    document.getElementById('pCode').textContent = p.code || '';
+    document.getElementById('pName').textContent = p.name || 'Panel';
+    var size = (p.width_mm && p.height_mm)
+      ? (p.width_mm + ' × ' + p.height_mm + (p.thickness_mm ? ' × ' + p.thickness_mm : '') + ' mm')
+      : '—';
+    document.getElementById('pSize').textContent = size;
+    document.getElementById('pMaterial').textContent = p.material || '—';
+    var edgesRow = document.getElementById('pEdgesRow');
+    if (p.edges && p.edges.length) {
+      edgesRow.hidden = false;
+      document.getElementById('pEdges').textContent = p.edges.join(', ');
+    } else {
+      edgesRow.hidden = true;
+    }
+    document.getElementById('panelCard').hidden = false;
+  }
+
+  // ── Detallar ro'yxati — GURUHLANGAN. Bosilganda ochilib-yopiladi
+  // (accordion), ichidagi panelga bosilsa o'sha panel 3D'da tanlanadi. ──
+  var listPanel = document.getElementById('listPanel');
+  var overlay = document.getElementById('overlay');
+  var listBody = document.getElementById('listBody');
+  var esc = function (s) { var d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; };
+  var groupsOrder = [], groupsMap = {};
+  PARTS.forEach(function (p, i) {
+    var g = p.group || "Detallar";
+    if (!groupsMap[g]) { groupsMap[g] = []; groupsOrder.push(g); }
+    groupsMap[g].push(i);
+  });
+  if (groupsOrder.length <= 1) {
+    listBody.innerHTML = PARTS.map(function (p, i) {
+      return '<div class="list-item" data-i="' + i + '"><span class="list-item-code">' + esc(p.code) + '</span><span class="list-item-name">' + esc(p.name || 'Panel') + '</span></div>';
+    }).join('');
+  } else {
+    listBody.innerHTML = groupsOrder.map(function (g, gi) {
+      var idxs = groupsMap[g];
+      var rows = idxs.map(function (i) {
+        var p = PARTS[i];
+        return '<div class="list-item" data-i="' + i + '"><span class="list-item-code">' + esc(p.code) + '</span><span class="list-item-name">' + esc(p.name || 'Panel') + '</span></div>';
+      }).join('');
+      return '<div class="list-group">' +
+        '<div class="list-group-hdr" data-g="' + gi + '"><span>📦 ' + esc(g) + '</span><span class="list-group-count">' + idxs.length + ' ta ▾</span></div>' +
+        '<div class="list-group-body" id="lg-' + gi + '" hidden>' + rows + '</div></div>';
+    }).join('');
+  }
+  function openList() { listPanel.classList.add('open'); overlay.classList.add('show'); }
+  function closeList() { listPanel.classList.remove('open'); overlay.classList.remove('show'); }
+  document.getElementById('btnList').onclick = openList;
+  document.getElementById('listClose').onclick = closeList;
+  overlay.onclick = closeList;
+  listBody.addEventListener('click', function (e) {
+    var hdr = e.target.closest('.list-group-hdr');
+    if (hdr) {
+      var body = document.getElementById('lg-' + hdr.getAttribute('data-g'));
+      body.hidden = !body.hidden;
+      return;
+    }
+    var row = e.target.closest('.list-item');
+    if (!row) return;
+    closeList();
+    var i = parseInt(row.getAttribute('data-i'), 10);
+    selectMesh(meshes[i]);
+  });
+
+  // ── Markazga qaytarish (kamera + tanlov holatini reset) ──
+  document.getElementById('btnReset').onclick = function () {
+    rotX = -0.08; rotY = 0.42; dist = b.size * 1.7;
+    selectMesh(null);
+    document.getElementById('hint').hidden = false;
+    render();
+  };
+})();
+</script>
+{% else %}
+<div class="card-static">
+  <div class="img-wrap">
+    <img src="{{ card.image.url }}" alt="{{ card.title }}">
+    <div class="qr-badge" style="position:absolute;right:12px;bottom:12px;top:auto;left:auto"><img src="/mini/detal/{{ card.short_code }}/qr/" alt="QR"></div>
+  </div>
+  <div class="info">
+    <div class="title">{{ card.title }}</div>
+    <div class="meta">
+      {% if card.artikul %}<div class="meta-row"><span class="meta-ic">🏷️</span> Artikul: {{ card.artikul }}</div>{% endif %}
+      {% if card.detal_count %}<div class="meta-row"><span class="meta-ic">📦</span> {{ card.detal_count }} ta detal</div>{% endif %}
+      <div class="meta-row"><span class="meta-ic">🔗</span> <a href="{{ request.scheme }}://{{ request.get_host }}/mini/detal/{{ card.short_code }}/" style="color:inherit;text-decoration:underline">{{ request.scheme }}://{{ request.get_host }}/mini/detal/{{ card.short_code }}/</a></div>
+    </div>
+    <button class="share-btn" onclick="navigator.share ? navigator.share({url: location.href}) : (navigator.clipboard.writeText(location.href), this.textContent='Nusxalandi ✓')">Ulashish</button>
+  </div>
+</div>
+{% endif %}
+</body>
+</html>

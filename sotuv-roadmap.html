@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bittada Usta — 0 dan 100 gacha sotuv roadmap</title>
+<style>
+  :root{
+    --bg:#0D0C10; --card:#17161D; --card2:#1E1D26; --acc:#DCF262; --acc-ink:#1B1A20;
+    --txt:#F5F4F7; --mut:#9B9AA3; --brd:#2A2933; --blue:#39B0E5; --violet:#7C5CFF;
+    --green:#4FA82E; --orange:#F59E0B; --red:#EF4444;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif;line-height:1.65;padding:0 0 60px}
+  .wrap{max-width:960px;margin:0 auto;padding:0 16px}
+  header.hero{padding:38px 16px 26px;text-align:center;background:linear-gradient(180deg,#1B1A20,#0D0C10)}
+  header.hero h1{font-size:26px;font-weight:800}
+  header.hero h1 span{color:var(--acc)}
+  header.hero p{color:var(--mut);font-size:14px;margin-top:8px}
+  .badge{display:inline-block;background:var(--acc);color:var(--acc-ink);font-size:12px;font-weight:800;border-radius:20px;padding:4px 14px;margin-bottom:12px}
+  .card{background:var(--card);border:1px solid var(--brd);border-radius:16px;padding:20px 18px;margin:16px 0}
+  .card h2{font-size:18px;margin-bottom:12px}
+  .card h2 .n{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--acc);color:var(--acc-ink);font-size:14px;align-items:center;justify-content:center;margin-right:8px;font-weight:800}
+  .card p, .card li{font-size:14px;color:#D9D8DE}
+  .card ul{padding-left:20px;margin-top:8px}
+  .card li{margin-bottom:6px}
+  .mut{color:var(--mut);font-size:12.5px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .seg{background:var(--card2);border:1px solid var(--brd);border-radius:12px;padding:14px}
+  .seg b{font-size:14px}
+  .seg p{font-size:12.5px;color:var(--mut);margin-top:4px}
+  table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+  th,td{text-align:left;padding:9px 8px;border-bottom:1px solid var(--brd)}
+  th{color:var(--mut);font-size:12px;font-weight:700}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tr.total td{font-weight:800;color:var(--acc);border-bottom:none;font-size:14px}
+  .phase{border-left:3px solid var(--acc);padding:0 0 4px 16px;margin:16px 0 0 6px;position:relative}
+  .phase::before{content:'';position:absolute;left:-8px;top:2px;width:13px;height:13px;border-radius:50%;background:var(--acc)}
+  .phase h3{font-size:15px}
+  .phase .when{font-size:12px;color:var(--acc);font-weight:700}
+  .phase p, .phase li{font-size:13.5px}
+  .kpi{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+  .kpi div{flex:1;min-width:140px;background:var(--card2);border:1px solid var(--brd);border-radius:12px;padding:12px;text-align:center}
+  .kpi b{font-size:20px;color:var(--acc);display:block}
+  .kpi span{font-size:11.5px;color:var(--mut)}
+  svg{width:100%;height:auto;display:block}
+  .warn{background:#2A1F10;border:1px solid var(--orange);border-radius:12px;padding:12px 14px;font-size:13px;margin-top:12px}
+  .ok{background:#12240F;border:1px solid var(--green);border-radius:12px;padding:12px 14px;font-size:13px;margin-top:12px}
+  footer{color:var(--mut);font-size:12px;text-align:center;margin-top:26px}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr}header.hero h1{font-size:21px}}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="badge">BITTADA USTA · SOTUV ROADMAP</div>
+    <h1>0 dan <span>100 to'lovchi</span> mijozgacha</h1>
+    <p>Kimlarga · qanday · qancha foyda · qancha vaqtda — bitta sahifada</p>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="card">
+    <h2><span class="n">0</span> Boshlang'ich nuqta (bugun)</h2>
+    <ul>
+      <li><b>Mahsulot:</b> mebel ustalari uchun mini-ERP — buyurtma, moliya, jamoa, galereya+AI, BLE lazer, MebelCity</li>
+      <li><b>Tariflar:</b> Bepul (0) · Standart (70 000) · Pro (150 000) · Premium (250 000 so'm/oy)</li>
+      <li><b>Kanallar tayyor:</b> Telegram bot + referral · APK (Play Market) · desktop · 24 soatlik demo</li>
+      <li><b>Maqsad ta'rifi:</b> <b>100 ta faol to'lovchi obuna</b> (aralash tarifda)</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">1</span> Kimlarga sotamiz — 4 segment</h2>
+    <div class="grid2">
+      <div class="seg"><b>🔨 1. Yakka ustalar</b><p>Daftarda hisob yurituvchilar. Og'riq: buyurtma yo'qoladi, qarz unutiladi. Kirish: bepul + demo. Maqsad: 50 kishi Standartga.</p></div>
+      <div class="seg"><b>👥 2. Kichik sexlar (3–10 kishi)</b><p>Jamoa, foyda taqsimoti, avto-ulashish kerak. Eng yuqori to'lov tayyorligi. Maqsad: 30 ta Pro.</p></div>
+      <div class="seg"><b>🏭 3. MebelCity sotuvchilari</b><p>Tayyor oqim — buyurtma bog'lash orqali kiradi. Maqsad: 15 ta Pro/Premium.</p></div>
+      <div class="seg"><b>🎨 4. Dizayner + vizualizatorlar</b><p>AI galereya, panorama, portfolio. Maqsad: 5 ta Premium.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">2</span> Voronka — diagramma</h2>
+    <p class="mut">Raqamlar — konservativ taxmin (birinchi oy statistikasidan keyin yangilanadi).</p>
+    <svg viewBox="0 0 600 300" role="img" aria-label="Sotuv voronkasi">
+      <g font-family="inherit" font-size="13" font-weight="700">
+        <rect x="40" y="10" width="520" height="44" rx="10" fill="#1E1D26" stroke="#2A2933"/>
+        <text x="300" y="37" text-anchor="middle" fill="#F5F4F7">👁 Ko'rdi (bot/reklama): 5 000</text>
+        <rect x="90" y="66" width="420" height="44" rx="10" fill="#1E1D26" stroke="#39B0E5"/>
+        <text x="300" y="93" text-anchor="middle" fill="#F5F4F7">⏳ Demo sinadi: 1 000 (20%)</text>
+        <rect x="140" y="122" width="320" height="44" rx="10" fill="#1E1D26" stroke="#7C5CFF"/>
+        <text x="300" y="149" text-anchor="middle" fill="#F5F4F7">📝 Ro'yxatdan o'tadi: 400 (40%)</text>
+        <rect x="190" y="178" width="220" height="44" rx="10" fill="#1E1D26" stroke="#F59E0B"/>
+        <text x="300" y="205" text-anchor="middle" fill="#F5F4F7">⚙ Faol ishlatadi: 200 (50%)</text>
+        <rect x="225" y="234" width="150" height="44" rx="10" fill="#DCF262"/>
+        <text x="300" y="261" text-anchor="middle" fill="#1B1A20">💳 To'laydi: 100 (50%)</text>
+      </g>
+    </svg>
+    <div class="ok">Xulosa: <b>100 to'lovchi</b> uchun ~5 000 kishiga yetib borish kerak. Demo + referral shu yukni ko'taradi.</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">3</span> Pul hisobi — oylik (taxminiy)</h2>
+    <table>
+      <tr><th>Tarif</th><th class="num">Soni</th><th class="num">Narx</th><th class="num">Tushum</th></tr>
+      <tr><td>Standart</td><td class="num">50</td><td class="num">70 000</td><td class="num">3 500 000</td></tr>
+      <tr><td>Pro</td><td class="num">30</td><td class="num">150 000</td><td class="num">4 500 000</td></tr>
+      <tr><td>Premium</td><td class="num">20</td><td class="num">250 000</td><td class="num">5 000 000</td></tr>
+      <tr class="total"><td>Jami tushum</td><td class="num">100</td><td class="num"></td><td class="num">13 000 000 so'm</td></tr>
+    </table>
+    <table>
+      <tr><th>Xarajat</th><th class="num">Taxmin/oy</th></tr>
+      <tr><td>Server + domen</td><td class="num">~500 000</td></tr>
+      <tr><td>AI (fal.ai — har rasm uchun, dashboard'dan aniqlanadi)</td><td class="num">~1 000 000</td></tr>
+      <tr><td>SMS (Eskiz — faqat kodlar uchun)</td><td class="num">~300 000</td></tr>
+      <tr><td>To'lov komissiyasi (~2%)</td><td class="num">~260 000</td></tr>
+      <tr><td>Reklama (Telegram/SMM)</td><td class="num">~2 000 000</td></tr>
+      <tr class="total"><td>Sof foyda taxmini</td><td class="num">~8 900 000 so'm/oy</td></tr>
+    </table>
+    <div class="warn">⚠️ Xarajatlar taxminiy — aniq raqamlar fal.ai billing, Eskiz hisobot va server to'lovlaridan olinadi. Jadvalni har oy yangilang.</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">4</span> Vaqt rejasi — 20 hafta</h2>
+    <div class="phase"><div class="when">1–2 hafta · TAYYORGARLIK</div><h3>0 → ishga tushirish</h3><ul><li>Deploy yakunlash (taklif/demo/admin/tarif) + to'lovni oxirigacha sinash</li><li>Bot matnlari + referral sovg'alari (XP/tanga) yoqilganini tekshirish</li><li>3 ta tarif sahifasi + demo tugma hamma kirishda ishlashi</li></ul></div>
+    <div class="phase"><div class="when">3–6 hafta · SOFT LAUNCH → 20 to'lovchi</div><h3>Tanish ustalar + MebelCity</h3><ul><li>20–30 tanish ustaga shaxsan ko'rsatish, demo ochib berish</li><li>Har ro'yxatdan o'tganga bot orqali eslatma (7-kun trial tugashi)</li><li>Maqsad: 20 to'lovchi (~2 mln tushum)</li></ul></div>
+    <div class="phase"><div class="when">7–12 hafta · O'SISH → 60 to'lovchi</div><h3>Referral + sexlar</h3><ul><li>Referral bonusi: olib kelgan har ustaga 1 oy chegirma</li><li>5–10 kishilik sexlarga jamoa funksiyasini ko'rsatish (zoom/uchrashuv)</li><li>Telegram kanal + ustalar guruhlarida demo video</li><li>Maqsad: jami 60 to'lovchi (~7.5 mln tushum)</li></ul></div>
+    <div class="phase"><div class="when">13–20 hafta · MASSHTAB → 100 to'lovchi</div><h3>Pulli trafik + hamkorlik</h3><ul><li>Mebel bozorlari/showroomlar bilan hamkorlik (QR stendlar)</li><li>Target reklama (ustalar auditoriyasi)</li><li>Top-10 faol userga Premium sovg'a → sharhlar</li><li>Maqsad: 100 to'lovchi (~13 mln tushum)</li></ul></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="n">5</span> KPI — har hafta kuzatiladi</h2>
+    <div class="kpi">
+      <div><b>20%</b><span>Ko'rgan → Demo</span></div>
+      <div><b>40%</b><span>Demo → Ro'yxat</span></div>
+      <div><b>25%</b><span>Ro'yxat → To'lov (30 kun)</span></div>
+      <div><b>&lt;5%</b><span>Oylik chiqib ketish</span></div>
+    </div>
+    <ul>
+      <li>Qaysi kanal arzon mijoz olib kelsa — byudjet o'sha yoqqa ko'chadi</li>
+      <li>Chiqib ketish sababi so'raladi (1 savollik forma) → mahsulotga qaytadi</li>
+    </ul>
+  </div>
+
+  <footer>Tayyorlandi: 2026-09-23 · Raqamlar taxminiy — birinchi oy statistikasidan keyin yangilanadi</footer>
+</div>
+</body>
+</html>

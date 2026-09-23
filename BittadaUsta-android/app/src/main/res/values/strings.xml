@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Bittada Usta</string>
+
+    <!-- Splash -->
+    <string name="splash_subtitle">Mebelchi ustalar uchun</string>
+
+    <!-- Share -->
+    <string name="share_title">Ulashish</string>
+    <string name="share_error">Ulashib bo\'lmadi</string>
+
+    <!-- Bluetooth -->
+    <string name="bt_permission_needed">Bluetooth ruxsat kerak</string>
+    <string name="bt_off">Bluetooth o\'chiq — yoqing</string>
+    <string name="bt_connect_device_first">Avval lazer qurilmasiga ulaning</string>
+    <string name="bt_device_connected">📡 %1$s ulandi</string>
+    <string name="bt_icon_hidden">Belgi yashirildi — BLE tugmasidan qaytarasiz</string>
+    <string name="bt_scanner_not_available">BLE skaner mavjud emas</string>
+    <string name="bt_device_not_found">Qurilma topilmadi: %1$s</string>
+    <string name="bt_not_connected">BLE ulanmagan</string>
+    <string name="bt_characteristic_not_found">Characteristic topilmadi</string>
+    <string name="bt_press_measure">Qurilmadagi o\'lchash tugmasini bosing</string>
+    <string name="bt_services_not_found">Servislar topilmadi</string>
+    <string name="bt_characteristic_not_match">Mos characteristic topilmadi</string>
+    <string name="bt_default_device">Qurilma</string>
+
+    <!-- BLE Dialog -->
+    <string name="ble_title">📡 BLE lazer qurilmalari</string>
+    <string name="ble_searching">Qidirilmoqda...</string>
+    <string name="ble_retry">🔄 Qayta</string>
+    <string name="ble_connected_status">✅ Ulangan: %1$s</string>
+    <string name="ble_close">YOPISH</string>
+    <string name="ble_connecting">Ulanmoqda: %1$s...</string>
+    <string name="ble_devices_found">%1$d ta qurilma topildi</string>
+    <string name="ble_not_found">Topilmadi — lazerni yoqing va qayta urining</string>
+    <string name="ble_unnamed_device">Nomsiz qurilma</string>
+    <string name="ble_device_rssi">%1$s • %2$d dBm</string>
+
+    <!-- BLE Menu -->
+    <string name="ble_menu_measure">📏 O\'lchash</string>
+    <string name="ble_menu_disconnect">❌ Uzish</string>
+    <string name="ble_menu_hide">🙈 Yashirish</string>
+
+    <!-- JS Dialogs -->
+    <string name="js_confirm_yes">Ha</string>
+    <string name="js_confirm_no">Yo\'q</string>
+    <string name="js_prompt_cancel">Bekor</string>
+
+    <!-- Microphone -->
+    <string name="mic_permission_needed">Mikrofon ruxsat bering va qayta urining</string>
+
+    <!-- Download -->
+    <string name="download_started">Yuklash boshlandi</string>
+    <string name="download_finished">Yuklab olindi: %1$s</string>
+    <string name="download_error">Yuklashda xatolik</string>
+    <string name="download_in_progress">Yuklanmoqda...</string>
+
+    <!-- BleManager -->
+    <string name="ble_scan_error">Skaner xatolik: %1$d</string>
+    <string name="ble_aim">Nishonga yo\'naltiring</string>
+    <string name="ble_read_error">O\'lchov o\'qilmadi</string>
+</resources>

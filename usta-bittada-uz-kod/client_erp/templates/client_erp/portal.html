@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ order.title }} — Shartnoma</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Segoe UI', Arial, sans-serif; background:#f3f4f6; color:#1f2937; line-height:1.5; padding:16px; }
+.wrap { max-width:520px; margin:0 auto; }
+.card { background:#fff; border-radius:14px; padding:20px; box-shadow:0 1px 3px rgba(0,0,0,.08); margin-bottom:14px; }
+.brand { text-align:center; font-size:13px; color:#9ca3af; margin-bottom:14px; letter-spacing:.5px; }
+h1 { font-size:19px; font-weight:700; margin-bottom:4px; }
+.sub { font-size:13px; color:#6b7280; margin-bottom:16px; }
+.amount-box { background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:14px; text-align:center; margin-bottom:16px; }
+.amount-box .label { font-size:12px; color:#16a34a; font-weight:600; }
+.amount-box .value { font-size:26px; font-weight:800; color:#15803d; margin-top:4px; }
+.terms { font-size:14px; white-space:pre-wrap; color:#374151; border-top:1px solid #f0f0f0; padding-top:14px; margin-bottom:18px; }
+.btn { display:block; width:100%; border:none; border-radius:10px; padding:14px; font-size:15px; font-weight:700; cursor:pointer; margin-bottom:10px; }
+.btn-confirm { background:#16a34a; color:#fff; }
+.btn-reject { background:#fff; color:#dc2626; border:1.5px solid #fecaca; }
+.reject-box { display:none; margin-top:10px; }
+.reject-box textarea { width:100%; border:1.5px solid #e5e7eb; border-radius:10px; padding:10px; font-size:14px; font-family:inherit; resize:vertical; min-height:70px; margin-bottom:10px; }
+.reject-box .btn-send-reject { background:#dc2626; color:#fff; }
+.status-badge { display:inline-block; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:700; margin-bottom:14px; }
+.status-confirmed { background:#dcfce7; color:#15803d; }
+.status-rejected { background:#fee2e2; color:#b91c1c; }
+.done-card { background:linear-gradient(180deg,#f0fdf4,#fff); border:1px solid #bbf7d0; border-radius:14px; padding:24px 16px; text-align:center; margin-bottom:14px; }
+.done-card .done-emoji { font-size:46px; margin-bottom:8px; }
+.done-card h2 { font-size:19px; font-weight:800; color:#15803d; }
+.stage-row { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid #f3f4f6; }
+.stage-row:last-child { border-bottom:none; }
+.stage-icon { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+.stage-done { background:#dcfce7; }
+.stage-active { background:#dbeafe; }
+.stage-pending { background:#f3f4f6; opacity:.6; }
+.stage-title { font-size:14px; font-weight:600; }
+.stage-meta { font-size:11.5px; color:#9ca3af; margin-top:3px; display:flex; gap:10px; flex-wrap:wrap; }
+.progress-wrap { background:#f3f4f6; border-radius:20px; height:10px; overflow:hidden; margin:10px 0 4px; }
+.progress-fill { background:#16a34a; height:100%; border-radius:20px; transition:width .3s; }
+.progress-label { font-size:12px; color:#6b7280; text-align:right; }
+.msg-box { text-align:center; padding:30px 16px; color:#6b7280; font-size:14px; }
+.err { color:#dc2626; font-size:13px; margin-top:8px; text-align:center; display:none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">🛋️ Bittada — Mijoz portali</div>
+
+  {% if contract.status == 'sent' %}
+    <div class="card">
+      <h1>{{ order.title }}</h1>
+      <div class="sub">Shartnoma bilan tanishing va tasdiqlang</div>
+      <div class="amount-box">
+        <div class="label">Dogovor summasi</div>
+        <div class="value">{{ contract.contract_amount|floatformat:0 }} so'm</div>
+      </div>
+      {% if contract.terms_text %}
+      <div class="terms">{{ contract.terms_text }}</div>
+      {% endif %}
+      <button class="btn btn-confirm" id="btn-confirm">✅ Men shartnoma bilan tanishdim va tasdiqlayman</button>
+      <button class="btn btn-reject" id="btn-reject">❌ Rozi emasman</button>
+      <div class="reject-box" id="reject-box">
+        <textarea id="reject-note" placeholder="Nima noto'g'ri? (masalan: summa xato) — izoh yozing..."></textarea>
+        <button class="btn btn-send-reject" id="btn-send-reject">Yuborish</button>
+      </div>
+      <div class="err" id="err-msg"></div>
+    </div>
+
+  {% elif contract.status == 'confirmed' %}
+    {% if is_completed and not progress_hidden %}
+    <div class="done-card">
+      <div class="done-emoji">🎉</div>
+      <h2>Buyurtma yakunlandi!</h2>
+    </div>
+    {% endif %}
+
+    <div class="card">
+      <span class="status-badge status-confirmed">✅ Tasdiqlangan — {{ contract.confirmed_at|date:"d.m.Y H:i" }}</span>
+      <h1>{{ order.title }}</h1>
+      {% if progress_hidden %}
+      <div style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#f8fafc;border:1px dashed #cbd5e1;font-size:12.5px;color:#64748b;font-weight:600">
+        ⏳ Jarayon holati tez orada ko'rsatiladi
+      </div>
+      {% else %}
+      <div class="progress-wrap"><div class="progress-fill" style="width:{{ progress }}%"></div></div>
+      <div class="progress-label">{{ progress }}% bajarildi</div>
+      {% endif %}
+    </div>
+
+    <div class="card">
+      <h1 style="font-size:15px;margin-bottom:10px">Jarayon bosqichlari</h1>
+      {% for stage in stages %}
+      <div class="stage-row">
+        {% if progress_hidden %}
+        {# Ulash gate: real-time holat yashirin — barcha etaplar neytral ko'rinadi #}
+        <div class="stage-icon stage-pending" style="opacity:1">⚪</div>
+        <div>
+          <div class="stage-title">{{ stage.icon }} {{ stage.title }}</div>
+        </div>
+        {% else %}
+        <div class="stage-icon {% if stage.status == 'completed' %}stage-done{% elif stage.status == 'active' %}stage-active{% else %}stage-pending{% endif %}">
+          {% if stage.status == 'completed' %}✅{% elif stage.status == 'active' %}🔵{% else %}⚪{% endif %}
+        </div>
+        <div>
+          <div class="stage-title">{{ stage.icon }} {{ stage.title }}</div>
+          {% if stage.completed_at or stage.assigned_to %}
+          <div class="stage-meta">
+            {% if stage.completed_at %}<span>📅 {{ stage.completed_at|date:"d.m.Y" }}</span>{% endif %}
+            {% if stage.assigned_to %}<span>{{ stage.assigned_to.full_name }}</span>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+      </div>
+      {% empty %}
+      <div class="msg-box">Hali bosqichlar belgilanmagan</div>
+      {% endfor %}
+    </div>
+
+  {% elif contract.status == 'rejected' %}
+    <div class="card">
+      <span class="status-badge status-rejected">❌ Rad etilgan</span>
+      <h1>{{ order.title }}</h1>
+      <div class="msg-box">Shartnoma rad etildi. Tez orada bog'lanamiz.</div>
+    </div>
+
+  {% else %}
+    <div class="card"><div class="msg-box">Bu shartnoma bekor qilingan.</div></div>
+  {% endif %}
+</div>
+
+<script>
+(function() {
+  var btnConfirm = document.getElementById('btn-confirm');
+  var btnReject = document.getElementById('btn-reject');
+  var rejectBox = document.getElementById('reject-box');
+  var btnSendReject = document.getElementById('btn-send-reject');
+  var errMsg = document.getElementById('err-msg');
+
+  function showErr(msg) { errMsg.textContent = msg; errMsg.style.display = 'block'; }
+
+  if (btnConfirm) {
+    btnConfirm.onclick = function() {
+      btnConfirm.disabled = true;
+      btnConfirm.textContent = 'Yuborilmoqda...';
+      fetch(window.location.pathname + 'confirm/', {method: 'POST'})
+        .then(function(r) { return r.json(); })
+        .then(function(r) {
+          if (r.ok) { window.location.reload(); }
+          else { showErr(r.error || 'Xatolik'); btnConfirm.disabled = false; btnConfirm.textContent = '✅ Men shartnoma bilan tanishdim va tasdiqlayman'; }
+        })
+        .catch(function() { showErr('Tarmoq xatosi'); btnConfirm.disabled = false; });
+    };
+  }
+  if (btnReject) {
+    btnReject.onclick = function() { rejectBox.style.display = 'block'; btnReject.style.display = 'none'; };
+  }
+  if (btnSendReject) {
+    btnSendReject.onclick = function() {
+      var note = document.getElementById('reject-note').value.trim();
+      if (!note) { showErr("Izoh yozish majburiy"); return; }
+      btnSendReject.disabled = true;
+      btnSendReject.textContent = 'Yuborilmoqda...';
+      var body = new URLSearchParams(); body.set('note', note);
+      fetch(window.location.pathname + 'reject/', {method: 'POST', body: body})
+        .then(function(r) { return r.json(); })
+        .then(function(r) {
+          if (r.ok) { window.location.reload(); }
+          else { showErr(r.error || 'Xatolik'); btnSendReject.disabled = false; btnSendReject.textContent = 'Yuborish'; }
+        })
+        .catch(function() { showErr('Tarmoq xatosi'); btnSendReject.disabled = false; });
+    };
+  }
+})();
+</script>
+</body>
+</html>

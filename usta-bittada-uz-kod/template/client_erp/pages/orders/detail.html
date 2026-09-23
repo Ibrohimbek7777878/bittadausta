@@ -1,0 +1,704 @@
+{% extends "client_erp/base.html" %}
+{% load humanize %}
+{% block title %}{{ order.title }}{% endblock %}
+{% block content %}
+<style>
+.od-header{margin-bottom:16px}
+.od-title{font-size:20px;font-weight:900;margin:6px 0 4px;letter-spacing:-.3px}
+.od-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--text2)}
+.od-meta i{margin-right:3px}
+.od-progress{margin-bottom:16px}
+.od-progress-bar{background:var(--border);border-radius:4px;height:8px;overflow:hidden}
+.od-progress-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .5s}
+.od-progress-text{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-top:4px}
+.od-actions{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.od-actions .ce-btn{font-size:12px;padding:8px 14px;min-height:40px}
+
+/* Stage cards */
+.stg-card{border-radius:14px;margin-bottom:10px;overflow:hidden;border:1px solid var(--border);background:var(--card);transition:box-shadow .2s}
+.stg-card.stg-active{border-color:rgba(99,102,241,.4);box-shadow:0 0 0 2px rgba(99,102,241,.12)}
+.stg-card.stg-completed{border-left:3px solid #10b981}
+.stg-card.stg-skipped{opacity:.65;border-left:3px solid #f59e0b}
+.stg-card.stg-mc{border-color:rgba(99,102,241,.3);background:linear-gradient(135deg,rgba(99,102,241,.04),rgba(139,92,246,.04))}
+.stg-head{padding:12px 14px;cursor:pointer;display:flex;align-items:center;gap:10px;user-select:none}
+.stg-icon{font-size:20px;flex-shrink:0;width:32px;text-align:center}
+.stg-info{flex:1;min-width:0}
+.stg-title{font-weight:700;font-size:14px}
+.stg-sub{font-size:11px;color:var(--text2);margin-top:1px;display:flex;gap:8px;flex-wrap:wrap}
+.stg-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap}
+.stg-badge-pending{background:rgba(148,163,184,.15);color:#94a3b8}
+.stg-badge-active{background:rgba(99,102,241,.15);color:#6366f1}
+.stg-badge-completed{background:rgba(16,185,129,.15);color:#10b981}
+.stg-badge-skipped{background:rgba(245,158,11,.15);color:#f59e0b}
+.stg-cost{font-size:13px;font-weight:800;white-space:nowrap}
+.stg-body{max-height:0;overflow:hidden;transition:max-height .3s ease-out}
+.stg-body.open{max-height:2000px}
+.stg-body-inner{padding:0 14px 14px}
+.stg-chevron{font-size:12px;color:var(--text2);transition:transform .2s;flex-shrink:0}
+.stg-body.open ~ .stg-head .stg-chevron{transform:rotate(180deg)}
+
+/* Checklist */
+.stg-cl{margin-bottom:10px}
+.stg-cl-item{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;cursor:pointer;user-select:none}
+.stg-cl-item.done{text-decoration:line-through;opacity:.55}
+.stg-cl-box{width:20px;height:20px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.stg-cl-item.done .stg-cl-box{background:var(--accent);border-color:var(--accent);color:#fff}
+
+/* Stage expenses */
+.stg-expenses{border-top:1px solid var(--border);padding-top:8px;margin-top:8px}
+.stg-exp-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0;color:var(--text2)}
+.stg-exp-row .amount{font-weight:700;color:var(--danger);margin-left:auto;white-space:nowrap}
+.stg-exp-total{font-weight:800;font-size:13px;color:var(--danger);padding-top:4px}
+
+/* Stage actions */
+.stg-acts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.stg-acts .ce-btn{font-size:11px;padding:6px 12px;min-height:34px}
+
+/* Reorder */
+.stg-reorder{display:flex;flex-direction:column;gap:2px;margin-left:4px;flex-shrink:0}
+.stg-reorder button{background:none;border:none;color:var(--text2);cursor:pointer;font-size:10px;padding:0;line-height:1}
+.stg-reorder button:hover{color:var(--accent)}
+
+/* Add stage */
+.stg-add{border:2px dashed var(--border);border-radius:14px;padding:14px;text-align:center;cursor:pointer;color:var(--text2);transition:border-color .2s}
+.stg-add:hover{border-color:var(--accent);color:var(--accent)}
+.stg-add-form{display:none;text-align:left}
+.stg-add-form.show{display:block}
+
+/* Icon/color pickers */
+.icon-pick{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0}
+.icon-pick span{font-size:20px;cursor:pointer;padding:4px;border-radius:8px;border:2px solid transparent}
+.icon-pick span.sel{border-color:var(--accent);background:rgba(16,185,129,.1)}
+.color-pick{display:flex;gap:6px;margin:8px 0}
+.color-pick span{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent}
+.color-pick span.sel{border-color:var(--text);box-shadow:0 0 0 2px var(--card)}
+
+/* Checklist builder */
+.cl-builder{margin:8px 0}
+.cl-builder input{width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:12px;margin-bottom:4px}
+.cl-add-btn{font-size:11px;color:var(--accent);cursor:pointer;padding:4px 0}
+
+/* Permissions */
+.perm-card{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:6px}
+.perm-card .perm-name{font-weight:600;font-size:13px;flex:1}
+.perm-card .perm-role{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+.perm-del{background:none;border:none;color:var(--danger);cursor:pointer;font-size:14px;padding:4px}
+
+/* XP Toast */
+@keyframes xpSlideIn{from{transform:translateY(-20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.xp-toast{position:fixed;top:20px;right:20px;z-index:9999;padding:12px 20px;border-radius:12px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-weight:700;font-size:14px;box-shadow:0 4px 20px rgba(99,102,241,.4);animation:xpSlideIn .3s ease-out;display:flex;gap:12px;align-items:center}
+</style>
+
+<!-- HEADER -->
+<div class="od-header">
+    <a href="{% url 'client_erp:orders' order.owner.username %}" style="color:var(--text2);font-size:13px"><i class="fas fa-arrow-left mr-1"></i>Orqaga</a>
+    <h2 class="od-title">{{ order.title }}</h2>
+    <div class="od-meta">
+        {% if is_owner or user_role == 'manager' %}
+        <select id="od-status" onchange="odUpdateStatus()" style="padding:3px 8px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid var(--border);background:var(--card);color:var(--text)">
+            {% for val, label in order.STATUS_CHOICES %}
+            <option value="{{ val }}" {% if order.status == val %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        {% else %}
+        <span class="stg-badge stg-badge-{% if order.status == 'new' %}pending{% elif order.status == 'delivered' %}completed{% elif order.status == 'cancelled' %}skipped{% else %}active{% endif %}">{{ order.get_status_display }}</span>
+        {% endif %}
+        {% if order.customer %}<span><i class="fas fa-user"></i>{{ order.customer.full_name }}</span>{% endif %}
+        <span><i class="fas fa-calendar"></i>{{ order.created_at|date:"d.m.Y" }}</span>
+        {% if mc_code %}<span style="font-weight:700;color:var(--accent2)"><i class="fas fa-industry"></i>#{{ mc_code }}</span>{% endif %}
+        {% if not is_owner %}<span style="font-weight:600;color:#6366f1"><i class="fas fa-share-alt"></i>{{ order.owner.full_name }}</span>{% endif %}
+    </div>
+</div>
+
+<!-- PROGRESS -->
+{% if stages %}
+<div class="od-progress">
+    <div class="od-progress-bar"><div class="od-progress-fill" style="width:{{ order.overall_progress }}%"></div></div>
+    <div class="od-progress-text">
+        <span>{{ order.overall_progress }}% tugallangan</span>
+        {% with done=order.stages.all|length %}
+        <span>{{ stages|length }} etap</span>
+        {% endwith %}
+    </div>
+</div>
+{% endif %}
+
+<!-- MOLIYA XULOSA -->
+<div class="ce-stats" style="margin-bottom:16px">
+    <div class="ce-stat">
+        <div class="ce-stat-value" style="color:var(--accent)">{{ order.total_income|floatformat:"0"|intcomma }}</div>
+        <div class="ce-stat-label">💰 Kirim</div>
+    </div>
+    <div class="ce-stat">
+        <div class="ce-stat-value" style="color:var(--danger)">{{ order.total_expense|floatformat:"0"|intcomma }}</div>
+        <div class="ce-stat-label">📤 Chiqim</div>
+    </div>
+    <div class="ce-stat">
+        <div class="ce-stat-value" style="color:{% if order.profit >= 0 %}var(--accent){% else %}var(--danger){% endif %}">{{ order.profit|floatformat:"0"|intcomma }}</div>
+        <div class="ce-stat-label">📊 Foyda</div>
+    </div>
+    <div class="ce-stat">
+        <div class="ce-stat-value">{{ order.payment_percent }}%</div>
+        <div class="ce-stat-label">To'langan</div>
+    </div>
+</div>
+
+<!-- To'lov progress -->
+{% if order.estimated_price or order.final_price %}
+<div style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px">
+        <span>To'langan</span>
+        <span>{{ order.total_income|floatformat:"0"|intcomma }} / {{ order.final_price|default:order.estimated_price|floatformat:"0"|intcomma }} UZS</span>
+    </div>
+    <div style="background:var(--border);border-radius:6px;height:8px;overflow:hidden">
+        <div style="background:var(--accent);height:100%;border-radius:6px;width:{{ order.payment_percent }}%;transition:width .5s"></div>
+    </div>
+</div>
+{% endif %}
+
+<!-- TUGMALAR -->
+<div class="od-actions">
+    {% if is_owner or user_role == 'manager' or user_permission.can_add_expense %}
+    <button class="ce-btn" onclick="odOpenModal('income')" style="background:var(--accent);color:#fff">💰 Kirim</button>
+    <button class="ce-btn" onclick="odOpenModal('expense')" style="background:var(--danger);color:#fff">📤 Chiqim</button>
+    {% endif %}
+    {% if is_owner or user_role == 'manager' %}
+        {% if not order.mebelcity_order_id %}
+        <button class="ce-btn" onclick="odSendToMebelCity()" style="background:#6366f1;color:#fff">🏢 MC yuborish</button>
+        {% else %}
+        <a href="/order/{{ mc_code }}/" target="_blank" class="ce-btn" style="background:#059669;color:#fff;text-decoration:none">🏢 MC ko'rish</a>
+        {% endif %}
+    {% endif %}
+</div>
+
+<!-- ═══ ETAPLAR ═══ -->
+<h3 class="ce-section-title"><i class="fas fa-layer-group" style="color:var(--accent2)"></i> Etaplar</h3>
+
+{% for s in stages %}
+<div class="stg-card {% if s.status == 'active' %}stg-active{% elif s.status == 'completed' %}stg-completed{% elif s.status == 'skipped' %}stg-skipped{% endif %} {% if s.is_mebelcity %}stg-mc{% endif %}" id="stg-{{ s.id }}">
+    <div class="stg-head" onclick="stgToggle({{ s.id }})">
+        <div class="stg-icon">{% if s.status == 'completed' %}✅{% elif s.status == 'skipped' %}⏭️{% elif s.status == 'active' %}🔄{% else %}⏳{% endif %}</div>
+        <div class="stg-info">
+            <div class="stg-title">{{ s.sort_order }}. {{ s.title }}</div>
+            <div class="stg-sub">
+                <span class="stg-badge stg-badge-{{ s.status }}">{{ s.get_status_display }}</span>
+                {% if s.assigned_to %}<span>👤 {{ s.assigned_to.full_name }}</span>{% endif %}
+                {% if s.deadline %}<span>📅 {{ s.deadline|date:"d.m" }}</span>{% endif %}
+            </div>
+        </div>
+        {% if s.total_expense %}
+        <div class="stg-cost" style="color:var(--danger)">{{ s.total_expense|floatformat:"0"|intcomma }}</div>
+        {% endif %}
+        {% if is_owner or user_role == 'manager' %}
+        <div class="stg-reorder" onclick="event.stopPropagation()">
+            <button onclick="stgReorder({{ s.id }},'up')" title="Yuqoriga"><i class="fas fa-chevron-up"></i></button>
+            <button onclick="stgReorder({{ s.id }},'down')" title="Pastga"><i class="fas fa-chevron-down"></i></button>
+        </div>
+        {% endif %}
+        <div class="stg-chevron"><i class="fas fa-chevron-down"></i></div>
+    </div>
+    <div class="stg-body{% if s.status == 'active' %} open{% endif %}" id="stg-body-{{ s.id }}">
+        <div class="stg-body-inner">
+            <!-- Checklist -->
+            {% if s.checklist.all %}
+            <div class="stg-cl">
+                {% for item in s.checklist.all %}
+                <div class="stg-cl-item {% if item.is_done %}done{% endif %}"
+                     {% if user_role != 'viewer' %}onclick="stgCheck({{ s.id }},{{ item.id }})"{% endif %}>
+                    <div class="stg-cl-box">{% if item.is_done %}<i class="fas fa-check" style="font-size:11px"></i>{% endif %}</div>
+                    <span>{{ item.title }}</span>
+                    {% if item.done_by %}<span style="font-size:10px;color:var(--text2);margin-left:auto">{{ item.done_by.full_name }}</span>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- MebelCity maxsus -->
+            {% if s.is_mebelcity %}
+            <div style="padding:10px;border-radius:10px;background:rgba(99,102,241,.06);margin-bottom:10px">
+                {% if order.mebelcity_order_id %}
+                <div style="font-size:13px;font-weight:700;color:#6366f1">🏢 MebelCity: #{{ mc_code }}</div>
+                <div style="font-size:12px;color:var(--text2);margin-top:2px">Holat: {{ order.get_status_display }}</div>
+                <a href="/order/{{ mc_code }}/" target="_blank" style="font-size:12px;color:var(--accent)">Buyurtmani ko'rish →</a>
+                {% else %}
+                <div style="font-size:12px;color:var(--text2);margin-bottom:6px">MebelCity'ga hali yuborilmagan</div>
+                {% if is_owner or user_role == 'manager' %}
+                <button class="ce-btn" onclick="odSendToMebelCity()" style="background:#6366f1;color:#fff;font-size:11px;padding:6px 12px">🏢 MebelCity'ga yuborish</button>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Stage expenses -->
+            {% with stage_expenses=s.expenses.all %}
+            {% if stage_expenses %}
+            <div class="stg-expenses">
+                <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px">📤 Chiqimlar</div>
+                {% for e in stage_expenses %}
+                {% if not e.is_deleted %}
+                <div class="stg-exp-row">
+                    <span>{{ e.description|default:e.get_category_display }}</span>
+                    <span style="font-size:10px">{{ e.date|date:"d.m" }}</span>
+                    <span class="amount">-{{ e.amount|floatformat:"0"|intcomma }}</span>
+                </div>
+                {% endif %}
+                {% endfor %}
+                <div class="stg-exp-total">Jami: {{ s.total_expense|floatformat:"0"|intcomma }} so'm</div>
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- Note -->
+            {% if s.note %}
+            <div style="margin-top:8px;font-size:12px;color:var(--text2);padding:6px 10px;background:rgba(0,0,0,.03);border-radius:8px">
+                📝 {{ s.note }}
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            {% if user_role != 'viewer' %}
+            <div class="stg-acts">
+                {% if s.status == 'active' or s.status == 'pending' %}
+                    {% if is_owner or user_role == 'manager' or user_permission.can_add_expense %}
+                    <button class="ce-btn" onclick="odOpenModal('expense',{{ s.id }})" style="background:var(--danger);color:#fff">📤 +Chiqim</button>
+                    {% endif %}
+                    {% if is_owner or user_role == 'manager' %}
+                    <button class="ce-btn" onclick="stgSkip({{ s.id }})" style="background:#f59e0b;color:#fff">⏭️ O'tkazish</button>
+                    {% endif %}
+                    {% if s.status == 'active' %}
+                    <button class="ce-btn" onclick="stgComplete({{ s.id }})" style="background:var(--accent);color:#fff">✅ Tugatish</button>
+                    {% endif %}
+                {% endif %}
+                {% if is_owner or user_role == 'manager' %}
+                <button class="ce-btn" onclick="stgDelete({{ s.id }})" style="background:transparent;color:var(--danger);border:1px solid var(--danger)">🗑</button>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% empty %}
+<div class="ce-card" style="text-align:center;color:var(--text2);padding:30px">
+    <i class="fas fa-layer-group" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px"></i>
+    Etaplar hali qo'shilmagan
+</div>
+{% endfor %}
+
+<!-- ETAP QO'SHISH -->
+{% if is_owner or user_role == 'manager' %}
+<div style="margin-bottom:20px">
+    <div class="stg-add" id="stg-add-btn" onclick="stgShowAdd()">
+        <i class="fas fa-plus" style="margin-right:6px"></i> Etap qo'shish
+    </div>
+    <div class="stg-add-form" id="stg-add-form">
+        <div class="ce-card" style="padding:16px">
+            <div style="font-weight:700;font-size:15px;margin-bottom:12px">Yangi etap</div>
+            <input class="ce-input" id="sa-title" placeholder="Etap nomi *" style="margin-bottom:8px">
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Icon</div>
+            <div class="icon-pick" id="sa-icons">
+                <span onclick="saPickIcon(this)" data-v="📐">📐</span>
+                <span onclick="saPickIcon(this)" data-v="✂️">✂️</span>
+                <span onclick="saPickIcon(this)" data-v="🔨">🔨</span>
+                <span onclick="saPickIcon(this)" data-v="🪚">🪚</span>
+                <span onclick="saPickIcon(this)" data-v="🎨">🎨</span>
+                <span onclick="saPickIcon(this)" data-v="🚛">🚛</span>
+                <span onclick="saPickIcon(this)" data-v="🏢">🏢</span>
+                <span onclick="saPickIcon(this)" data-v="📦">📦</span>
+                <span onclick="saPickIcon(this)" data-v="🧱">🧱</span>
+                <span class="sel" onclick="saPickIcon(this)" data-v="📋">📋</span>
+            </div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Rang</div>
+            <div class="color-pick" id="sa-colors">
+                <span class="sel" onclick="saPickColor(this)" data-v="#6366f1" style="background:#6366f1"></span>
+                <span onclick="saPickColor(this)" data-v="#10b981" style="background:#10b981"></span>
+                <span onclick="saPickColor(this)" data-v="#ef4444" style="background:#ef4444"></span>
+                <span onclick="saPickColor(this)" data-v="#f59e0b" style="background:#f59e0b"></span>
+                <span onclick="saPickColor(this)" data-v="#8b5cf6" style="background:#8b5cf6"></span>
+                <span onclick="saPickColor(this)" data-v="#3b82f6" style="background:#3b82f6"></span>
+            </div>
+            <div style="margin-bottom:8px">
+                <label style="font-size:12px;display:flex;align-items:center;gap:6px;cursor:pointer">
+                    <input type="checkbox" id="sa-mc"> MebelCity etap
+                </label>
+            </div>
+            <div style="font-size:11px;color:var(--text2);margin-bottom:4px">Checklist</div>
+            <div class="cl-builder" id="sa-checklist">
+                <input placeholder="Checklist element..." onkeydown="if(event.key==='Enter'){saAddCl();event.preventDefault()}">
+            </div>
+            <div class="cl-add-btn" onclick="saAddCl()">+ Yana qo'shish</div>
+            <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+                <button class="ce-btn ce-btn-secondary" onclick="stgHideAdd()">Bekor</button>
+                <button class="ce-btn" style="background:var(--accent);color:#fff" onclick="stgSaveNew()">Saqlash</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shablon -->
+    {% if stage_templates %}
+    <div style="margin-top:8px;text-align:center">
+        <select id="tmpl-select" style="padding:6px 12px;border-radius:8px;font-size:12px;border:1px solid var(--border);background:var(--card);color:var(--text)">
+            <option value="">📋 Shablondan qo'shish...</option>
+            {% for t in stage_templates %}
+            <option value="{{ t.id }}">{{ t.name }} ({{ t.items.count }} etap)</option>
+            {% endfor %}
+        </select>
+        <button class="ce-btn" onclick="applyTmpl()" style="font-size:11px;padding:6px 12px;background:var(--accent2);color:#fff;margin-left:4px">Qo'llash</button>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- ═══ RUXSATLAR ═══ -->
+{% if is_owner %}
+<div style="margin-bottom:20px">
+    <h3 class="ce-section-title"><i class="fas fa-user-shield" style="color:#6366f1"></i> Ruxsatlar</h3>
+    {% for p in permissions %}
+    <div class="ce-card perm-card">
+        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(99,102,241,.05));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px">👤</div>
+        <div class="perm-name">{{ p.user.full_name }}</div>
+        <span class="perm-role" style="background:{% if p.role == 'manager' %}rgba(16,185,129,.15);color:#10b981{% elif p.role == 'worker' %}rgba(99,102,241,.15);color:#6366f1{% else %}rgba(148,163,184,.15);color:#94a3b8{% endif %}">{{ p.get_role_display }}</span>
+        <button class="perm-del" onclick="permDel({{ p.id }})"><i class="fas fa-trash"></i></button>
+    </div>
+    {% empty %}
+    <div style="font-size:12px;color:var(--text2);padding:8px 0">Hali hech kimga ruxsat berilmagan</div>
+    {% endfor %}
+    <button class="ce-btn" onclick="permOpen()" style="font-size:12px;padding:8px 14px;background:var(--accent2);color:#fff;margin-top:6px"><i class="fas fa-plus mr-1"></i> Ruxsat berish</button>
+</div>
+{% endif %}
+
+<!-- ═══ TRANZAKSIYALAR ═══ -->
+<h3 class="ce-section-title"><i class="fas fa-exchange-alt" style="color:var(--accent2)"></i> Tranzaksiyalar</h3>
+{% if transactions %}
+{% for r in transactions %}
+<div class="ce-card" style="margin-bottom:6px;display:flex;align-items:center;gap:12px;padding:10px 14px">
+    <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:{% if r.record_type == 'income' %}rgba(16,185,129,.1){% else %}rgba(239,68,68,.1){% endif %}">
+        {% if r.record_type == 'income' %}💰{% else %}📤{% endif %}
+    </div>
+    <div style="flex:1;min-width:0">
+        <div style="font-weight:600;font-size:13px">{{ r.description|default:r.get_record_type_display }}</div>
+        <div style="font-size:11px;color:var(--text2)">{{ r.date|date:"d.m.Y" }}{% if r.category %} · {{ r.get_category_display }}{% endif %}{% if r.stage %} · {{ r.stage.title }}{% endif %}</div>
+    </div>
+    <div style="font-weight:800;font-size:14px;white-space:nowrap;color:{% if r.record_type == 'income' %}var(--accent){% else %}var(--danger){% endif %}">
+        {% if r.record_type == 'income' %}+{% else %}-{% endif %}{{ r.amount|floatformat:"0"|intcomma }}
+    </div>
+</div>
+{% endfor %}
+{% else %}
+<div class="ce-card" style="text-align:center;color:var(--text2);padding:30px">Tranzaksiya yo'q</div>
+{% endif %}
+
+<!-- ═══ TIMELINE ═══ -->
+<h3 class="ce-section-title" style="margin-top:20px"><i class="fas fa-history" style="color:var(--accent2)"></i> Tarix</h3>
+{% for t in timeline %}
+<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+    <div style="width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:6px;flex-shrink:0"></div>
+    <div><div style="font-weight:600">{{ t.action }}</div><div style="color:var(--text2);font-size:11px">{{ t.created_at|date:"d.m.Y H:i" }}</div></div>
+</div>
+{% empty %}<div style="color:var(--text2);font-size:13px;padding:12px">Tarix yo'q</div>{% endfor %}
+
+<!-- ═══ MODALLAR ═══ -->
+<!-- Kirim/Chiqim modal -->
+<div class="ce-modal" id="od-modal-bg" onclick="if(event.target===this)odCloseModal()">
+    <div class="ce-modal-box">
+        <div class="ce-modal-head" id="od-modal-head">
+            <span id="od-modal-title">Modal</span>
+            <button class="close" onclick="odCloseModal()">&times;</button>
+        </div>
+        <div id="od-modal-body"></div>
+        <div class="ce-modal-foot">
+            <button class="ce-btn ce-btn-secondary" onclick="odCloseModal()">Bekor</button>
+            <button class="ce-btn" id="od-modal-save" style="background:var(--accent);color:#fff">Saqlash</button>
+        </div>
+    </div>
+</div>
+
+<!-- Ruxsat modal -->
+{% if is_owner %}
+<div class="ce-modal" id="perm-modal" onclick="if(event.target===this)this.classList.remove('show')">
+    <div class="ce-modal-box">
+        <div class="ce-modal-head" style="background:linear-gradient(135deg,#6366f1,#8b5cf6)">
+            <span>👤 Ruxsat berish</span>
+            <button class="close" onclick="document.getElementById('perm-modal').classList.remove('show')">&times;</button>
+        </div>
+        <div style="padding:16px">
+            <div class="ce-field">
+                <label>Foydalanuvchi qidirish</label>
+                <input class="ce-input" id="perm-search" placeholder="Ism yoki telefon..." oninput="permSearch(this.value)">
+                <div id="perm-results" style="max-height:150px;overflow-y:auto;margin-top:4px"></div>
+                <input type="hidden" id="perm-user-id">
+            </div>
+            <div class="ce-field">
+                <label>Rol</label>
+                <select class="ce-input" id="perm-role">
+                    <option value="viewer">👁 Ko'ruvchi</option>
+                    <option value="worker" selected>🔧 Ishchi</option>
+                    <option value="manager">⚙️ Menejer</option>
+                </select>
+            </div>
+            <div class="ce-field">
+                <label>Etaplar</label>
+                <div id="perm-stages">
+                    {% for s in stages %}
+                    <label style="display:flex;align-items:center;gap:6px;font-size:12px;padding:2px 0;cursor:pointer">
+                        <input type="checkbox" class="perm-stg-cb" value="{{ s.id }}"> {{ s.sort_order }}. {{ s.title }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <div style="font-size:10px;color:var(--text2);margin-top:2px">Bo'sh = barcha etaplarga ruxsat</div>
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;margin-bottom:12px">
+                <input type="checkbox" id="perm-expense"> Chiqim qo'shish huquqi
+            </label>
+        </div>
+        <div class="ce-modal-foot">
+            <button class="ce-btn ce-btn-secondary" onclick="document.getElementById('perm-modal').classList.remove('show')">Bekor</button>
+            <button class="ce-btn" style="background:#6366f1;color:#fff" onclick="permSave()">Saqlash</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div style="height:80px"></div>
+
+<script>
+const CSRF='{{ csrf_token }}';
+const ORDER_ID={{ order.id }};
+const OWNER_USER='{{ order.owner.username }}';
+const BASE='/mini/'+OWNER_USER+'/orders/'+ORDER_ID;
+const USER_ROLE='{{ user_role }}';
+
+function api(url,body,method='POST'){
+    return fetch(url,{method,credentials:'include',headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},body:body?JSON.stringify(body):undefined}).then(r=>r.json());
+}
+
+// ── Status ──
+function odUpdateStatus(){
+    api(BASE+'/update/',{status:document.getElementById('od-status').value}).then(()=>location.reload());
+}
+
+// ── Stage accordion ──
+function stgToggle(id){
+    const b=document.getElementById('stg-body-'+id);
+    b.classList.toggle('open');
+}
+
+// ── Checklist ──
+function stgCheck(stageId,itemId){
+    api(BASE+'/stages/'+stageId+'/check/',{item_id:itemId}).then(d=>{
+        if(d.ok) location.reload();
+    });
+}
+
+// ── Stage complete ──
+function stgComplete(stageId){
+    if(!confirm('Bu etapni tugatasizmi?')) return;
+    api(BASE+'/stages/'+stageId+'/complete/',{}).then(d=>{
+        if(d.ok){
+            showXpToast(d.xp_gained,d.coins_gained);
+            setTimeout(()=>location.reload(),800);
+        } else {
+            alert(d.error||'Xatolik');
+        }
+    });
+}
+
+// ── Stage skip ──
+function stgSkip(stageId){
+    if(!confirm('Bu etapni o\'tkazib yuborasizmi?')) return;
+    api(BASE+'/stages/'+stageId+'/skip/',{}).then(d=>{if(d.ok) location.reload();});
+}
+
+// ── Stage delete ──
+function stgDelete(stageId){
+    if(!confirm('Bu etapni o\'chirasizmi?')) return;
+    api(BASE+'/stages/'+stageId+'/delete/',{}).then(d=>{if(d.ok) location.reload();});
+}
+
+// ── Stage reorder ──
+function stgReorder(stageId, dir){
+    const cards=[...document.querySelectorAll('.stg-card')];
+    const ids=cards.map(c=>parseInt(c.id.replace('stg-','')));
+    const idx=ids.indexOf(stageId);
+    if(dir==='up'&&idx>0){[ids[idx],ids[idx-1]]=[ids[idx-1],ids[idx]];}
+    else if(dir==='down'&&idx<ids.length-1){[ids[idx],ids[idx+1]]=[ids[idx+1],ids[idx]];}
+    else return;
+    api(BASE+'/stages/reorder/',{order:ids}).then(d=>{if(d.ok) location.reload();});
+}
+
+// ── Add stage ──
+let saIcon='📋', saColor='#6366f1';
+
+function stgShowAdd(){
+    document.getElementById('stg-add-btn').style.display='none';
+    document.getElementById('stg-add-form').classList.add('show');
+    document.getElementById('sa-title').focus();
+}
+function stgHideAdd(){
+    document.getElementById('stg-add-btn').style.display='';
+    document.getElementById('stg-add-form').classList.remove('show');
+}
+function saPickIcon(el){
+    document.querySelectorAll('#sa-icons span').forEach(s=>s.classList.remove('sel'));
+    el.classList.add('sel');
+    saIcon=el.dataset.v;
+}
+function saPickColor(el){
+    document.querySelectorAll('#sa-colors span').forEach(s=>s.classList.remove('sel'));
+    el.classList.add('sel');
+    saColor=el.dataset.v;
+}
+function saAddCl(){
+    const div=document.getElementById('sa-checklist');
+    const inp=document.createElement('input');
+    inp.placeholder='Checklist element...';
+    inp.onkeydown=e=>{if(e.key==='Enter'){saAddCl();e.preventDefault();}};
+    div.appendChild(inp);
+    inp.focus();
+}
+function stgSaveNew(){
+    const title=document.getElementById('sa-title').value.trim();
+    if(!title){alert('Nomi kerak');return;}
+    const checklist=[];
+    document.querySelectorAll('#sa-checklist input').forEach(inp=>{
+        if(inp.value.trim()) checklist.push(inp.value.trim());
+    });
+    api(BASE+'/stages/create/',{
+        title, icon:saIcon, color:saColor,
+        is_mebelcity:document.getElementById('sa-mc').checked,
+        checklist
+    }).then(d=>{if(d.ok) location.reload(); else alert(d.error);});
+}
+
+// ── Template apply ──
+function applyTmpl(){
+    const sel=document.getElementById('tmpl-select');
+    if(!sel.value) return;
+    if(!confirm('Shablon etaplari qo\'shiladi. Davom etasizmi?')) return;
+    api('/mini/{{ user.username }}/stages/templates/'+sel.value+'/apply/'+ORDER_ID+'/',{}).then(d=>{
+        if(d.ok) location.reload();
+    });
+}
+
+// ── Kirim/Chiqim modal ──
+let currentStageId=null;
+function odOpenModal(type, stageId){
+    currentStageId=stageId||null;
+    const bg=document.getElementById('od-modal-bg');
+    const head=document.getElementById('od-modal-head');
+    const title=document.getElementById('od-modal-title');
+    const body=document.getElementById('od-modal-body');
+    const save=document.getElementById('od-modal-save');
+    const today=new Date().toISOString().slice(0,10);
+
+    if(type==='income'){
+        head.style.background='linear-gradient(135deg,#059669,#10b981)';
+        title.textContent='💰 Kirim qo\'shish';
+        save.style.background='linear-gradient(135deg,#059669,#10b981)';
+        body.innerHTML=`
+            <div class="ce-field"><label>Summa *</label><input type="number" id="od-amount" placeholder="Summani kiriting" min="1"></div>
+            <div class="ce-field"><label>To'lov usuli</label><select id="od-method"><option value="cash">💵 Naqd</option><option value="card">💳 Karta</option><option value="transfer">🏦 O'tkazma</option></select></div>
+            <div class="ce-field"><label>Izoh</label><input type="text" id="od-desc" placeholder="Avans, qoldiq to'lov..."></div>
+            <div class="ce-field"><label>Sana</label><input type="date" id="od-date" value="${today}"></div>`;
+        save.onclick=()=>{
+            const amount=document.getElementById('od-amount').value;
+            if(!amount||amount<=0){alert('Summa kiriting');return;}
+            api(BASE+'/income/',{amount,payment_method:document.getElementById('od-method').value,description:document.getElementById('od-desc').value,date:document.getElementById('od-date').value}).then(d=>{if(d.ok)location.reload();else alert(d.error);});
+        };
+    } else {
+        head.style.background='linear-gradient(135deg,#dc2626,#ef4444)';
+        title.textContent='📤 Chiqim qo\'shish';
+        save.style.background='linear-gradient(135deg,#dc2626,#ef4444)';
+        let stageOpts='<option value="">— Umumiy —</option>';
+        {% for s in stages %}stageOpts+='<option value="{{ s.id }}"'+(currentStageId=={{ s.id }}?' selected':'')+'>{{ s.sort_order }}. {{ s.title }}</option>';
+        {% endfor %}
+        body.innerHTML=`
+            <div class="ce-field"><label>Etap</label><select id="od-stage">${stageOpts}</select></div>
+            <div class="ce-field"><label>Kategoriya</label><select id="od-cat"><option value="material">🧱 Material</option><option value="service">🔧 Xizmat</option><option value="mebelcity">🏢 MebelCity</option><option value="transport">🚛 Transport</option><option value="furniture">🪑 Furnitura</option><option value="other">📦 Boshqa</option></select></div>
+            <div class="ce-field"><label>Summa *</label><input type="number" id="od-amount" placeholder="Summani kiriting" min="1"></div>
+            <div class="ce-field"><label>Izoh *</label><input type="text" id="od-desc" placeholder="ЛДСП sotib olish..."></div>
+            <div class="ce-field"><label>Sana</label><input type="date" id="od-date" value="${today}"></div>`;
+        save.onclick=()=>{
+            const amount=document.getElementById('od-amount').value;
+            if(!amount||amount<=0){alert('Summa kiriting');return;}
+            api(BASE+'/expense/',{
+                amount,
+                stage_id:document.getElementById('od-stage').value||null,
+                category:document.getElementById('od-cat').value,
+                description:document.getElementById('od-desc').value,
+                date:document.getElementById('od-date').value
+            }).then(d=>{if(d.ok)location.reload();else alert(d.error);});
+        };
+    }
+    bg.classList.add('show');
+    setTimeout(()=>{const a=document.getElementById('od-amount');if(a)a.focus();},100);
+}
+function odCloseModal(){document.getElementById('od-modal-bg').classList.remove('show');}
+
+// ── MebelCity ──
+function odSendToMebelCity(){
+    if(!confirm('Bu buyurtmani MebelCity\'ga o\'tkazasizmi?')) return;
+    api(BASE+'/send-mebelcity/',{}).then(d=>{
+        if(d.ok){alert('✅ MebelCity\'ga o\'tkazildi!\nBuyurtma: '+d.order_code);location.reload();}
+        else alert(d.error||'Xatolik');
+    });
+}
+
+// ── Permissions ──
+function permOpen(){document.getElementById('perm-modal').classList.add('show');}
+let _permTimer;
+function permSearch(q){
+    clearTimeout(_permTimer);
+    if(q.length<2){document.getElementById('perm-results').innerHTML='';return;}
+    _permTimer=setTimeout(()=>{
+        fetch('/mini/{{ user.username }}/users/search/?q='+encodeURIComponent(q),{credentials:'include'})
+            .then(r=>r.json()).then(d=>{
+                const box=document.getElementById('perm-results');
+                if(!d.users||!d.users.length){box.innerHTML='<div style="font-size:11px;color:var(--text2);padding:4px">Topilmadi</div>';return;}
+                box.innerHTML=d.users.map(u=>
+                    `<div onclick="permSelectUser(${u.id},'${u.name.replace(/'/g,"\\'")}')" style="padding:6px 8px;cursor:pointer;font-size:12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between" onmouseover="this.style.background='rgba(99,102,241,.06)'" onmouseout="this.style.background=''">
+                        <span style="font-weight:600">${u.name}</span>
+                        <span style="color:var(--text2)">${u.phone||''}</span>
+                    </div>`
+                ).join('');
+            });
+    },300);
+}
+function permSelectUser(id,name){
+    document.getElementById('perm-user-id').value=id;
+    document.getElementById('perm-search').value=name;
+    document.getElementById('perm-results').innerHTML='';
+}
+function permSave(){
+    const userId=document.getElementById('perm-user-id').value;
+    if(!userId){alert('Foydalanuvchi tanlang');return;}
+    const stageIds=[];
+    document.querySelectorAll('.perm-stg-cb:checked').forEach(cb=>stageIds.push(parseInt(cb.value)));
+    api(BASE+'/permissions/save/',{
+        user_id:parseInt(userId),
+        role:document.getElementById('perm-role').value,
+        stage_ids:stageIds,
+        can_add_expense:document.getElementById('perm-expense').checked,
+    }).then(d=>{
+        if(d.ok) location.reload();
+        else alert(d.error||'Xatolik');
+    });
+}
+function permDel(permId){
+    if(!confirm('Ruxsatni olib tashaysizmi?')) return;
+    api(BASE+'/permissions/'+permId+'/delete/',{}).then(d=>{if(d.ok) location.reload();});
+}
+
+// ── XP Toast ──
+function showXpToast(xp,coins){
+    if(!xp&&!coins) return;
+    const t=document.createElement('div');
+    t.className='xp-toast';
+    let txt='';
+    if(xp) txt+='+'+xp+' XP ';
+    if(coins) txt+='+'+coins+' 🪙';
+    t.textContent=txt;
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.opacity='0';t.style.transform='translateY(-20px)';t.style.transition='all .3s';setTimeout(()=>t.remove(),300);},2500);
+}
+</script>
+{% endblock %}

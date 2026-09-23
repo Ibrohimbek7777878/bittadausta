@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Nunito:wght@400;500;600;700;800;900&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<style>
+html,body{margin:0;padding:0;background:#0D0C10;color:#F5F4F7;font-family:'Plus Jakarta Sans','Inter',sans-serif;}
+*{box-sizing:border-box;}
+a{color:#DCF262;text-decoration:none;} a:hover{color:#C9E04F;}
+button{font-family:inherit;}
+input{font-family:inherit;outline:none;}
+input::placeholder{color:#84838C;}
+@keyframes coinpop{0%{transform:translateY(0) scale(.5);opacity:1}100%{transform:translateY(-110px) scale(1.4);opacity:0}}
+@keyframes sheetup{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes toastin{from{transform:translateY(-16px);opacity:0}to{transform:translateY(0);opacity:1}}
+::-webkit-scrollbar{width:0;height:0}
+button,a{transition:background-color .25s ease,color .25s ease,border-color .25s ease,box-shadow .22s ease,transform .14s cubic-bezier(.3,1.4,.5,1);}
+div,span{transition:background-color .3s ease,color .3s ease,border-color .3s ease,box-shadow .3s ease;}
+@keyframes screenin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes slidein{from{transform:translateX(-100%)}to{transform:none}}
+@keyframes bargrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes bargrowx{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@keyframes popin{0%{opacity:0;transform:scale(.6)}70%{transform:scale(1.06)}100%{opacity:1;transform:scale(1)}}
+[data-screen-label]>*{animation:screenin .38s cubic-bezier(.2,.8,.3,1) both;}
+[data-screen-label]>*:nth-child(2){animation-delay:.05s}
+[data-screen-label]>*:nth-child(3){animation-delay:.1s}
+[data-screen-label]>*:nth-child(4){animation-delay:.15s}
+[data-screen-label]>*:nth-child(5){animation-delay:.2s}
+[data-screen-label]>*:nth-child(6){animation-delay:.25s}
+[data-screen-label]>*:nth-child(7){animation-delay:.3s}
+[data-screen-label]>*:nth-child(n+8){animation-delay:.35s}
+@keyframes growV{from{height:0}}
+@keyframes growH{from{width:0}}
+@keyframes popin{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:none}}
+@keyframes donutin{from{opacity:0;transform:scale(.6) rotate(-80deg)}to{opacity:1;transform:none}}
+@keyframes topin{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:none}}
+@keyframes navup{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fabbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+</style>
+</helmet>
+
+<div ref="{{ rootRef }}" style="{{ rootStyle }}">
+
+  <!-- Prototip boshqaruvi -->
+  <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding:16px 16px 8px;">
+    <button style-active="transform:scale(.94);" onClick="{{ setMobile }}" style="{{ mobBtnStyle }}"><i class="fas fa-mobile-alt"></i> Mobil</button>
+    <button style-active="transform:scale(.94);" onClick="{{ setDesktop }}" style="{{ deskBtnStyle }}"><i class="fas fa-desktop"></i> Desktop</button>
+    <button style-active="transform:scale(.94);" onClick="{{ toggleTheme }}" style="{{ themeBtnStyle }}">{{ themeLabel }}</button>
+  </div>
+
+  <!-- Ilova qobig'i -->
+  <div style="{{ shellStyle }}">
+
+    <!-- Desktop sidebar -->
+    <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
+      <div style="width:240px;flex:none;border-right:1px solid var(--brd,rgba(255,255,255,.08));display:flex;flex-direction:column;padding:20px 12px;gap:20px;background:var(--sfc,#1E1D24);">
+        <div style="display:flex;align-items:center;gap:10px;padding:0 8px;">
+          <div style="width:36px;height:36px;border-radius:12px;background:var(--acc,#DCF262);color:#1B1A20;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;box-shadow:var(--glows,0 4px 10px rgba(0,0,0,.3));">B</div>
+          <div>
+            <div style="font-weight:800;font-size:15px;">Bittada</div>
+            <div style="font-size:11px;color:var(--mut,#9B9AA3);">Mini ERP</div>
+          </div>
+        </div>
+        <sc-for list="{{ sideGroups }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;">
+                <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut,#9B9AA3);flex:none;">{{ g.name }}</span>
+                <div style="flex:1;height:1px;background:var(--brd,rgba(255,255,255,.08));"></div>
+              </div>
+            <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="4">
+              <button style-active="transform:scale(.94);" onClick="{{ n.go }}" style-hover="transform:translateX(3px);" style="{{ n.style }}">
+                <div style="{{ n.icStyle }}"><i class="fas {{ n.ic }}" style="font-size:12px;"></i></div>
+                <span style="flex:1;text-align:left;">{{ n.label }}</span>
+                <sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="{{ n.badgeStyle }}">{{ n.badge }}</span></sc-if>
+              </button>
+            </sc-for>
+          </div>
+        </sc-for>
+        <button style-active="transform:scale(.96);" onClick="{{ newFromMenu }}" style="margin-top:auto;height:44px;border-radius:14px;border:none;background:var(--acc,#DCF262);color:#1B1A20;font-weight:800;font-size:13px;cursor:pointer;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));flex:none;"><i class="fas fa-plus"></i> Yangi buyurtma</button>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--sfc2,#29282F);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:16px;padding:10px;">
+          <div style="width:34px;height:34px;border-radius:50%;background:var(--acc,#DCF262);color:#1B1A20;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:none;box-shadow:inset 0 -3px 6px rgba(0,0,0,.14), inset 0 2px 4px rgba(255,255,255,.45);">AK</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ userName }}</div>
+            <div style="font-size:10px;color:var(--mut,#9B9AA3);">👑 {{ vip }} · ⭐ {{ xp }} XP</div>
+          </div>
+          <button style-active="transform:scale(.94);" onClick="{{ noop }}" title="Chiqish" style="width:30px;height:30px;border-radius:10px;border:none;background:transparent;color:var(--mut,#9B9AA3);cursor:pointer;font-size:12px;"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- Asosiy ustun -->
+    <div style="flex:1;display:flex;flex-direction:column;position:relative;min-width:0;height:100%;overflow:hidden;">
+
+      <!-- Top bar -->
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;flex:none;animation:topin .45s cubic-bezier(.2,.8,.3,1) both;">
+        <sc-if value="{{ showBack }}" hint-placeholder-val="{{ false }}">
+          <button style-active="transform:scale(.94);" onClick="{{ goBack }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--brd,rgba(255,255,255,.08));background:var(--sfc,#1E1D24);color:var(--txt,#F5F4F7);cursor:pointer;font-size:14px;"><i class="fas fa-arrow-left"></i></button>
+        </sc-if>
+        <sc-if value="{{ showBurger }}" hint-placeholder-val="{{ true }}">
+          <button style-active="transform:scale(.94);" onClick="{{ openDrawer }}" style="width:38px;height:38px;border-radius:12px;border:1px solid var(--brd,rgba(255,255,255,.08));background:var(--sfc,#1E1D24);color:var(--txt,#F5F4F7);cursor:pointer;font-size:14px;"><i class="fas fa-bars"></i></button>
+        </sc-if>
+        <div style="font-weight:800;font-size:17px;flex:1;">{{ topTitle }}</div>
+        <div style="display:flex;align-items:center;gap:6px;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;">🪙 {{ coins }}</div>
+        <div onClick="{{ goSettings }}" style="width:38px;height:38px;border-radius:50%;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glows,0 4px 10px rgba(0,0,0,.3)), inset 0 -3px 6px rgba(0,0,0,.14), inset 0 2px 4px rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;cursor:pointer;">AK</div>
+      </div>
+
+      <!-- Skroll kontent -->
+      <div ref="{{ contentRef }}" style="{{ contentStyle }}">
+
+        <!-- ============ DASHBOARD ============ -->
+        <sc-if value="{{ sDash }}" hint-placeholder-val="{{ true }}">
+          <div data-screen-label="Dashboard" style="{{ screenStyle }}">
+
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:18px;display:flex;align-items:center;gap:14px;">
+              <div style="width:56px;height:56px;border-radius:50%;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glows,0 4px 10px rgba(0,0,0,.3)), inset 0 -3px 6px rgba(0,0,0,.14), inset 0 2px 4px rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;flex:none;">AK</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-weight:800;font-size:17px;">Salom, {{ userName }} 👋</div>
+                <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
+                  <span style="{{ vipChipStyle }}">👑 {{ vip }}</span>
+                  <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--sfc2,#29282F);color:var(--txt,#F5F4F7);">⭐ {{ xp }} XP</span>
+                  <sc-if value="{{ gamiOn }}" hint-placeholder-val="{{ true }}">
+                    <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--sfc2,#29282F);color:var(--txt,#F5F4F7);">🔥 {{ streak }} kun</span>
+                  </sc-if>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:10px;">
+              <sc-for list="{{ quickCards }}" as="qc" hint-placeholder-count="3">
+                <div onClick="{{ qc.go }}" style-hover="transform:translateY(-3px);" style-active="transform:scale(.96);" style="background:{{ qc.grad }};color:#1B1A20;border-radius:22px;padding:14px;cursor:pointer;box-shadow:var(--shdw2,0 14px 30px rgba(0,0,0,.4));transition:transform .15s;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;">
+                  <i class="fas {{ qc.fa }}" style="position:absolute;right:-12px;bottom:-10px;font-size:68px;color:rgba(0,0,0,.07);transform:rotate(-12deg);pointer-events:none;"></i>
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="width:36px;height:36px;border-radius:50%;background:#1B1A20;display:flex;align-items:center;justify-content:center;color:{{ qc.bg }};box-shadow:0 6px 14px rgba(0,0,0,.28);"><i class="fas {{ qc.fa }}" style="font-size:14px;"></i></div>
+                    <div style="width:26px;height:26px;border-radius:50%;border:1.5px solid rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;"><i class="fas fa-arrow-right" style="font-size:10px;transform:rotate(-45deg);"></i></div>
+                  </div>
+                  <div>
+                    <div style="font-size:30px;font-weight:800;line-height:1;">{{ qc.count }}</div>
+                    <div style="font-size:12px;font-weight:700;opacity:.72;margin-top:4px;">{{ qc.label }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+              <sc-for list="{{ dashStats }}" as="st" hint-placeholder-count="3">
+                <div style="animation:popin .4s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ st.dly }}s;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:14px;">
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);font-weight:600;">{{ st.label }}</div>
+                  <div style="font-size:19px;font-weight:800;margin-top:4px;color:{{ st.clr }};">{{ st.val }}</div>
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);margin-top:2px;">{{ st.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ showQuests }}" hint-placeholder-val="{{ true }}">
+              <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div style="font-weight:800;font-size:15px;">🎯 Kunlik topshiriqlar</div>
+                  <span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--acc,#DCF262);color:#1B1A20;">+80 XP</span>
+                </div>
+                <sc-for list="{{ quests }}" as="qu" hint-placeholder-count="3">
+                  <div onClick="{{ qu.click }}" style-active="transform:scale(.97);" style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ qu.dly }}s;transition:transform .14s cubic-bezier(.3,1.4,.5,1), background-color .3s ease;display:flex;align-items:center;gap:12px;cursor:pointer;background:var(--sfc2,#29282F);border-radius:16px;padding:12px;">
+                    <div style="width:38px;height:38px;border-radius:12px;background:var(--sfc,#1E1D24);display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;">{{ qu.ic }}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:13px;font-weight:700;">{{ qu.t }}</div>
+                      <div style="display:flex;align-items:center;gap:8px;margin-top:6px;">
+                        <div style="height:6px;border-radius:99px;background:var(--sfc,#1E1D24);overflow:hidden;flex:1;"><div style="height:100%;border-radius:99px;background:var(--acc,#DCF262);width:{{ qu.pct }}%;transition:width .5s cubic-bezier(.2,.8,.3,1);"></div></div>
+                        <span style="font-size:11px;color:var(--mut,#9B9AA3);font-weight:700;">{{ qu.progress }}</span>
+                      </div>
+                    </div>
+                    <span style="{{ qu.xpStyle }}">{{ qu.xpLabel }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:0 2px;">
+                <div style="font-weight:800;font-size:15px;">Faol buyurtmalar</div>
+                <button style-active="transform:scale(.94);" onClick="{{ goOrders }}" style="background:none;border:none;color:var(--acct,#DCF262);font-size:12px;font-weight:700;cursor:pointer;">Hammasi <i class="fas fa-arrow-right" style="font-size:10px;"></i></button>
+              </div>
+              <sc-for list="{{ activeOrders }}" as="o" hint-placeholder-count="3">
+                <div onClick="{{ o.open }}" style-hover="transform:translateY(-3px);box-shadow:var(--shdw2,0 14px 30px rgba(0,0,0,.4));" style-active="transform:scale(.98);" style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ o.dly }}s;transition:transform .16s cubic-bezier(.3,1.3,.5,1), box-shadow .2s ease, background-color .3s ease;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                    <div style="font-weight:700;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ o.name }}</div>
+                    <span style="{{ o.stStyle }}">{{ o.stLabel }}</span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-size:12px;color:var(--mut,#9B9AA3);">{{ o.client }}</span>
+                    <span style="font-size:14px;font-weight:800;">{{ o.price }} so'm</span>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="height:6px;border-radius:99px;background:var(--sfc2,#29282F);overflow:hidden;flex:1;"><div style="animation:growH .7s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ o.dly }}s;height:100%;border-radius:99px;background:var(--acc,#DCF262);width:{{ o.pct }}%;transform-origin:left;animation:bargrowx .7s cubic-bezier(.2,.8,.3,1) both;animation-delay:.25s;"></div></div>
+                    <span style="font-size:11px;font-weight:700;color:var(--mut,#9B9AA3);">{{ o.pct }}%</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="background:var(--pch,#F5A48B);color:#1B1A20;border-radius:20px;padding:16px;box-shadow:var(--shdw2,0 14px 30px rgba(0,0,0,.4));display:flex;align-items:center;gap:12px;">
+              <div style="font-size:22px;">📢</div>
+              <div style="flex:1;">
+                <div style="font-weight:800;font-size:13px;">Furnitura -15% chegirma</div>
+                <div style="font-size:12px;opacity:.75;margin-top:2px;">MebelCity do'konida 15-iyulgacha</div>
+              </div>
+              <i class="fas fa-chevron-right" style="opacity:.5;"></i>
+            </div>
+
+          </div>
+        </sc-if>
+
+        <!-- ============ BUYURTMALAR ============ -->
+        <sc-if value="{{ sOrders }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="Buyurtmalar" style="{{ screenStyle }}">
+            <div style="display:flex;gap:10px;">
+              <div style="flex:1;display:flex;align-items:center;gap:10px;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:14px;padding:0 14px;">
+                <i class="fas fa-search" style="color:var(--mut,#9B9AA3);font-size:13px;"></i>
+                <input value="{{ q }}" onChange="{{ onQ }}" placeholder="Qidiruv (nom, mijoz)..." style="flex:1;background:none;border:none;color:var(--txt,#F5F4F7);font-size:13px;padding:12px 0;min-width:0;">
+              </div>
+              <button style-active="transform:scale(.94);" onClick="{{ openCreate }}" style="height:44px;padding:0 16px;border-radius:14px;border:none;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));font-weight:800;font-size:13px;cursor:pointer;flex:none;"><i class="fas fa-plus"></i> Yangi</button>
+            </div>
+            <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 4px 16px;margin:-8px -4px -10px;">
+              <sc-for list="{{ orderTabs }}" as="t" hint-placeholder-count="5">
+                <button style-active="transform:scale(.94);" onClick="{{ t.set }}" style="{{ t.style }}">{{ t.label }} <span style="opacity:.55;">{{ t.count }}</span></button>
+              </sc-for>
+            </div>
+            <sc-for list="{{ orders }}" as="o" hint-placeholder-count="4">
+              <div onClick="{{ o.open }}" style-hover="transform:translateY(-3px);box-shadow:var(--shdw2,0 14px 30px rgba(0,0,0,.4));" style-active="transform:scale(.98);" style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ o.dly }}s;transition:transform .16s cubic-bezier(.3,1.3,.5,1), box-shadow .2s ease, background-color .3s ease;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:14px 16px;cursor:pointer;display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <div style="font-weight:700;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ o.name }}</div>
+                  <span style="{{ o.stStyle }}">{{ o.stLabel }}</span>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <span style="font-size:12px;color:var(--mut,#9B9AA3);">{{ o.client }}</span>
+                  <span style="font-size:14px;font-weight:800;">{{ o.price }} so'm</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div style="height:6px;border-radius:99px;background:var(--sfc2,#29282F);overflow:hidden;flex:1;"><div style="animation:growH .7s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ o.dly }}s;height:100%;border-radius:99px;background:var(--acc,#DCF262);width:{{ o.pct }}%;transform-origin:left;animation:bargrowx .7s cubic-bezier(.2,.8,.3,1) both;animation-delay:.25s;"></div></div>
+                  <span style="font-size:11px;font-weight:700;color:var(--mut,#9B9AA3);">{{ o.pct }}%</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--sfc2,#29282F);color:var(--mut,#9B9AA3);">{{ o.linkTxt }}</span>
+                  <span style="{{ o.zamStyle }}">{{ o.zamTxt }}</span>
+                  <span style="font-size:11px;color:var(--mut,#9B9AA3);margin-left:auto;">{{ o.time }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- ============ BUYURTMA DETALI ============ -->
+        <sc-if value="{{ sDetail }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="Buyurtma detali" style="{{ screenStyle }}">
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+                <div>
+                  <div style="font-weight:800;font-size:17px;">{{ dName }}</div>
+                  <div style="font-size:12px;color:var(--mut,#9B9AA3);margin-top:3px;"><i class="fas fa-user" style="font-size:10px;"></i> {{ dClient }} · 📞 +998 90 123 45 67</div>
+                </div>
+                <button style-active="transform:scale(.94);" onClick="{{ openStatus }}" style="{{ dStatusStyle }}">{{ dStatusLabel }} <i class="fas fa-chevron-down" style="font-size:9px;"></i></button>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="height:8px;border-radius:99px;background:var(--sfc2,#29282F);overflow:hidden;flex:1;"><div style="height:100%;border-radius:99px;background:var(--acc,#DCF262);width:{{ dPct }}%;transform-origin:left;animation:bargrowx .7s cubic-bezier(.2,.8,.3,1) both;animation-delay:.2s;"></div></div>
+                <span style="font-size:12px;font-weight:800;">{{ dPct }}%</span>
+              </div>
+              <div style="display:flex;gap:12px;font-size:11px;color:var(--mut,#9B9AA3);">
+                <span><i class="fas fa-calendar" style="font-size:10px;"></i> 12-iyun boshlangan</span>
+                <span><i class="fas fa-flag-checkered" style="font-size:10px;"></i> 25-iyul deadline</span>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 4px 16px;margin:-8px -4px -10px;">
+              <sc-for list="{{ dTabs }}" as="t" hint-placeholder-count="5">
+                <button style-active="transform:scale(.94);" onClick="{{ t.set }}" style="{{ t.style }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+
+            <sc-if value="{{ dUmumiy }}" hint-placeholder-val="{{ true }}">
+              <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+                <div style="font-weight:800;font-size:14px;">Ma'lumot</div>
+                <sc-for list="{{ dInfo }}" as="r" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;font-size:13px;">
+                    <span style="color:var(--mut,#9B9AA3);">{{ r.k }}</span>
+                    <span style="font-weight:700;">{{ r.v }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:16px;">
+                <div style="font-weight:800;font-size:14px;">📝 Eslatma</div>
+                <div style="font-size:13px;color:var(--mut,#9B9AA3);margin-top:8px;line-height:1.5;">Mijoz eshik oynasini bronza rangda so'radi. Furnitura Blum bo'lishi shart.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ dMoliya }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+                <sc-for list="{{ finCards }}" as="f" hint-placeholder-count="5">
+                  <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:14px;cursor:pointer;">
+                    <div style="font-size:11px;color:var(--mut,#9B9AA3);font-weight:600;">{{ f.label }}</div>
+                    <div style="font-size:17px;font-weight:800;margin-top:4px;color:{{ f.clr }};">{{ f.val }}</div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+                <button style-active="transform:scale(.94);" onClick="{{ openKirim }}" style="height:46px;border-radius:14px;border:none;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));font-weight:800;font-size:13px;cursor:pointer;"><i class="fas fa-plus"></i> Kirim</button>
+                <button style-active="transform:scale(.94);" onClick="{{ toastChiqim }}" style="height:46px;border-radius:14px;border:1px solid var(--brd,rgba(255,255,255,.08));background:var(--sfc,#1E1D24);color:var(--txt,#F5F4F7);font-weight:700;font-size:13px;cursor:pointer;"><i class="fas fa-minus"></i> Chiqim</button>
+                <button style-active="transform:scale(.94);" onClick="{{ toastShartnoma }}" style="height:46px;border-radius:14px;border:1px solid var(--brd,rgba(255,255,255,.08));background:var(--sfc,#1E1D24);color:var(--txt,#F5F4F7);font-weight:700;font-size:13px;cursor:pointer;"><i class="fas fa-file-contract"></i> Shartnoma</button>
+                <button style-active="transform:scale(.94);" onClick="{{ toastUlashish }}" style="height:46px;border-radius:14px;border:1px solid var(--brd,rgba(255,255,255,.08));background:var(--sfc,#1E1D24);color:var(--txt,#F5F4F7);font-weight:700;font-size:13px;cursor:pointer;"><i class="fas fa-share-alt"></i> Ulashish</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ dEtap }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ etaps }}" as="e" hint-placeholder-count="5">
+                <div style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ e.dly }}s;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:14px 16px;display:flex;gap:14px;">
+                  <div style="width:6px;border-radius:99px;background:{{ e.clr }};flex:none;"></div>
+                  <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;">
+                      <div style="font-weight:700;font-size:14px;">{{ e.icon }} {{ e.name }}</div>
+                      <span style="{{ e.stStyle }}">{{ e.state }}</span>
+                    </div>
+                    <sc-if value="{{ e.showCheck }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:6px;">
+                        <sc-for list="{{ e.checklist }}" as="c" hint-placeholder-count="3">
+                          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mut,#9B9AA3);">{{ c.ic }} <span style="{{ c.style }}">{{ c.t }}</span></div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="background:var(--cyan,#A6E6F2);color:#1B1A20;border-radius:20px;padding:16px;box-shadow:var(--shdw2,0 14px 30px rgba(0,0,0,.4));display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                  <div style="font-weight:800;font-size:14px;">🏭 MebelCity buyurtmasi #A4F2</div>
+                  <span style="font-size:11px;font-weight:800;background:rgba(0,0,0,.12);border-radius:999px;padding:4px 10px;">45%</span>
+                </div>
+                <div style="height:7px;border-radius:99px;background:rgba(0,0,0,.12);overflow:hidden;"><div style="height:100%;border-radius:99px;background:#1B1A20;width:45%;"></div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:12px;opacity:.7;font-weight:600;">Zavodda kesilmoqda</span>
+                  <button style-active="transform:scale(.94);" onClick="{{ toastMC }}" style="background:#1B1A20;color:#F5F4F7;border:none;border-radius:999px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;">Ochish <i class="fas fa-external-link-alt" style="font-size:9px;"></i></button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ dFayl }}" hint-placeholder-val="{{ false }}">
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">
+                <sc-for list="{{ files }}" as="f" hint-placeholder-count="6">
+                  <div style="animation:popin .4s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ f.dly }}s;aspect-ratio:1;border-radius:18px;background:{{ f.bg }};color:#1B1A20;box-shadow:var(--shdw2,0 14px 30px rgba(0,0,0,.4));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;">
+                    <div style="font-size:24px;">{{ f.ic }}</div>
+                    <div style="font-size:11px;font-weight:700;opacity:.7;">{{ f.label }}</div>
+                  </div>
+                </sc-for>
+                <div onClick="{{ toastFayl }}" style="aspect-ratio:1;border-radius:18px;border:2px dashed var(--brd,rgba(255,255,255,.15));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--mut,#9B9AA3);">
+                  <i class="fas fa-plus"></i>
+                  <div style="font-size:11px;font-weight:700;">Qo'shish</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ dJamoa }}" hint-placeholder-val="{{ false }}">
+              <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+                <div style="font-weight:800;font-size:14px;">Jamoa a'zolari</div>
+                <sc-for list="{{ team }}" as="m" hint-placeholder-count="3">
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="width:38px;height:38px;border-radius:50%;background:{{ m.bg }};color:#1B1A20;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex:none;">{{ m.init }}</div>
+                    <div style="flex:1;">
+                      <div style="font-size:13px;font-weight:700;">{{ m.name }}</div>
+                      <div style="font-size:11px;color:var(--mut,#9B9AA3);">{{ m.role }}</div>
+                    </div>
+                    <span style="font-size:13px;font-weight:800;">{{ m.pct }}%</span>
+                  </div>
+                </sc-for>
+                <div style="display:flex;height:10px;border-radius:99px;overflow:hidden;gap:2px;">
+                  <sc-for list="{{ split }}" as="s" hint-placeholder-count="4">
+                    <div style="width:{{ s.pct }}%;background:{{ s.clr }};border-radius:99px;"></div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+                <div style="font-weight:800;font-size:14px;">Ruxsatlar</div>
+                <sc-for list="{{ perms }}" as="p" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <span style="font-size:13px;">{{ p.label }}</span>
+                    <div onClick="{{ p.flip }}" style="{{ p.trackStyle }}"><div style="{{ p.knobStyle }}"></div></div>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+
+          </div>
+        </sc-if>
+
+        <!-- ============ MOLIYA ============ -->
+        <sc-if value="{{ sFin }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="Moliya" style="{{ screenStyle }}">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+              <sc-for list="{{ finStats }}" as="f" hint-placeholder-count="4">
+                <div style="animation:popin .4s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ f.dly }}s;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:14px;cursor:pointer;">
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);font-weight:600;">{{ f.label }}</div>
+                  <div style="font-size:18px;font-weight:800;margin-top:4px;color:{{ f.clr }};">{{ f.val }}</div>
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);margin-top:2px;">{{ f.sub }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button style-active="transform:scale(.94);" onClick="{{ setFinTx }}" style="{{ finTxStyle }}">Tranzaksiyalar</button>
+              <button style-active="transform:scale(.94);" onClick="{{ setFinDebt }}" style="{{ finDebtStyle }}">Qarzlar</button>
+            </div>
+            <sc-if value="{{ finTxOn }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 4px 16px;margin:-8px -4px -10px;">
+                <sc-for list="{{ periodChips }}" as="pc" hint-placeholder-count="4">
+                  <button style-active="transform:scale(.94);" onClick="{{ pc.set }}" style="{{ pc.style }}">{{ pc.label }}</button>
+                </sc-for>
+              </div>
+              <sc-for list="{{ txs }}" as="tx" hint-placeholder-count="5">
+                <div style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ tx.dly }}s;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:12px;">
+                  <div style="width:40px;height:40px;border-radius:14px;background:{{ tx.icBg }};color:#1B1A20;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none;">{{ tx.ic }}</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ tx.name }}</div>
+                    <div style="font-size:11px;color:var(--mut,#9B9AA3);">{{ tx.cat }}</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:13px;font-weight:800;color:{{ tx.clr }};">{{ tx.amt }}</div>
+                    <div style="font-size:10px;color:var(--mut,#9B9AA3);">{{ tx.time }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+            <sc-if value="{{ finDebtOn }}" hint-placeholder-val="{{ false }}">
+              <sc-for list="{{ debts }}" as="d" hint-placeholder-count="3">
+                <div style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ d.dly }}s;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="font-size:13px;font-weight:700;">{{ d.name }}</div>
+                    <button style-active="transform:scale(.94);" onClick="{{ d.pay }}" style="background:var(--acc,#DCF262);color:#1B1A20;border:none;border-radius:999px;padding:7px 14px;box-shadow:var(--glows,0 6px 14px rgba(0,0,0,.25));font-size:12px;font-weight:800;cursor:pointer;">To'lash</button>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="height:6px;border-radius:99px;background:var(--sfc2,#29282F);overflow:hidden;flex:1;"><div style="height:100%;border-radius:99px;background:var(--pch,#F5A48B);width:{{ d.pct }}%;transform-origin:left;animation:bargrowx .7s cubic-bezier(.2,.8,.3,1) both;animation-delay:.25s;"></div></div>
+                    <span style="font-size:11px;font-weight:700;color:var(--mut,#9B9AA3);">{{ d.paidLabel }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <!-- ============ ANALITIKA ============ -->
+        <sc-if value="{{ sAna }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="Analitika" style="{{ screenStyle }}">
+            <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 4px 16px;margin:-8px -4px -10px;">
+              <sc-for list="{{ anaTabs }}" as="t" hint-placeholder-count="4">
+                <button style-active="transform:scale(.94);" onClick="{{ t.set }}" style="{{ t.style }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+              <sc-for list="{{ anaStats }}" as="a" hint-placeholder-count="4">
+                <div style="animation:popin .4s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ a.dly }}s;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:14px;">
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);font-weight:600;">{{ a.label }}</div>
+                  <div style="font-size:18px;font-weight:800;margin-top:4px;animation:popin .5s cubic-bezier(.2,.8,.3,1) both;animation-delay:.2s;">{{ a.val }}</div>
+                  <div style="font-size:11px;font-weight:700;margin-top:2px;color:{{ a.deltaClr }};">{{ a.delta }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;align-items:center;gap:10px;">
+                <div style="width:38px;height:38px;border-radius:14px;background:var(--lav,#C9B4F7);display:flex;align-items:center;justify-content:center;font-size:17px;">🤖</div>
+                <div style="flex:1;">
+                  <div style="font-weight:800;font-size:14px;">AI Biznes Tahlil</div>
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);">Laylo sizning oyingizni tahlil qiladi</div>
+                </div>
+              </div>
+              <sc-if value="{{ aiIdle }}" hint-placeholder-val="{{ true }}">
+                <button style-active="transform:scale(.94);" onClick="{{ runAI }}" style="height:44px;border-radius:14px;border:none;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));font-weight:800;font-size:13px;cursor:pointer;">Tahlil qilish · 50 🪙</button>
+              </sc-if>
+              <sc-if value="{{ aiLoading }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:13px;color:var(--mut,#9B9AA3);animation:pulse 1.2s infinite;">🤖 Laylo ma'lumotlarni tahlil qilmoqda...</div>
+              </sc-if>
+              <sc-if value="{{ aiDone }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;flex-direction:column;gap:10px;animation:fadein .4s;">
+                  <sc-for list="{{ aiLines }}" as="l" hint-placeholder-count="3">
+                    <div style="font-size:13px;line-height:1.5;background:var(--sfc2,#29282F);border-radius:14px;padding:12px;">{{ l.t }}</div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-weight:800;font-size:14px;">Kirim / Chiqim</div>
+                <div style="display:flex;gap:12px;font-size:11px;color:var(--mut,#9B9AA3);font-weight:600;">
+                  <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lime,#DCF262);"></span> Kirim</span>
+                  <span><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pch,#F5A48B);"></span> Chiqim</span>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;">
+                    <div style="display:flex;gap:4px;align-items:flex-end;height:110px;">
+                      <div style="width:9px;height:110px;background:var(--sfc2,#29282F);border-radius:99px;display:flex;align-items:flex-end;overflow:hidden;"><div style="animation:growV .8s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ d.dly }}s;width:100%;height:{{ d.h1 }}%;background:var(--lime,#DCF262);border-radius:99px;"></div></div>
+                      <div style="width:9px;height:110px;background:var(--sfc2,#29282F);border-radius:99px;display:flex;align-items:flex-end;overflow:hidden;"><div style="animation:growV .8s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ d.dly2 }}s;width:100%;height:{{ d.h2 }}%;background:var(--pch,#F5A48B);border-radius:99px;"></div></div>
+                    </div>
+                    <span style="font-size:10px;color:var(--mut,#9B9AA3);font-weight:600;">{{ d.d }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:16px;display:flex;align-items:center;gap:18px;">
+              <div style="animation:donutin .8s cubic-bezier(.2,.8,.3,1);width:126px;height:126px;border-radius:50%;background:{{ donutGrad }};display:flex;align-items:center;justify-content:center;flex:none;animation:popin .6s cubic-bezier(.2,.8,.3,1) both;animation-delay:.15s;">
+                <div style="width:82px;height:82px;border-radius:50%;background:var(--sfc,#1E1D24);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <div style="font-size:20px;font-weight:800;">21</div>
+                  <div style="font-size:10px;color:var(--mut,#9B9AA3);">buyurtma</div>
+                </div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ donutLegend }}" as="l" hint-placeholder-count="4">
+                  <div style="display:flex;align-items:center;gap:8px;font-size:12px;animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ l.dly }}s;">
+                    <span style="width:9px;height:9px;border-radius:50%;background:{{ l.c }};flex:none;"></span>
+                    <span style="flex:1;color:var(--mut,#9B9AA3);">{{ l.label }}</span>
+                    <span style="font-weight:800;">{{ l.n }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+              <div style="font-weight:800;font-size:14px;">Chiqim turlari</div>
+              <sc-for list="{{ expBars }}" as="e" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:5px;">
+                  <div style="display:flex;justify-content:space-between;font-size:12px;">
+                    <span style="color:var(--mut,#9B9AA3);">{{ e.label }}</span>
+                    <span style="font-weight:800;">{{ e.amt }}</span>
+                  </div>
+                  <div style="height:8px;border-radius:99px;background:var(--sfc2,#29282F);overflow:hidden;"><div style="animation:growH .8s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ e.dly }}s;height:100%;border-radius:99px;background:{{ e.clr }};width:{{ e.w }}%;"></div></div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+              <sc-for list="{{ anaFoot }}" as="m" hint-placeholder-count="4">
+                <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:14px;">
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);font-weight:600;">{{ m.label }}</div>
+                  <div style="font-size:16px;font-weight:800;margin-top:4px;">{{ m.val }}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- ============ MIJOZLAR ============ -->
+        <sc-if value="{{ sClients }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="Mijozlar" style="{{ screenStyle }}">
+            <div style="display:flex;align-items:center;gap:10px;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:14px;padding:0 14px;">
+              <i class="fas fa-search" style="color:var(--mut,#9B9AA3);font-size:13px;"></i>
+              <input placeholder="Mijoz qidirish..." style="flex:1;background:none;border:none;color:var(--txt,#F5F4F7);font-size:13px;padding:12px 0;min-width:0;">
+            </div>
+            <sc-for list="{{ clients }}" as="c" hint-placeholder-count="5">
+              <div style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ c.dly }}s;box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:{{ c.bg }};color:#1B1A20;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;flex:none;">{{ c.init }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:14px;font-weight:700;">{{ c.name }}</div>
+                  <div style="font-size:11px;color:var(--mut,#9B9AA3);margin-top:2px;">{{ c.meta }}</div>
+                </div>
+                <button style-active="transform:scale(.94);" onClick="{{ c.call }}" style="width:40px;height:40px;border-radius:14px;border:none;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));cursor:pointer;font-size:14px;"><i class="fas fa-phone"></i></button>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- ============ SOZLAMALAR ============ -->
+        <sc-if value="{{ sSet }}" hint-placeholder-val="{{ false }}">
+          <div data-screen-label="Sozlamalar" style="{{ screenStyle }}">
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:22px;padding:18px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="width:56px;height:56px;border-radius:50%;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glows,0 4px 10px rgba(0,0,0,.3)), inset 0 -3px 6px rgba(0,0,0,.14), inset 0 2px 4px rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:19px;flex:none;">AK</div>
+                <div>
+                  <div style="font-weight:800;font-size:16px;">{{ userName }}</div>
+                  <span style="{{ vipChipStyle }}">👑 {{ vip }}</span>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                <div style="background:var(--sfc2,#29282F);border-radius:14px;padding:10px;text-align:center;">
+                  <div style="font-size:16px;font-weight:800;">{{ xp }}</div>
+                  <div style="font-size:10px;color:var(--mut,#9B9AA3);">⭐ XP</div>
+                </div>
+                <div style="background:var(--sfc2,#29282F);border-radius:14px;padding:10px;text-align:center;">
+                  <div style="font-size:16px;font-weight:800;">{{ coins }}</div>
+                  <div style="font-size:10px;color:var(--mut,#9B9AA3);">🪙 Tanga</div>
+                </div>
+                <div style="background:var(--sfc2,#29282F);border-radius:14px;padding:10px;text-align:center;">
+                  <div style="font-size:16px;font-weight:800;">{{ streak }}</div>
+                  <div style="font-size:10px;color:var(--mut,#9B9AA3);">🔥 Streak</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="font-weight:800;font-size:14px;">Etap shablonlari</div>
+                <button style-active="transform:scale(.94);" onClick="{{ toastShablon }}" style="background:none;border:none;color:var(--acct,#DCF262);font-size:12px;font-weight:700;cursor:pointer;">+ Yangi</button>
+              </div>
+              <sc-for list="{{ shablons }}" as="s" hint-placeholder-count="3">
+                <div style="animation:screenin .38s cubic-bezier(.2,.8,.3,1) backwards;animation-delay:{{ s.dly }}s;display:flex;align-items:center;gap:12px;background:var(--sfc2,#29282F);border-radius:16px;padding:12px;">
+                  <div style="width:38px;height:38px;border-radius:12px;background:{{ s.clr }};display:flex;align-items:center;justify-content:center;font-size:17px;flex:none;">{{ s.emoji }}</div>
+                  <div style="flex:1;">
+                    <div style="font-size:13px;font-weight:700;">{{ s.name }}</div>
+                    <div style="font-size:11px;color:var(--mut,#9B9AA3);">{{ s.meta }}</div>
+                  </div>
+                  <i class="fas fa-chevron-right" style="color:var(--mut,#9B9AA3);font-size:11px;"></i>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="box-shadow:var(--shdw,none);background:var(--sfc,#1E1D24);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:13px;font-weight:700;">🌙 Tungi rejim</span>
+                <div onClick="{{ toggleTheme }}" style="{{ themeTrack }}"><div style="{{ themeKnob }}"></div></div>
+              </div>
+              <div onClick="{{ toastParol }}" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+                <span style="font-size:13px;font-weight:700;">🔒 Parolni o'zgartirish</span>
+                <i class="fas fa-chevron-right" style="color:var(--mut,#9B9AA3);font-size:11px;"></i>
+              </div>
+            </div>
+
+            <div style="border:1px solid rgba(232,96,76,.4);border-radius:20px;padding:16px;display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="font-size:13px;font-weight:800;color:var(--dgr,#E8604C);">Xavfli zona</div>
+                <div style="font-size:11px;color:var(--mut,#9B9AA3);margin-top:2px;">Akkauntni butunlay o'chirish</div>
+              </div>
+              <button style-active="transform:scale(.94);" onClick="{{ toastDanger }}" style="background:rgba(232,96,76,.12);color:var(--dgr,#E8604C);border:none;border-radius:999px;padding:8px 14px;font-size:12px;font-weight:800;cursor:pointer;">O'chirish</button>
+            </div>
+          </div>
+        </sc-if>
+
+      </div>
+
+      <!-- Pastki nav (mobil) -->
+      <sc-if value="{{ isMobile }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;left:0;right:0;bottom:0;background:var(--sfc,#1E1D24);border-top:1px solid var(--brd,rgba(255,255,255,.08));display:flex;padding:10px 8px 18px;box-shadow:0 -12px 30px rgba(0,0,0,.14);animation:navup .45s cubic-bezier(.2,.8,.3,1) both;z-index:20;">
+          <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="5">
+            <button style-active="transform:scale(.94);" onClick="{{ n.go }}" style="{{ n.style }}">
+              <div style="{{ n.icWrap }}"><i class="fas {{ n.ic }}" style="font-size:16px;"></i></div>
+              <span style="{{ n.lbStyle }}">{{ n.label }}</span>
+            </button>
+          </sc-for>
+        </div>
+        <button style-active="transform:scale(.94);" onClick="{{ fabClick }}" style="position:absolute;right:16px;bottom:96px;width:54px;height:54px;border-radius:50%;border:none;background:linear-gradient(140deg,#F0FF7A 0%,var(--acc,#DCF262) 45%,#B8D93E 100%);color:#1B1A20;cursor:pointer;animation:fabbob 3.2s ease-in-out 1.2s infinite;box-shadow:var(--glow,0 12px 26px rgba(0,0,0,.35)),0 20px 44px rgba(0,0,0,.28),inset 0 2px 3px rgba(255,255,255,.55),inset 0 -3px 6px rgba(0,0,0,.16);z-index:20;display:flex;align-items:center;justify-content:center;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display:block;"><path d="M12 2C12.6 6.8 15.2 9.4 20 10C15.2 10.6 12.6 13.2 12 18C11.4 13.2 8.8 10.6 4 10C8.8 9.4 11.4 6.8 12 2Z" fill="#1B1A20"></path><path d="M18.5 14C18.8 16.1 19.9 17.2 22 17.5C19.9 17.8 18.8 18.9 18.5 21C18.2 18.9 17.1 17.8 15 17.5C17.1 17.2 18.2 16.1 18.5 14Z" fill="#1B1A20" opacity=".75"></path></svg>
+          <span style="position:absolute;top:-3px;right:-3px;width:17px;height:17px;border-radius:50%;background:#1B1A20;color:var(--acc,#DCF262);display:flex;align-items:center;justify-content:center;font-size:8px;box-shadow:0 2px 6px rgba(0,0,0,.35);"><i class="fas fa-bolt"></i></span>
+        </button>
+      </sc-if>
+
+      <!-- Drawer (mobil menyu) -->
+      <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;z-index:40;display:flex;">
+          <div style="width:280px;background:var(--sfc,#1E1D24);height:100%;padding:20px 12px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;animation:slidein .28s cubic-bezier(.2,.9,.3,1);box-shadow:24px 0 60px rgba(0,0,0,.3);">
+            <div style="display:flex;align-items:center;gap:10px;padding:0 8px;">
+              <div style="width:36px;height:36px;border-radius:12px;background:var(--acc,#DCF262);color:#1B1A20;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;box-shadow:var(--glows,0 4px 10px rgba(0,0,0,.3));">B</div>
+              <div>
+                <div style="font-weight:800;font-size:15px;">Bittada</div>
+                <div style="font-size:11px;color:var(--mut,#9B9AA3);">Mini ERP</div>
+              </div>
+            </div>
+            <sc-for list="{{ sideGroups }}" as="g" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="display:flex;align-items:center;gap:10px;padding:6px 10px;">
+                <span style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut,#9B9AA3);flex:none;">{{ g.name }}</span>
+                <div style="flex:1;height:1px;background:var(--brd,rgba(255,255,255,.08));"></div>
+              </div>
+                <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="4">
+                  <button style-active="transform:scale(.94);" onClick="{{ n.go }}" style-hover="transform:translateX(3px);" style="{{ n.style }}">
+                <div style="{{ n.icStyle }}"><i class="fas {{ n.ic }}" style="font-size:12px;"></i></div>
+                <span style="flex:1;text-align:left;">{{ n.label }}</span>
+                <sc-if value="{{ n.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="{{ n.badgeStyle }}">{{ n.badge }}</span></sc-if>
+              </button>
+                </sc-for>
+              </div>
+            </sc-for>
+            <button style-active="transform:scale(.96);" onClick="{{ newFromMenu }}" style="margin-top:auto;height:44px;border-radius:14px;border:none;background:var(--acc,#DCF262);color:#1B1A20;font-weight:800;font-size:13px;cursor:pointer;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));flex:none;"><i class="fas fa-plus"></i> Yangi buyurtma</button>
+        <div style="display:flex;align-items:center;gap:10px;background:var(--sfc2,#29282F);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:16px;padding:10px;">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--acc,#DCF262);color:#1B1A20;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;flex:none;box-shadow:inset 0 -3px 6px rgba(0,0,0,.14), inset 0 2px 4px rgba(255,255,255,.45);">AK</div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:12px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ userName }}</div>
+                <div style="font-size:10px;color:var(--mut,#9B9AA3);">👑 {{ vip }} · ⭐ {{ xp }} XP</div>
+              </div>
+              <button style-active="transform:scale(.94);" onClick="{{ noop }}" title="Chiqish" style="width:30px;height:30px;border-radius:10px;border:none;background:transparent;color:var(--mut,#9B9AA3);cursor:pointer;font-size:12px;"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+          </div>
+          <div onClick="{{ closeDrawer }}" style="flex:1;background:rgba(0,0,0,.5);"></div>
+        </div>
+      </sc-if>
+
+      <!-- Bottom sheet -->
+      <sc-if value="{{ sheetOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end;">
+          <div onClick="{{ closeSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.55);animation:fadein .2s;"></div>
+          <div style="position:relative;background:var(--sfc,#1E1D24);border-radius:26px 26px 0 0;box-shadow:0 -24px 60px rgba(0,0,0,.35);padding:14px 20px 28px;display:flex;flex-direction:column;gap:16px;animation:sheetup .28s cubic-bezier(.3,1,.4,1);max-width:480px;width:100%;margin:0 auto;max-height:80%;overflow-y:auto;">
+            <div style="width:44px;height:5px;border-radius:99px;background:var(--brd,rgba(255,255,255,.15));margin:0 auto;"></div>
+
+            <sc-if value="{{ shCreate }}" hint-placeholder-val="{{ true }}">
+              <div style="font-weight:800;font-size:16px;">Yangi buyurtma</div>
+              <input value="{{ newName }}" onChange="{{ onNewName }}" placeholder="Buyurtma nomi..." style="background:var(--sfc2,#29282F);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:14px;padding:13px 14px;color:var(--txt,#F5F4F7);font-size:14px;">
+              <div>
+                <div style="font-size:12px;color:var(--mut,#9B9AA3);font-weight:700;margin-bottom:8px;">Mijoz</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <sc-for list="{{ mijozChips }}" as="mc" hint-placeholder-count="4">
+                    <button style-active="transform:scale(.94);" onClick="{{ mc.pick }}" style="{{ mc.style }}">{{ mc.name }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <div style="font-size:12px;color:var(--mut,#9B9AA3);font-weight:700;margin-bottom:8px;">Etap shabloni</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <sc-for list="{{ shabChips }}" as="sc" hint-placeholder-count="3">
+                    <button style-active="transform:scale(.94);" onClick="{{ sc.pick }}" style="{{ sc.style }}">{{ sc.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <button style-active="transform:scale(.94);" onClick="{{ createGo }}" style="height:50px;border-radius:16px;border:none;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));font-weight:800;font-size:15px;cursor:pointer;">Yaratish</button>
+            </sc-if>
+
+            <sc-if value="{{ shKirim }}" hint-placeholder-val="{{ false }}">
+              <div style="font-weight:800;font-size:16px;">Kirim qo'shish</div>
+              <input placeholder="Summa (so'm)..." style="background:var(--sfc2,#29282F);border:1px solid var(--brd,rgba(255,255,255,.08));border-radius:14px;padding:13px 14px;color:var(--txt,#F5F4F7);font-size:14px;">
+              <div>
+                <div style="font-size:12px;color:var(--mut,#9B9AA3);font-weight:700;margin-bottom:8px;">To'lov usuli</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <sc-for list="{{ payChips }}" as="pc" hint-placeholder-count="3">
+                    <button style-active="transform:scale(.94);" onClick="{{ pc.pick }}" style="{{ pc.style }}">{{ pc.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+              <button style-active="transform:scale(.94);" onClick="{{ kirimGo }}" style="height:50px;border-radius:16px;border:none;background:var(--acc,#DCF262);color:#1B1A20;box-shadow:var(--glow,0 10px 24px rgba(0,0,0,.3));font-weight:800;font-size:15px;cursor:pointer;">Saqlash</button>
+            </sc-if>
+
+            <sc-if value="{{ shStatus }}" hint-placeholder-val="{{ false }}">
+              <div style="font-weight:800;font-size:16px;">Statusni o'zgartirish</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ statusOpts }}" as="so" hint-placeholder-count="5">
+                  <button style-active="transform:scale(.96);" onClick="{{ so.pick }}" style="{{ so.style }}">
+                    <span style="{{ so.dotStyle }}"><i class="fas {{ so.ic }}" style="font-size:13px;"></i></span>
+                    <span style="flex:1;text-align:left;min-width:0;">
+                      <span style="display:block;font-size:14px;font-weight:800;">{{ so.label }}</span>
+                      <span style="display:block;font-size:11px;opacity:.62;font-weight:600;margin-top:1px;">{{ so.desc }}</span>
+                    </span>
+                    <sc-if value="{{ so.on }}" hint-placeholder-val="{{ false }}"><i class="fas fa-check-circle" style="font-size:17px;flex:none;"></i></sc-if>
+                  </button>
+                </sc-for>
+              </div>
+            </sc-if>
+
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- Toast -->
+      <sc-if value="{{ toastShow }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:center;z-index:60;pointer-events:none;">
+          <div style="background:var(--sfc2,#29282F);border:1px solid var(--acc,#DCF262);color:var(--txt,#F5F4F7);border-radius:999px;padding:10px 18px;font-size:13px;font-weight:700;box-shadow:0 12px 30px rgba(0,0,0,.4);animation:toastin .25s;">{{ toast }}</div>
+        </div>
+      </sc-if>
+
+      <!-- Coin burst -->
+      <sc-if value="{{ burst }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;z-index:70;pointer-events:none;display:flex;align-items:flex-end;justify-content:center;padding-bottom:180px;">
+          <sc-for list="{{ burstCoins }}" as="b" hint-placeholder-count="6">
+            <span style="{{ b.style }}">🪙</span>
+          </sc-for>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900},&quot;alifbo&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;lotin&quot;,&quot;options&quot;:[&quot;kirill&quot;,&quot;lotin&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Til&quot;},&quot;shrift&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;Nunito&quot;,&quot;options&quot;:[&quot;Nunito&quot;,&quot;Quicksand&quot;,&quot;Plus Jakarta Sans&quot;,&quot;Manrope&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Uslub&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#DCF262&quot;,&quot;options&quot;:[&quot;#DCF262&quot;,&quot;#A6E6F2&quot;,&quot;#C9B4F7&quot;,&quot;#F5A48B&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Uslub&quot;},&quot;gamifikatsiya&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;yengil&quot;,&quot;options&quot;:[&quot;yorqin&quot;,&quot;muvozanatli&quot;,&quot;yengil&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Uslub&quot;}}">
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.contentRef = React.createRef();
+    this.rootRef = React.createRef();
+    this.state = {
+      screen: 'dash', theme: 'dark', device: 'mobile',
+      drawer: false, sheet: null, toast: null, burst: false,
+      orderTab: 'all', dTab: 'umumiy', finTab: 'tx', finP: 'Oy', anaP: 'Hafta',
+      q: '', newName: '', selClient: 0, selShab: 0, selPay: 0,
+      xp: 2450, coins: 380, streak: 12,
+      dStatus: 'jarayonda', ai: 'idle',
+      quests: [
+        { ic: '🔨', t: '3 ta etap yakunlang', cur: 2, max: 3, xp: 40, done: false },
+        { ic: '👥', t: "Yangi mijoz qo'shing", cur: 0, max: 1, xp: 25, done: false },
+        { ic: '💰', t: 'Kunlik kirim kiriting', cur: 1, max: 1, xp: 15, done: true }
+      ],
+      perms: [
+        { label: "Moliyani ko'rish", on: true },
+        { label: "Etap o'zgartirish", on: true },
+        { label: 'Fayl yuklash', on: false },
+        { label: "Mijoz ma'lumotlari", on: false }
+      ]
+    };
+    this.C = { lime: '#DCF262', cyan: '#A6E6F2', lav: '#C9B4F7', pch: '#F5A48B', dgr: '#E8604C', ink: '#1B1A20' };
+    this.STS = {
+      yangi: { label: 'Yangi', bg: this.C.cyan },
+      kutilmoqda: { label: 'Kutilmoqda', bg: this.C.lav },
+      jarayonda: { label: 'Jarayonda', bg: this.C.cyan },
+      tayyor: { label: 'Tayyor', bg: this.C.lime },
+      topshirildi: { label: 'Topshirildi', bg: this.C.lime },
+      del: { label: "O'chirilgan", bg: this.C.pch }
+    };
+    this.ORDERS = [
+      { id: 1, name: 'Oshxona garnituri «Malika»', client: 'Dilnoza Karimova', price: '8.5 mln', pct: 65, st: 'jarayonda', linked: true, zamer: true, time: '2 soat oldin' },
+      { id: 2, name: 'Yotoqxona shkafi', client: "Bekzod To'rayev", price: '4.2 mln', pct: 10, st: 'yangi', linked: false, zamer: false, time: 'Kecha' },
+      { id: 3, name: 'Mehmonxona bufeti', client: 'Otabek Hamidov', price: '5.4 mln', pct: 35, st: 'jarayonda', linked: true, zamer: true, time: 'Bugun' },
+      { id: 4, name: 'TV panel + polkalar', client: 'Gulnora Aliyeva', price: '3.1 mln', pct: 100, st: 'tayyor', linked: true, zamer: true, time: 'Bugun' },
+      { id: 5, name: "Bolalar xonasi to'plami", client: 'Jasur Raimov', price: '12.0 mln', pct: 0, st: 'kutilmoqda', linked: false, zamer: true, time: '3 kun oldin' },
+      { id: 6, name: 'Ofis stollari ×4', client: '«Sardor Mebel» MChJ', price: '6.8 mln', pct: 100, st: 'topshirildi', linked: true, zamer: true, time: "O'tgan hafta" }
+    ];
+    this.CLIENTS = [
+      { init: 'DK', name: 'Dilnoza Karimova', meta: '3 buyurtma · Chilonzor', tel: '+998 90 123 45 67', bg: this.C.lav },
+      { init: 'BT', name: "Bekzod To'rayev", meta: '1 buyurtma · Yunusobod', tel: '+998 91 234 56 78', bg: this.C.cyan },
+      { init: 'GA', name: 'Gulnora Aliyeva', meta: '2 buyurtma · Sergeli', tel: '+998 93 345 67 89', bg: this.C.pch },
+      { init: 'JR', name: 'Jasur Raimov', meta: '1 buyurtma · Olmazor', tel: '+998 94 456 78 90', bg: this.C.lime },
+      { init: 'OH', name: 'Otabek Hamidov', meta: '2 buyurtma · Mirobod', tel: '+998 95 567 89 01', bg: this.C.cyan }
+    ];
+    this.TITLES = { dash: 'Bosh sahifa', orders: 'Buyurtmalar', detail: 'Buyurtma', fin: 'Moliya', ana: 'Analitika', clients: 'Mijozlar', set: 'Sozlamalar' };
+  }
+
+  T(msg) {
+    clearTimeout(this._tt);
+    this.setState({ toast: msg });
+    this._tt = setTimeout(() => this.setState({ toast: null }), 2600);
+  }
+  go(s) {
+    this.setState({ screen: s, drawer: false });
+    requestAnimationFrame(() => { if (this.contentRef.current) this.contentRef.current.scrollTo(0, 0); });
+  }
+  doBurst() {
+    this.setState({ burst: true });
+    clearTimeout(this._bt);
+    this._bt = setTimeout(() => this.setState({ burst: false }), 1100);
+  }
+
+  translit(str) {
+    if (!str || !/[A-Za-z]/.test(str)) return str;
+    const DICT = { MebelCity: 'МебелСити', Light: 'Ёруғ', Dark: 'Тун', jpg: 'jpg', mp: 'mp' };
+    return str.split(/([A-Za-z\u02BB\u2018\u2019'`]+)/).map(tok => {
+      if (!/[A-Za-z]/.test(tok)) return tok;
+      if (DICT[tok] !== undefined) return DICT[tok];
+      if (/^[A-Z]{1,4}$/.test(tok)) return tok;
+      if (tok.length === 1) return tok;
+      let w = tok.replace(/[\u02BB\u2018\u2019`]/g, "'");
+      const digr = [["o'", 'ў'], ["O'", 'Ў'], ["g'", 'ғ'], ["G'", 'Ғ'], ['sh', 'ш'], ['Sh', 'Ш'], ['SH', 'Ш'], ['ch', 'ч'], ['Ch', 'Ч'], ['CH', 'Ч'], ['yo', 'ё'], ['Yo', 'Ё'], ['yu', 'ю'], ['Yu', 'Ю'], ['ya', 'я'], ['Ya', 'Я']];
+      for (const [a, b] of digr) w = w.split(a).join(b);
+      const M = { a: 'а', b: 'б', c: 'с', d: 'д', e: 'е', f: 'ф', g: 'г', h: 'ҳ', i: 'и', j: 'ж', k: 'к', l: 'л', m: 'м', n: 'н', o: 'о', p: 'п', q: 'қ', r: 'р', s: 'с', t: 'т', u: 'у', v: 'в', w: 'в', x: 'х', y: 'й', z: 'з' };
+      w = w.replace(/[A-Za-z']/g, ch => {
+        if (ch === "'") return 'ъ';
+        const lo = ch.toLowerCase(), m = M[lo];
+        if (!m) return ch;
+        return ch === lo ? m : m.toUpperCase();
+      });
+      return w;
+    }).join('');
+  }
+  translitTree(root) {
+    const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = tw.nextNode())) {
+      let orig = n.nodeValue;
+      if (this._ltMap.has(n)) {
+        const prev = this._ltMap.get(n);
+        if (n.nodeValue === this.translit(prev)) orig = prev;
+      }
+      const tr = this.translit(orig);
+      if (tr !== orig) {
+        this._ltMap.set(n, orig);
+        if (n.nodeValue !== tr) n.nodeValue = tr;
+      }
+    }
+    root.querySelectorAll('input[placeholder]').forEach(el => {
+      const orig = el.dataset.lt || el.placeholder;
+      el.dataset.lt = orig;
+      const tr = this.translit(orig);
+      if (el.placeholder !== tr) el.placeholder = tr;
+    });
+  }
+  restoreLatin(root) {
+    const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    let n;
+    while ((n = tw.nextNode())) {
+      if (this._ltMap.has(n)) { n.nodeValue = this._ltMap.get(n); this._ltMap.delete(n); }
+    }
+    root.querySelectorAll('input[data-lt]').forEach(el => { el.placeholder = el.dataset.lt; delete el.dataset.lt; });
+  }
+  applyAlifbo() {
+    const root = this.rootRef && this.rootRef.current;
+    if (!root || !this._ltMap) return;
+    const kir = (this.props.alifbo ?? 'kirill') === 'kirill';
+    if (this._mo) { this._mo.disconnect(); this._mo = null; }
+    if (kir) {
+      this.translitTree(root);
+      const mo = new MutationObserver(() => {
+        if (this._mo !== mo) return;
+        mo.disconnect();
+        this.translitTree(root);
+        if (this._mo === mo) mo.observe(root, { childList: true, subtree: true, characterData: true });
+      });
+      this._mo = mo;
+      mo.observe(root, { childList: true, subtree: true, characterData: true });
+    } else {
+      this.restoreLatin(root);
+    }
+  }
+  componentDidMount() { this._ltMap = new WeakMap(); this.applyAlifbo(); }
+  componentDidUpdate() { if (!this._ltMap) this._ltMap = new WeakMap(); this.applyAlifbo(); }
+  componentWillUnmount() { if (this._mo) this._mo.disconnect(); clearTimeout(this._tt); clearTimeout(this._bt); }
+
+  pill(active) {
+    return {
+      padding: '9px 14px', borderRadius: 999, border: active ? 'none' : '1px solid var(--brd,rgba(255,255,255,.08))',
+      background: active ? 'var(--acc,#DCF262)' : 'var(--sfc,#1E1D24)',
+      color: active ? '#1B1A20' : 'var(--txt,#F5F4F7)',
+      boxShadow: active ? 'var(--glows,none)' : 'var(--shdws,none)',
+      fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flex: 'none'
+    };
+  }
+  chip(bg, color) {
+    return { fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999, background: bg, color: color || '#1B1A20', whiteSpace: 'nowrap', flex: 'none' };
+  }
+  toggle(on) {
+    return {
+      track: { width: 46, height: 26, borderRadius: 999, background: on ? 'var(--acc,#DCF262)' : 'var(--sfc2,#29282F)', border: '1px solid var(--brd,rgba(255,255,255,.08))', padding: 2, cursor: 'pointer', transition: 'background .2s' },
+      knob: { width: 20, height: 20, borderRadius: '50%', background: on ? '#1B1A20' : 'var(--mut,#9B9AA3)', transform: on ? 'translateX(20px)' : 'translateX(0)', transition: 'transform .2s', boxShadow: '0 2px 5px rgba(0,0,0,.3)' }
+    };
+  }
+  orderVal(o) {
+    const st = this.STS[o.st];
+    const stStyle = o.st === 'topshirildi'
+      ? { fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 999, background: 'transparent', border: '1px solid ' + this.C.lime, color: 'var(--txt,#F5F4F7)', whiteSpace: 'nowrap', flex: 'none' }
+      : this.chip(st.bg);
+    return {
+      name: o.name, client: o.client, price: o.price, pct: o.pct, time: o.time,
+      stLabel: st.label, stStyle,
+      linkTxt: o.linked ? '🔗 Ulangan' : '○ Ulanmagan',
+      zamTxt: o.zamer ? '✓ Zamer' : '✗ Zamer',
+      zamStyle: { fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: 'var(--sfc2,#29282F)', color: o.zamer ? (this._tx || this.C).lime : (this._tx || this.C).pch },
+      open: () => this.go('detail')
+    };
+  }
+
+  renderVals() {
+    const s = this.state, C = this.C;
+    const dark = s.theme === 'dark';
+    const isMobile = s.device === 'mobile', isDesktop = !isMobile;
+    const accent = this.props.accent ?? C.lime;
+    const gami = this.props.gamifikatsiya ?? 'yorqin';
+    const acc = accent;
+    const TXD = { lime: '#5E7016', cyan: '#1F7A8C', lav: '#7A5FBF', pch: '#C24B33', dgr: '#C0392B' };
+    const TX = dark ? { lime: C.lime, cyan: C.cyan, lav: C.lav, pch: C.pch, dgr: C.dgr } : TXD;
+    this._tx = TX;
+    const acctMap = { '#DCF262': '#5E7016', '#A6E6F2': '#1F7A8C', '#C9B4F7': '#7A5FBF', '#F5A48B': '#C24B33' };
+    const acct = dark ? acc : (acctMap[acc] || TXD.lime);
+    const accdMap = { '#DCF262': '#A8BA45', '#A6E6F2': '#72B8C7', '#C9B4F7': '#9C85D1', '#F5A48B': '#D07A61' };
+    const accd = accdMap[acc] || '#A8BA45';
+    const rgba = (hex, a) => {
+      const h = hex.replace('#', '');
+      return 'rgba(' + parseInt(h.slice(0, 2), 16) + ',' + parseInt(h.slice(2, 4), 16) + ',' + parseInt(h.slice(4, 6), 16) + ',' + a + ')';
+    };
+    const shdw = dark
+      ? '0 6px 16px rgba(0,0,0,.26), 0 20px 44px rgba(0,0,0,.28)'
+      : '0 2px 6px rgba(62,56,40,.05), 0 14px 34px rgba(62,56,40,.13)';
+    const shdw2 = dark ? '0 14px 30px rgba(0,0,0,.42)' : '0 14px 30px rgba(62,56,40,.24)';
+    const shdwS = dark ? '0 3px 8px rgba(0,0,0,.20)' : '0 2px 6px rgba(62,56,40,.10)';
+    const glow = '0 12px 26px ' + rgba(acc, dark ? 0.38 : 0.55) + ', 0 3px 8px rgba(0,0,0,' + (dark ? '.25' : '.12') + ')';
+    const glowS = '0 4px 10px ' + rgba(acc, dark ? 0.35 : 0.45);
+
+    const vars = dark
+      ? { '--bg': '#141318', '--sfc': '#1E1D24', '--sfc2': '#29282F', '--txt': '#F5F4F7', '--mut': '#9B9AA3', '--brd': 'rgba(255,255,255,.08)' }
+      : { '--bg': '#F3F1EA', '--sfc': '#FFFFFF', '--sfc2': '#F1EEE4', '--txt': '#1B1A20', '--mut': '#6E6C76', '--brd': '#E6E2D6' };
+    const rootStyle = Object.assign({
+      '--acc': acc, '--acct': acct, '--accd': accd, '--shdw': shdw, '--shdw2': shdw2, '--shdws': shdwS, '--glow': glow, '--glows': glowS, '--lime': C.lime, '--cyan': C.cyan, '--lav': C.lav, '--pch': C.pch, '--dgr': TX.dgr,
+      minHeight: '100vh', background: dark ? '#0D0C10' : '#E9E5D9', color: 'var(--txt)',
+      fontFamily: "'" + (this.props.shrift ?? 'Nunito') + "','Plus Jakarta Sans',sans-serif", transition: 'background .3s', paddingBottom: 40
+    }, vars);
+
+    const shellStyle = isMobile
+      ? { width: 390, height: 812, margin: '8px auto 0', borderRadius: 36, overflow: 'hidden', position: 'relative', background: 'var(--bg)', border: '1px solid var(--brd)', boxShadow: '0 30px 80px rgba(0,0,0,.45)', display: 'flex', transition: 'background .35s ease, border-color .35s ease' }
+      : { maxWidth: 1240, height: '82vh', minHeight: 560, margin: '8px auto 0', display: 'flex', background: 'var(--bg)', borderRadius: 24, border: '1px solid var(--brd)', overflow: 'hidden', position: 'relative', boxShadow: '0 30px 80px rgba(0,0,0,.35)', transition: 'background .35s ease, border-color .35s ease' };
+
+    const contentStyle = { flex: 1, overflowY: 'auto', paddingBottom: isMobile ? 130 : 40 };
+    const screenStyle = { padding: 16, display: 'flex', flexDirection: 'column', gap: 14, maxWidth: isDesktop ? 920 : 'none', margin: '0 auto', width: '100%', animation: 'screenin .32s cubic-bezier(.2,.8,.3,1)' };
+
+    const ctlBtn = (active) => ({
+      display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 999,
+      border: '1px solid ' + (dark ? 'rgba(255,255,255,.12)' : 'rgba(0,0,0,.12)'),
+      background: active ? acc : 'transparent', color: active ? '#1B1A20' : (dark ? '#9B9AA3' : '#71707A'),
+      boxShadow: active ? glowS : 'none',
+      fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap'
+    });
+
+    const nav = [
+      { ic: 'fa-home', label: 'Bosh', key: 'dash' },
+      { ic: 'fa-users', label: 'Mijoz', key: 'clients' },
+      { ic: 'fa-box-open', label: 'Zakaz', key: 'orders' },
+      { ic: 'fa-chart-pie', label: 'Analitika', key: 'ana' },
+      { ic: 'fa-wallet', label: 'Moliya', key: 'fin' }
+    ].map(n => {
+      const on = s.screen === n.key || (n.key === 'orders' && s.screen === 'detail');
+      return {
+        ...n, go: () => this.go(n.key),
+        style: {
+          flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+          background: 'none', border: 'none', cursor: 'pointer', padding: '2px 0'
+        },
+        icWrap: {
+          width: 50, height: 32, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: on ? 'var(--acc,#DCF262)' : 'transparent',
+          color: on ? '#1B1A20' : 'var(--mut,#9B9AA3)',
+          boxShadow: on ? 'var(--glows,0 4px 10px rgba(0,0,0,.3))' : 'none',
+          transform: on ? 'translateY(-3px)' : 'none',
+          transition: 'transform .18s, background .18s, box-shadow .18s'
+        },
+        lbStyle: {
+          fontSize: 10, fontWeight: on ? 800 : 700,
+          color: on ? 'var(--acct,#DCF262)' : 'var(--mut,#9B9AA3)'
+        }
+      };
+    });
+
+    const sideItem = (ic, label, key, real, badge) => {
+      const on = s.screen === key || (key === 'orders' && s.screen === 'detail');
+      return {
+        ic, label, badge: badge || '', hasBadge: !!badge,
+        go: real ? () => this.go(key) : () => this.T('Bu bo\u2018lim namunada yo\u2018q — komponentlardan yig\u2018iladi 🛠'),
+        style: {
+          display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left',
+          padding: '7px 9px', borderRadius: 13, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700,
+          background: on ? 'var(--acc,#DCF262)' : 'transparent',
+          boxShadow: on ? 'var(--glows,none)' : 'none',
+          color: on ? '#1B1A20' : 'var(--txt,#F5F4F7)',
+          transition: 'transform .15s, background .15s'
+        },
+        icStyle: {
+          width: 30, height: 30, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flex: 'none',
+          background: on ? 'rgba(0,0,0,.15)' : 'transparent',
+          color: on ? '#1B1A20' : 'var(--mut,#9B9AA3)'
+        },
+        badgeStyle: {
+          fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 999, flex: 'none',
+          background: on ? 'rgba(0,0,0,.15)' : 'var(--sfc2,#29282F)',
+          color: on ? '#1B1A20' : 'var(--acct,#DCF262)'
+        }
+      };
+    };
+    const sideGroups = [
+      { name: 'Asosiy', items: [sideItem('fa-home', 'Bosh sahifa', 'dash', true), sideItem('fa-users', 'Mijozlar', 'clients', true), sideItem('fa-box-open', 'Buyurtmalar', 'orders', true), sideItem('fa-wallet', 'Moliya', 'fin', true), sideItem('fa-chart-pie', 'Analitika', 'ana', true)] },
+      { name: 'MebelCity', items: [sideItem('fa-industry', 'Zavod buyurtmalari', 'mc', false), sideItem('fa-vr-cardboard', 'Vizualizatsiya', 'vr', false), sideItem('fa-cube', '3D Zamerlar', 'z3d', false), sideItem('fa-exchange-alt', 'Oldi-Berdi', 'ob', false)] },
+      { name: 'Boshqa', items: [sideItem('fa-user-friends', 'Jamoa', 'team', false), sideItem('fa-cog', 'Sozlamalar', 'set', true)] }
+    ];
+
+    const questVals = this.state.quests.map((q, i) => ({
+      ic: q.ic, t: q.t, dly: +(i * 0.07).toFixed(2),
+      pct: Math.round(q.cur / q.max * 100),
+      progress: q.cur + '/' + q.max,
+      xpLabel: q.done ? '✅' : '+' + q.xp + ' XP',
+      xpStyle: q.done ? { fontSize: 15 } : this.chip('var(--sfc,#1E1D24)', 'var(--acct,#DCF262)'),
+      click: () => {
+        if (q.done) return;
+        const quests = this.state.quests.map((qq, j) => {
+          if (j !== i) return qq;
+          const cur = Math.min(qq.cur + 1, qq.max);
+          return { ...qq, cur, done: cur >= qq.max };
+        });
+        const nowDone = quests[i].done;
+        this.setState({ quests, xp: this.state.xp + (nowDone ? q.xp : 0), coins: this.state.coins + (nowDone ? 10 : 0) });
+        if (nowDone) { this.T('⭐ +' + q.xp + ' XP · Topshiriq bajarildi!'); this.doBurst(); }
+        else this.T('Progress: ' + quests[i].cur + '/' + q.max);
+      }
+    }));
+
+    const tabDefs = [['all', 'Hammasi'], ['yangi', 'Yangi'], ['kutilmoqda', 'Kutilmoqda'], ['jarayonda', 'Jarayonda'], ['tayyor', 'Tayyor'], ['topshirildi', 'Topshirildi'], ['del', '🗑']];
+    const orderTabs = tabDefs.map(([key, label]) => ({
+      label, count: key === 'all' ? this.ORDERS.length : this.ORDERS.filter(o => o.st === key).length,
+      set: () => this.setState({ orderTab: key }), style: this.pill(s.orderTab === key)
+    }));
+    const qLow = s.q.toLowerCase();
+    const orders = this.ORDERS
+      .filter(o => (s.orderTab === 'all' || o.st === s.orderTab) && (!qLow || (o.name + o.client).toLowerCase().includes(qLow)))
+      .map((o, i) => ({ ...this.orderVal(o), dly: +(i * 0.05).toFixed(2) }));
+    const activeOrders = this.ORDERS.filter(o => o.st === 'jarayonda' || o.st === 'yangi').slice(0, 3).map((o, i) => ({ ...this.orderVal(o), dly: +(i * 0.06).toFixed(2) }));
+
+    const dTabs = [['umumiy', 'Umumiy'], ['moliya', 'Moliya'], ['etap', 'Etaplar'], ['fayl', 'Fayllar'], ['jamoa', 'Jamoa']].map(([k, label]) => ({
+      label, set: () => this.setState({ dTab: k }), style: this.pill(s.dTab === k)
+    }));
+    const dst = this.STS[s.dStatus];
+    const etapClr = (state) => state === 'done' ? C.lime : state === 'now' ? C.cyan : C.lav;
+    const etaps = [
+      { icon: '📏', name: 'Zamer', state: 'done' },
+      { icon: '🪚', name: 'Kesish / tayyorlash', state: 'done' },
+      { icon: '🔩', name: "Yig'ish", state: 'now', checklist: [
+        { t: "Korpus yig'ish", done: true }, { t: "Eshiklar o'rnatish", done: true }, { t: 'Furnitura Blum', done: false }
+      ] },
+      { icon: '🎨', name: 'Pardozlash', state: 'wait' },
+      { icon: '🚚', name: "O'rnatish", state: 'wait' }
+    ].map((e, i) => ({
+      icon: e.icon, name: e.name, clr: etapClr(e.state), dly: +(i * 0.07).toFixed(2),
+      state: e.state === 'done' ? 'Bajarildi' : e.state === 'now' ? 'Jarayonda' : 'Kutilmoqda',
+      stStyle: this.chip(e.state === 'wait' ? 'var(--sfc2,#29282F)' : etapClr(e.state), e.state === 'wait' ? 'var(--mut,#9B9AA3)' : '#1B1A20'),
+      showCheck: !!e.checklist,
+      checklist: (e.checklist || []).map(c => ({
+        t: c.t, ic: c.done ? '✅' : '⬜',
+        style: { textDecoration: c.done ? 'line-through' : 'none', color: c.done ? 'var(--mut,#9B9AA3)' : 'var(--txt,#F5F4F7)' }
+      }))
+    }));
+
+    const ST_META = {
+      yangi: { ic: 'fa-star', desc: "Endigina qo'shildi, zamer kutilmoqda" },
+      kutilmoqda: { ic: 'fa-clock', desc: 'Avans yoki material kutilmoqda' },
+      jarayonda: { ic: 'fa-hammer', desc: 'Ustaxonada ishlanmoqda' },
+      tayyor: { ic: 'fa-check', desc: "Yig'ildi — o'rnatishga tayyor" },
+      topshirildi: { ic: 'fa-flag-checkered', desc: 'Mijozga topshirildi, yakunlandi' }
+    };
+    const statusOpts = Object.keys(this.STS).filter(k => k !== 'del').map((k, i) => {
+      const on = s.dStatus === k, bg = this.STS[k].bg;
+      return {
+        label: this.STS[k].label, ic: ST_META[k].ic, desc: ST_META[k].desc, on,
+        pick: () => { this.setState({ dStatus: k, sheet: null }); this.T('Status yangilandi: ' + this.STS[k].label + ' ✅'); },
+        style: {
+          display: 'flex', alignItems: 'center', gap: 12,
+          padding: '12px 14px', borderRadius: 16, cursor: 'pointer',
+          border: on ? 'none' : '1px solid var(--brd,rgba(255,255,255,.08))',
+          background: on ? bg : 'var(--sfc2,#29282F)',
+          color: on ? '#1B1A20' : 'var(--txt,#F5F4F7)',
+          boxShadow: on ? '0 8px 18px ' + 'rgba(0,0,0,.22)' : 'none',
+          animation: 'popin .35s cubic-bezier(.2,.8,.3,1) backwards', animationDelay: (i * 0.05) + 's'
+        },
+        dotStyle: {
+          width: 36, height: 36, borderRadius: 12, flex: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: on ? 'rgba(0,0,0,.16)' : bg,
+          color: '#1B1A20'
+        }
+      };
+    });
+
+    const permVals = s.perms.map((p, i) => {
+      const t = this.toggle(p.on);
+      return {
+        label: p.label, trackStyle: t.track, knobStyle: t.knob,
+        flip: () => this.setState({ perms: s.perms.map((pp, j) => j === i ? { ...pp, on: !pp.on } : pp) })
+      };
+    });
+
+    const periodChips = ['Bugun', 'Hafta', 'Oy', '📅 Davr'].map(label => ({
+      label, set: () => this.setState({ finP: label }), style: this.pill(s.finP === label)
+    }));
+    const anaTabs = ['Bugun', 'Hafta', 'Yil', '📅'].map(label => ({
+      label, set: () => this.setState({ anaP: label }), style: this.pill(s.anaP === label)
+    }));
+
+    const pickChip = (arr, selKey) => arr.map((label, i) => ({
+      label, name: label, pick: () => this.setState({ [selKey]: i }),
+      style: Object.assign(this.pill(s[selKey] === i), { animation: 'popin .35s cubic-bezier(.2,.8,.3,1) backwards', animationDelay: (i * 0.05) + 's' })
+    }));
+
+    const themeToggle = this.toggle(dark);
+    const th = this.toggle;
+
+    return {
+      rootStyle, shellStyle, contentStyle, screenStyle, contentRef: this.contentRef, rootRef: this.rootRef,
+      isMobile, isDesktop, noop: () => this.T('Namuna rejimi 🙂'),
+      mobBtnStyle: ctlBtn(isMobile), deskBtnStyle: ctlBtn(isDesktop), themeBtnStyle: ctlBtn(false),
+      setMobile: () => this.setState({ device: 'mobile' }), setDesktop: () => this.setState({ device: 'desktop' }),
+      toggleTheme: () => this.setState({ theme: dark ? 'light' : 'dark' }),
+      themeLabel: dark ? '☀️ Light' : '🌙 Dark',
+      themeTrack: themeToggle.track, themeKnob: themeToggle.knob,
+
+      topTitle: this.TITLES[s.screen] || 'Bittada',
+      showBack: s.screen === 'detail', showBurger: isMobile && s.screen !== 'detail',
+      goBack: () => this.go('orders'), openDrawer: () => this.setState({ drawer: true }), closeDrawer: () => this.setState({ drawer: false }),
+      drawerOpen: s.drawer, sideGroups,
+      goSettings: () => this.go('set'), goOrders: () => this.go('orders'),
+      navItems: nav,
+
+      sDash: s.screen === 'dash', sOrders: s.screen === 'orders', sDetail: s.screen === 'detail',
+      sFin: s.screen === 'fin', sAna: s.screen === 'ana', sClients: s.screen === 'clients', sSet: s.screen === 'set',
+
+      userName: 'Aziz Karimov', vip: 'Gold usta', xp: s.xp, coins: s.coins, streak: s.streak,
+      vipChipStyle: this.chip(gami === 'yorqin' ? 'var(--acc,#DCF262)' : 'var(--sfc2,#29282F)', gami === 'yorqin' ? '#1B1A20' : 'var(--txt,#F5F4F7)'),
+      gamiOn: gami !== 'yengil', showQuests: gami !== 'yengil',
+      quests: questVals,
+
+      quickCards: [
+        { fa: 'fa-box-open', label: 'Buyurtmalar', count: 9, bg: C.lime, go: () => this.go('orders') },
+        { fa: 'fa-industry', label: 'MebelCity', count: 4, bg: C.cyan, go: () => this.T('MebelCity namunada yo\u2018q 🛠') },
+        { fa: 'fa-user-friends', label: 'Mijozlar', count: 31, bg: C.lav, go: () => this.go('clients') }
+      ].map(qc => {
+        const h = qc.bg.replace('#', '');
+        const ch = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16));
+        const mix = (f) => 'rgb(' + ch.map(v => Math.round(v + (255 - v) * f)).join(',') + ')';
+        return { ...qc, grad: 'linear-gradient(150deg,' + mix(0.38) + ' 0%,' + qc.bg + ' 78%)' };
+      }),
+      dashStats: [
+        { label: 'Kirim (oy)', val: '24.6 mln', sub: "so'm", clr: 'var(--txt,#F5F4F7)' },
+        { label: 'Foyda', val: '+8.2 mln', sub: "so'm", clr: TX.lime },
+        { label: 'Qarz', val: '3.4 mln', sub: "so'm", clr: TX.pch }
+      ].map((st, i) => ({ ...st, dly: +(i * 0.07).toFixed(2) })),
+      activeOrders, orders, orderTabs, q: s.q,
+      onQ: (e) => this.setState({ q: e.target.value }),
+      openCreate: () => this.setState({ sheet: 'create' }),
+      newFromMenu: () => this.setState({ drawer: false, sheet: 'create' }),
+
+      dName: 'Oshxona garnituri «Malika»', dClient: 'Dilnoza Karimova', dPct: 65,
+      dStatusLabel: dst.label, dStatusStyle: Object.assign(this.chip(dst.bg), { border: 'none', cursor: 'pointer', fontSize: 12, padding: '7px 12px', boxShadow: '0 6px 14px rgba(0,0,0,.18)' }),
+      openStatus: () => this.setState({ sheet: 'status' }),
+      dTabs, dUmumiy: s.dTab === 'umumiy', dMoliya: s.dTab === 'moliya', dEtap: s.dTab === 'etap', dFayl: s.dTab === 'fayl', dJamoa: s.dTab === 'jamoa',
+      dInfo: [
+        { k: 'Boshlangan', v: '12-iyun 2026' }, { k: 'Deadline', v: '25-iyul 2026' },
+        { k: 'Shablon', v: '🪑 Standart mebel' }, { k: 'Yaratdi', v: 'Aziz Karimov' }
+      ],
+      finCards: [
+        { label: 'Shartnoma', val: '8.5 mln', clr: 'var(--txt,#F5F4F7)' },
+        { label: 'Kirim', val: '5.5 mln', clr: TX.lime },
+        { label: 'Qarz', val: '3.0 mln', clr: TX.pch },
+        { label: 'Chiqim', val: '2.1 mln', clr: TX.dgr },
+        { label: 'Foyda', val: '3.4 mln', clr: TX.lime }
+      ],
+      etaps,
+      files: [
+        { ic: '🖼', label: 'Eskiz.jpg', bg: C.lav }, { ic: '🖼', label: 'Zamer.jpg', bg: C.cyan },
+        { ic: '🎬', label: 'Video.mp4', bg: C.pch }, { ic: '📄', label: 'Shartnoma', bg: C.lime },
+        { ic: '📐', label: 'Loyiha.b3d', bg: C.cyan }
+      ].map((f, i) => ({ ...f, dly: +(i * 0.05).toFixed(2) })),
+      team: [
+        { init: 'AK', name: 'Aziz Karimov', role: 'Usta (ega)', pct: 35, bg: C.lav },
+        { init: 'SR', name: 'Sardor Rahimov', role: 'Yordamchi', pct: 25, bg: C.cyan },
+        { init: 'JT', name: 'Jasur Tashkentov', role: 'Montaj', pct: 20, bg: C.pch }
+      ],
+      split: [
+        { name: 'Aziz', pct: 35, clr: C.lime }, { name: 'Sardor', pct: 25, clr: C.cyan },
+        { name: 'Jasur', pct: 20, clr: C.pch }, { name: 'Fond', pct: 20, clr: C.lav }
+      ],
+      perms: permVals,
+      statusOpts,
+      openKirim: () => this.setState({ sheet: 'kirim' }),
+      toastChiqim: () => this.T('Chiqim sheet — xuddi kirim kabi ochiladi'),
+      toastShartnoma: () => this.T('Shartnoma PDF yaratilmoqda… 📄'),
+      toastUlashish: () => this.T('Ulashish havolasi nusxalandi 🔗'),
+      toastMC: () => this.T('MebelCity iframe to\u2018liq ekranda ochiladi 🏭'),
+      toastFayl: () => this.T('Fayl yuklash — galereya ochiladi 📁'),
+
+      finStats: [
+        { label: 'Kirim', val: '24.6 mln', sub: "+18% o'tgan oyga", clr: TX.lime },
+        { label: 'Chiqim', val: '9.8 mln', sub: '-6%', clr: TX.pch },
+        { label: 'Foyda', val: '8.2 mln', sub: '+24%', clr: TX.lime },
+        { label: 'Balans', val: '14.8 mln', sub: 'Naqd + karta', clr: 'var(--txt,#F5F4F7)' }
+      ].map((f, i) => ({ ...f, dly: +(i * 0.07).toFixed(2) })),
+      finTxOn: s.finTab === 'tx', finDebtOn: s.finTab === 'debt',
+      setFinTx: () => this.setState({ finTab: 'tx' }), setFinDebt: () => this.setState({ finTab: 'debt' }),
+      finTxStyle: Object.assign(this.pill(s.finTab === 'tx'), { flex: 1 }),
+      finDebtStyle: Object.assign(this.pill(s.finTab === 'debt'), { flex: 1 }),
+      periodChips,
+      txs: [
+        { ic: '↓', icBg: C.lime, name: '«Malika» — avans', cat: 'Kirim · Naqd', amt: '+2 500 000', clr: TX.lime, time: 'Bugun 14:20' },
+        { ic: '↑', icBg: C.pch, name: 'Furnitura Blum', cat: 'Chiqim · Material', amt: '-450 000', clr: TX.dgr, time: 'Kecha' },
+        { ic: '↓', icBg: C.lime, name: 'TV panel — yakuniy', cat: 'Kirim · Karta', amt: '+1 200 000', clr: TX.lime, time: 'Kecha' },
+        { ic: '↑', icBg: C.pch, name: 'LDSP 18mm × 12 list', cat: 'Chiqim · Material', amt: '-800 000', clr: TX.dgr, time: '2 kun oldin' },
+        { ic: '↓', icBg: C.lime, name: 'Bolalar xonasi — avans', cat: 'Kirim · O\u2018tkazma', amt: '+3 000 000', clr: TX.lime, time: '3 kun oldin' }
+      ].map((t, i) => ({ ...t, dly: +(i * 0.05).toFixed(2) })),
+      debts: [
+        { name: 'Dilnoza Karimova — «Malika»', paidLabel: '5.5 / 8.5 mln', pct: 65, pay: () => this.setState({ sheet: 'kirim' }) },
+        { name: 'Jasur Raimov — Bolalar xonasi', paidLabel: '0 / 12.0 mln', pct: 0, pay: () => this.setState({ sheet: 'kirim' }) },
+        { name: "Bekzod To'rayev — Shkaf", paidLabel: '2.0 / 4.2 mln', pct: 48, pay: () => this.setState({ sheet: 'kirim' }) }
+      ].map((d, i) => ({ ...d, dly: +(i * 0.06).toFixed(2) })),
+
+      anaTabs,
+      anaStats: [
+        { label: 'Kirim', val: '24.6 mln', delta: '+18%', deltaClr: TX.lime },
+        { label: 'Chiqim', val: '9.8 mln', delta: '-6%', deltaClr: TX.lime },
+        { label: 'Foyda', val: '8.2 mln', delta: '+24%', deltaClr: TX.lime },
+        { label: 'Buyurtmalar', val: '21', delta: '+3 ta', deltaClr: TX.cyan }
+      ].map((a, i) => ({ ...a, dly: +(i * 0.07).toFixed(2) })),
+      aiIdle: s.ai === 'idle', aiLoading: s.ai === 'loading', aiDone: s.ai === 'done',
+      runAI: () => {
+        if (s.coins < 50) { this.T('Tanga yetarli emas 🪙'); return; }
+        this.setState({ ai: 'loading', coins: s.coins - 50 });
+        setTimeout(() => this.setState({ ai: 'done' }), 1600);
+      },
+      aiLines: [
+        { t: "💡 Foyda o'tgan oyga nisbatan 24% o'sdi — asosiy hissa «Malika» buyurtmasidan." },
+        { t: "⚠️ Furnitura chiqimlari 3 oy ketma-ket o'smoqda. Ulgurji ta'minotchi bilan kelishish tavsiya etiladi." },
+        { t: '🎯 Qarzdorlik 3.0 mln — Dilnoza Karimovaga eslatma yuborish foydali.' }
+      ],
+      days: [
+        { d: 'Du', h1: 55, h2: 30 }, { d: 'Se', h1: 70, h2: 25 }, { d: 'Cho', h1: 40, h2: 45 },
+        { d: 'Pa', h1: 85, h2: 35 }, { d: 'Ju', h1: 60, h2: 50 }, { d: 'Sha', h1: 95, h2: 40 }, { d: 'Ya', h1: 75, h2: 30 }
+      ].map((d, i) => ({ ...d, dly: +(i * 0.05).toFixed(2), dly2: +(i * 0.05 + 0.12).toFixed(2) })),
+      donutGrad: 'conic-gradient(' + C.cyan + ' 0deg 154deg,' + C.lime + ' 154deg 240deg,' + C.lav + ' 240deg 291deg,' + C.pch + ' 291deg 360deg)',
+      donutLegend: [
+        { c: C.cyan, label: 'Jarayonda', n: 9 }, { c: C.lime, label: 'Tayyor', n: 5 },
+        { c: C.lav, label: 'Yangi', n: 3 }, { c: C.pch, label: 'Kutilmoqda', n: 4 }
+      ].map((l, i) => ({ ...l, dly: +(0.2 + i * 0.08).toFixed(2) })),
+      expBars: [
+        { label: 'Material', amt: '4.1 mln', w: 100, clr: C.pch },
+        { label: 'Ish haqi', amt: '2.3 mln', w: 56, clr: C.lav },
+        { label: 'Furnitura', amt: '1.6 mln', w: 39, clr: C.cyan },
+        { label: 'Transport', amt: '0.9 mln', w: 22, clr: C.lime }
+      ].map((e, i) => ({ ...e, dly: +(i * 0.09).toFixed(2) })),
+      anaFoot: [
+        { label: "O'rtacha chek", val: '5.6 mln' }, { label: 'Konversiya', val: '68%' },
+        { label: "O'rtacha muddat", val: '12 kun' }, { label: 'Qaytgan mijoz', val: '41%' }
+      ],
+
+      clients: this.CLIENTS.map((c, i) => ({ ...c, dly: +(i * 0.05).toFixed(2), call: () => this.T('📞 ' + c.tel) })),
+
+      shablons: [
+        { emoji: '🪑', name: 'Standart mebel', meta: '5 bosqich · Zamer→O\u2018rnatish', clr: C.cyan },
+        { emoji: '🚪', name: 'Eshik / shkaf', meta: '4 bosqich', clr: C.lav },
+        { emoji: '🛋', name: 'Yumshoq mebel', meta: '6 bosqich', clr: C.pch }
+      ].map((sb, i) => ({ ...sb, dly: +(i * 0.06).toFixed(2) })),
+      toastShablon: () => this.T('Shablon muharriri ochiladi ✏️'),
+      toastParol: () => this.T('Parol o\u2018zgartirish oynasi 🔒'),
+      toastDanger: () => this.T('Tasdiqlash so\u2018raladi — bu qaytarilmas amal ⚠️'),
+
+      sheetOpen: !!s.sheet, closeSheet: () => this.setState({ sheet: null }),
+      shCreate: s.sheet === 'create', shKirim: s.sheet === 'kirim', shStatus: s.sheet === 'status',
+      newName: s.newName, onNewName: (e) => this.setState({ newName: e.target.value }),
+      mijozChips: pickChip(this.CLIENTS.map(c => c.name.split(' ')[0]), 'selClient'),
+      shabChips: pickChip(['🪑 Standart', '🚪 Shkaf', '🛋 Yumshoq'], 'selShab'),
+      payChips: pickChip(['💵 Naqd', '💳 Karta', '🏦 O\u2018tkazma'], 'selPay'),
+      createGo: () => {
+        const nm = s.newName || 'Yangi buyurtma';
+        this.setState({ sheet: null, newName: '' });
+        this.T('«' + nm + '» yaratildi ✅ +10 XP');
+        this.doBurst();
+      },
+      kirimGo: () => { this.setState({ sheet: null }); this.T('Kirim saqlandi ✅ Qarz yangilandi'); },
+
+      toast: s.toast, toastShow: !!s.toast,
+      burst: s.burst,
+      burstCoins: [0, 1, 2, 3, 4, 5].map(i => ({
+        style: {
+          position: 'absolute', bottom: 180, left: (38 + i * 5) + '%', fontSize: 20 + (i % 3) * 6,
+          animation: 'coinpop .9s ease-out forwards', animationDelay: (i * 0.07) + 's', opacity: 0
+        }
+      })),
+      fabClick: () => this.T('🤖 Laylo AI: "Salom! Qanday yordam beray?"')
+    };
+  }
+}
+</script>
+</body>
+</html>

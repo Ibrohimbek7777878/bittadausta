@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#{{ order.id }} — {{ order.title }}</title>
+<style>
+@page { size: A4; margin: 12mm 10mm; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #1a1a1a; line-height: 1.4; }
+.header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #333; padding-bottom: 8px; margin-bottom: 10px; }
+.header-left h1 { font-size: 16px; font-weight: 700; }
+.header-left .sub { font-size: 11px; color: #666; margin-top: 2px; }
+.header-right { text-align: right; font-size: 10px; color: #666; }
+.stats { display: flex; gap: 6px; margin-bottom: 10px; }
+.stat-box { flex: 1; border: 1px solid #ccc; border-radius: 4px; padding: 6px; text-align: center; }
+.stat-box .label { font-size: 9px; color: #888; text-transform: uppercase; }
+.stat-box .value { font-size: 13px; font-weight: 700; margin-top: 2px; }
+.stages { columns: 2; column-gap: 12px; }
+.stage { break-inside: avoid; border: 1px solid #ddd; border-radius: 4px; padding: 6px 8px; margin-bottom: 6px; }
+.stage-header { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; border-bottom: 1px solid #eee; padding-bottom: 4px; margin-bottom: 4px; }
+.stage-num { background: #333; color: #fff; border-radius: 3px; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 9px; flex-shrink: 0; }
+.check-row { display: flex; align-items: center; gap: 4px; padding: 2px 0; font-size: 10px; }
+.checkbox { width: 11px; height: 11px; border: 1.5px solid #555; border-radius: 2px; flex-shrink: 0; }
+.note-line { border-bottom: 1px dotted #ccc; margin-top: 8px; height: 14px; }
+.footer { margin-top: 10px; border-top: 1px solid #ddd; padding-top: 6px; display: flex; justify-content: space-between; font-size: 10px; color: #888; }
+.sign-block { display: flex; gap: 40px; margin-top: 10px; }
+.sign-item { font-size: 10px; }
+.sign-item .line { border-bottom: 1px solid #333; width: 120px; margin-top: 14px; }
+@media print {
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .no-print { display: none !important; }
+}
+.print-btn { position: fixed; top: 10px; right: 10px; padding: 8px 20px; background: #6366f1; color: #fff; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; z-index: 100; }
+</style>
+</head>
+<body>
+<button class="print-btn no-print" onclick="window.print()">🖨 Chop etish</button>
+
+<div class="header">
+  <div class="header-left">
+    <h1>{{ order.title }}</h1>
+    <div class="sub">
+      {% if order.customer %}Mijoz: {{ order.customer.full_name }}{% if order.customer.phone %} · {{ order.customer.phone }}{% endif %}{% endif %}
+    </div>
+  </div>
+  <div class="header-right">
+    Buyurtma #{{ order.id }}<br>
+    Sana: {{ order.created_at|date:"d.m.Y" }}
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat-box">
+    <div class="label">Zaklad</div>
+    <div class="value">{{ order.zaklad_amount|default:"—" }}</div>
+  </div>
+  <div class="stat-box">
+    <div class="label">Chiqim</div>
+    <div class="value">________</div>
+  </div>
+  <div class="stat-box">
+    <div class="label">Qoldiq</div>
+    <div class="value">________</div>
+  </div>
+</div>
+
+<div class="stages">
+{% for stage in stages %}
+  <div class="stage">
+    <div class="stage-header">
+      <span class="stage-num">{{ forloop.counter }}</span>
+      {{ stage.icon }} {{ stage.title }}
+    </div>
+    {% for item in stage.checklist.all %}
+    <div class="check-row">
+      <div class="checkbox"></div>
+      <span>{{ item.text }}</span>
+    </div>
+    {% endfor %}
+    <div class="note-line"></div>
+  </div>
+{% endfor %}
+</div>
+
+<div class="sign-block">
+  <div class="sign-item">Ijrochi: <div class="line"></div></div>
+  <div class="sign-item">Mijoz: <div class="line"></div></div>
+  <div class="sign-item">Sana: <div class="line"></div></div>
+</div>
+
+<div class="footer">
+  <span>BigOne Export</span>
+  <span>{{ order.created_at|date:"d.m.Y H:i" }}</span>
+</div>
+</body>
+</html>

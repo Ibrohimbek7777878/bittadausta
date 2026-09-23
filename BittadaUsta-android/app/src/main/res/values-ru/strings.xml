@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Bittada Usta</string>
+
+    <!-- Splash -->
+    <string name="splash_subtitle">Для мебельных мастеров</string>
+
+    <!-- Share -->
+    <string name="share_title">Поделиться</string>
+    <string name="share_error">Не удалось поделиться</string>
+
+    <!-- Bluetooth -->
+    <string name="bt_permission_needed">Нужно разрешение Bluetooth</string>
+    <string name="bt_off">Bluetooth выключен — включите</string>
+    <string name="bt_connect_device_first">Сначала подключитесь к лазеру</string>
+    <string name="bt_device_connected">📡 %1$s подключён</string>
+    <string name="bt_icon_hidden">Иконка скрыта — верните через кнопку BLE</string>
+    <string name="bt_scanner_not_available">BLE сканер недоступен</string>
+    <string name="bt_device_not_found">Устройство не найдено: %1$s</string>
+    <string name="bt_not_connected">BLE не подключён</string>
+    <string name="bt_characteristic_not_found">Характеристика не найдена</string>
+    <string name="bt_press_measure">Нажмите кнопку измерения на устройстве</string>
+    <string name="bt_services_not_found">Сервисы не найдены</string>
+    <string name="bt_characteristic_not_match">Подходящая характеристика не найдена</string>
+    <string name="bt_default_device">Устройство</string>
+
+    <!-- BLE Dialog -->
+    <string name="ble_title">📡 BLE лазерные устройства</string>
+    <string name="ble_searching">Поиск...</string>
+    <string name="ble_retry">🔄 Повтор</string>
+    <string name="ble_connected_status">✅ Подключено: %1$s</string>
+    <string name="ble_close">ЗАКРЫТЬ</string>
+    <string name="ble_connecting">Подключение: %1$s...</string>
+    <string name="ble_devices_found">Найдено устройств: %1$d</string>
+    <string name="ble_not_found">Не найдено — включите лазер и повторите</string>
+    <string name="ble_unnamed_device">Без названия</string>
+    <string name="ble_device_rssi">%1$s • %2$d dBm</string>
+
+    <!-- BLE Menu -->
+    <string name="ble_menu_measure">📏 Измерить</string>
+    <string name="ble_menu_disconnect">❌ Отключить</string>
+    <string name="ble_menu_hide">🙈 Скрыть</string>
+
+    <!-- JS Dialogs -->
+    <string name="js_confirm_yes">Да</string>
+    <string name="js_confirm_no">Нет</string>
+    <string name="js_prompt_cancel">Отмена</string>
+
+    <!-- Microphone -->
+    <string name="mic_permission_needed">Дайте разрешение на микрофон и повторите</string>
+
+    <!-- Download -->
+    <string name="download_started">Загрузка начата</string>
+    <string name="download_finished">Загружено: %1$s</string>
+    <string name="download_error">Ошибка загрузки</string>
+    <string name="download_in_progress">Загрузка...</string>
+
+    <!-- BleManager -->
+    <string name="ble_scan_error">Ошибка сканера: %1$d</string>
+    <string name="ble_aim">Наведите на цель</string>
+    <string name="ble_read_error">Измерение не считано</string>
+</resources>

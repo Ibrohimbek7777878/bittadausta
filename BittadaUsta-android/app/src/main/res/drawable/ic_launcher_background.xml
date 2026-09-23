@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  2026-09-12: Android Studio shabloni (Bugdroid robot, #3DDC84 — Google'ning
+  rasmiy Android yashil rangi) ALMASHTIRILDI. Sabab: Google Play
+  'Impersonation' siyosati Google brend aktivlaridan foydalanishni taqiqlaydi.
+
+  Endi — Bittada'ning rasmiy PWA ikonkasi ishlatiladi
+  (manba: static/client_erp/pwa/icon-512.png va icon-maskable.png).
+  Foreground (ic_launcher_foreground.png) o'z yashil doirasini olib yuradi,
+  shuning uchun bu fon — maskable variantdagi kabi to'q (#12140A).
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#12140A"
+        android:pathData="M0,0h108v108h-108z" />
+</vector>

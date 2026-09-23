@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>{% block title %}Bittada Usta{% endblock %}</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="/static/client_erp/css/base.css">
+{% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="ce-app">
+
+    <!-- Mobile Top Bar -->
+    <header class="ce-topbar">
+        <button class="ce-topbar-menu" onclick="document.getElementById('ce-sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+        <div class="ce-topbar-title"><i class="fas fa-hammer" style="color:var(--accent);margin-right:6px"></i> MebelCity</div>
+        <div class="ce-topbar-user"><i class="fas fa-user-circle" style="margin-right:4px;opacity:.6"></i> {{ user.full_name|truncatechars:15 }}</div>
+    </header>
+
+    <!-- Sidebar -->
+    <aside class="ce-sidebar" id="ce-sidebar">
+        <div class="ce-sidebar-logo">
+            <h3 style="display:flex;align-items:center;gap:8px"><img src="/static/client_erp/img/logo.png" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover"> Bittada Usta</h3>
+            <div class="sub">{{ user.full_name }} {% if user.organization %}· {{ user.organization }}{% endif %}</div>
+        </div>
+        <nav class="ce-sidebar-nav">
+            {% with p=request.path u=user.username %}
+            <a href="/mini/{{ u }}/" class="ce-nav-link {% if p == '/mini/'|add:u|add:'/' %}active{% endif %}"><i class="fas fa-home"></i> <span>Bosh sahifa</span></a>
+            <a href="/mini/{{ u }}/clients/" class="ce-nav-link {% if 'clients' in p %}active{% endif %}"><i class="fas fa-users"></i> <span>Mijozlarim</span></a>
+            <a href="/mini/{{ u }}/orders/" class="ce-nav-link {% if 'orders' in p %}active{% endif %}"><i class="fas fa-clipboard-list"></i> <span>Buyurtmalar</span></a>
+            <a href="/mini/{{ u }}/finance/" class="ce-nav-link {% if 'finance' in p %}active{% endif %}"><i class="fas fa-coins"></i> <span>Moliya</span></a>
+            <a href="/mini/{{ u }}/zamers/" class="ce-nav-link {% if 'zamers' in p %}active{% endif %}"><i class="fas fa-ruler-combined"></i> <span>Zamerlar</span></a>
+            <a href="/mini/{{ u }}/portfolio/" class="ce-nav-link {% if 'portfolio' in p %}active{% endif %}"><i class="fas fa-images"></i> <span>Portfolio</span></a>
+
+            <div class="ce-nav-section">MebelCity</div>
+            <a href="/mini/{{ u }}/mebelcity/" class="ce-nav-link {% if 'mebelcity' in p %}active{% endif %}"><i class="fas fa-industry"></i> <span>Buyurtmalarim</span></a>
+
+            <div class="ce-nav-section">Boshqa</div>
+            <a href="/mini/{{ u }}/settings/" class="ce-nav-link {% if 'settings' in p %}active{% endif %}"><i class="fas fa-cog"></i> <span>Sozlamalar</span></a>
+            {% endwith %}
+        </nav>
+        <div class="ce-sidebar-footer">
+            <a href="/mini/logout/" class="ce-nav-link" style="color:var(--danger)"><i class="fas fa-sign-out-alt"></i> <span>Chiqish</span></a>
+        </div>
+    </aside>
+
+    <!-- Sidebar overlay (mobile) -->
+    <div class="ce-sidebar-overlay" onclick="document.getElementById('ce-sidebar').classList.remove('open')"></div>
+
+    <!-- Main Content -->
+    <main class="ce-main">
+        <div class="ce-page-enter">
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+</div>
+
+<!-- Bottom Nav (Mobile) — barcha sahifalar scroll qilinadi -->
+<nav class="ce-bottom-nav">
+    {% with p=request.path u=user.username %}
+    <a href="/mini/{{ u }}/" class="ce-bnav-item {% if p == '/mini/'|add:u|add:'/' %}active{% endif %}"><i class="fas fa-home"></i><span>Bosh</span></a>
+    <a href="/mini/{{ u }}/clients/" class="ce-bnav-item {% if 'clients' in p %}active{% endif %}"><i class="fas fa-users"></i><span>Mijoz</span></a>
+    <a href="/mini/{{ u }}/orders/" class="ce-bnav-item {% if 'orders' in p %}active{% endif %}"><i class="fas fa-clipboard-list"></i><span>Zakaz</span></a>
+    <a href="/mini/{{ u }}/finance/" class="ce-bnav-item {% if 'finance' in p %}active{% endif %}"><i class="fas fa-coins"></i><span>Moliya</span></a>
+    <a href="/mini/{{ u }}/mebelcity/" class="ce-bnav-item {% if 'mebelcity' in p %}active{% endif %}"><i class="fas fa-industry"></i><span>MC</span></a>
+    {% endwith %}
+</nav>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

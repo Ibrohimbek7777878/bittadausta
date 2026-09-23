@@ -1,0 +1,34 @@
+# ===== MAXFIY — HECH QACHON commit qilinmaydi (repo PUBLIC!) =====
+*.jks
+*.keystore
+keystore.properties
+local.properties
+*KALIT-MALUMOTLARI*
+*.key
+.env
+.env.*
+
+# ===== Build chiqindilari =====
+build/
+.gradle/
+captures/
+*.hprof
+
+# ===== Python =====
+__pycache__/
+*.pyc
+*.pyo
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+*.swp
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Vaqtinchalik skrinshotlar =====
+Pasted image*.png
+Screenshot*.png

@@ -1,0 +1,24 @@
+*.iml
+.gradle
+/local.properties
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# ── MAXFIY — GitHub'ga HECH QACHON tushmasin (2026-09-12) ──────────
+# Imzo kaliti va parollar. Bular yo'qolsa ilovani Play'da yangilab
+# bo'lmaydi, begona qo'lga tushsa esa soxta yangilanish chiqarish mumkin.
+keystore.properties
+*.jks
+*.keystore
+*.p12
+*.pepk
