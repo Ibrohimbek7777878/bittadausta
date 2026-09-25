@@ -1,0 +1,66 @@
+{% extends "client_erp/base.html" %}
+{% block title %}MebelCity Buyurtmalarim{% endblock %}
+{% block content %}
+<h2 style="font-size:20px;font-weight:900;margin-bottom:16px"><i class="fas fa-industry mr-2" style="color:var(--accent)"></i>MebelCity Buyurtmalarim</h2>
+
+{% for o in orders %}
+<div class="ce-card" style="margin-bottom:12px;border-left:4px solid {% if o.state == 'done' %}var(--accent){% elif o.state == 'cancel' %}var(--danger){% elif o.is_urgent %}var(--warning){% else %}var(--accent2){% endif %}">
+    <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px">
+        <div style="flex:1;min-width:0">
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                <span style="font-weight:800;font-size:15px;color:var(--text)">{{ o.partner_name }}</span>
+                <code style="background:var(--surface2);padding:2px 8px;border-radius:4px;font-size:11px;color:var(--accent2)">{{ o.code }}</code>
+                {% if o.is_urgent %}<span style="background:rgba(245,158,11,.15);color:var(--warning);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800">⚡ TEZKOR</span>{% endif %}
+            </div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">
+                {{ o.order_date|date:"d.m.Y" }}
+                {% if o.deadline_at %} · Muddat: <span style="color:var(--warning);font-weight:700">{{ o.deadline_at|date:"d.m.Y" }}</span>{% endif %}
+            </div>
+        </div>
+        <span class="ce-badge ce-badge-{% if o.state == 'done' %}ready{% elif o.state == 'cancel' %}danger{% elif o.state == 'in_progress' %}progress{% else %}new{% endif %}">
+            {{ o.state_display }}
+        </span>
+    </div>
+
+    <!-- Progress bar -->
+    <div style="background:var(--surface2);border-radius:6px;height:6px;margin-bottom:8px;overflow:hidden">
+        <div style="height:100%;border-radius:6px;transition:width .6s;width:{{ o.progress }}%;background:{% if o.state == 'done' %}var(--accent){% elif o.state == 'cancel' %}var(--danger){% else %}var(--accent2){% endif %}"></div>
+    </div>
+
+    <!-- Etaplar -->
+    <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px">
+        {% for s in o.steps %}
+        <div style="flex-shrink:0;display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;
+            {% if s.state == 'done' %}background:rgba(16,185,129,.12);color:var(--accent)
+            {% elif s.state == 'in_progress' %}background:rgba(99,102,241,.15);color:var(--accent2)
+            {% elif s.state == 'cancel' %}background:rgba(239,68,68,.1);color:var(--danger);text-decoration:line-through
+            {% else %}background:var(--surface2);color:var(--text2){% endif %}">
+            {% if s.state == 'done' %}<i class="fas fa-check" style="font-size:9px"></i>
+            {% elif s.state == 'in_progress' %}<i class="fas fa-spinner fa-spin" style="font-size:9px"></i>
+            {% elif s.state == 'cancel' %}<i class="fas fa-times" style="font-size:9px"></i>
+            {% else %}<i class="fas fa-circle" style="font-size:6px;opacity:.4"></i>{% endif %}
+            {{ s.name }}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if o.current_step %}
+    <div style="margin-top:8px;font-size:12px;color:var(--accent2);font-weight:700">
+        <i class="fas fa-arrow-right mr-1"></i> Hozir: {{ o.current_step }}
+    </div>
+    {% endif %}
+
+    <div style="margin-top:8px">
+        <a href="/order/{{ o.code }}/" target="_blank" style="font-size:12px;color:var(--accent);font-weight:600;text-decoration:none">
+            <i class="fas fa-external-link-alt mr-1"></i> Batafsil ko'rish
+        </a>
+    </div>
+</div>
+{% empty %}
+<div class="ce-card" style="text-align:center;padding:40px;color:var(--text2)">
+    <i class="fas fa-industry" style="font-size:32px;opacity:.3;display:block;margin-bottom:8px"></i>
+    MebelCity da buyurtma topilmadi
+    <br><small style="font-size:12px">Sizning telefon raqamingiz bilan ochilgan buyurtmalar shu yerda ko'rinadi</small>
+</div>
+{% endfor %}
+{% endblock %}

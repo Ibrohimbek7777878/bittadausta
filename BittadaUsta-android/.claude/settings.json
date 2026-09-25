@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" || exit 0; ADB=\"$LOCALAPPDATA/Android/Sdk/platform-tools/adb.exe\"; \"$ADB\" devices 2>/dev/null | grep -qE \"device$\" || exit 0; APK=\"app/build/outputs/apk/debug/app-debug.apk\"; before=$(stat -c %Y \"$APK\" 2>/dev/null || echo 0); out=$(./gradlew.bat :app:assembleDebug -q 2>&1) || { echo \"Auto-deploy: Gradle build xato:\"; echo \"$out\" | tail -n 30; exit 2; }; after=$(stat -c %Y \"$APK\" 2>/dev/null || echo 0); [ \"$after\" = \"$before\" ] && exit 0; \"$ADB\" install -r \"$APK\" >/dev/null 2>&1 || { echo \"Auto-deploy: adb install xato\"; exit 2; }; \"$ADB\" shell am start -S -n com.bittada.bittadausta/.MainActivity >/dev/null 2>&1; exit 0",
+            "timeout": 300,
+            "asyncRewake": true,
+            "statusMessage": "Emulatorga o'rnatilmoqda..."
+          }
+        ]
+      }
+    ]
+  }
+}

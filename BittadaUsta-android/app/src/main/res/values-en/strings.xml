@@ -1,0 +1,61 @@
+<resources>
+    <string name="app_name">Bittada Usta</string>
+
+    <!-- Splash -->
+    <string name="splash_subtitle">For furniture makers</string>
+
+    <!-- Share -->
+    <string name="share_title">Share</string>
+    <string name="share_error">Could not share</string>
+
+    <!-- Bluetooth -->
+    <string name="bt_permission_needed">Bluetooth permission required</string>
+    <string name="bt_off">Bluetooth is off — please enable</string>
+    <string name="bt_connect_device_first">Connect to a laser device first</string>
+    <string name="bt_device_connected">📡 %1$s connected</string>
+    <string name="bt_icon_hidden">Icon hidden — restore from BLE button</string>
+    <string name="bt_scanner_not_available">BLE scanner not available</string>
+    <string name="bt_device_not_found">Device not found: %1$s</string>
+    <string name="bt_not_connected">BLE not connected</string>
+    <string name="bt_characteristic_not_found">Characteristic not found</string>
+    <string name="bt_press_measure">Press the measure button on the device</string>
+    <string name="bt_services_not_found">Services not found</string>
+    <string name="bt_characteristic_not_match">Matching characteristic not found</string>
+    <string name="bt_default_device">Device</string>
+
+    <!-- BLE Dialog -->
+    <string name="ble_title">📡 BLE Laser Devices</string>
+    <string name="ble_searching">Searching...</string>
+    <string name="ble_retry">🔄 Retry</string>
+    <string name="ble_connected_status">✅ Connected: %1$s</string>
+    <string name="ble_close">CLOSE</string>
+    <string name="ble_connecting">Connecting: %1$s...</string>
+    <string name="ble_devices_found">%1$d device(s) found</string>
+    <string name="ble_not_found">Not found — turn on the laser and retry</string>
+    <string name="ble_unnamed_device">Unnamed device</string>
+    <string name="ble_device_rssi">%1$s • %2$d dBm</string>
+
+    <!-- BLE Menu -->
+    <string name="ble_menu_measure">📏 Measure</string>
+    <string name="ble_menu_disconnect">❌ Disconnect</string>
+    <string name="ble_menu_hide">🙈 Hide</string>
+
+    <!-- JS Dialogs -->
+    <string name="js_confirm_yes">Yes</string>
+    <string name="js_confirm_no">No</string>
+    <string name="js_prompt_cancel">Cancel</string>
+
+    <!-- Microphone -->
+    <string name="mic_permission_needed">Grant microphone permission and try again</string>
+
+    <!-- Download -->
+    <string name="download_started">Download started</string>
+    <string name="download_finished">Downloaded: %1$s</string>
+    <string name="download_error">Download error</string>
+    <string name="download_in_progress">Downloading...</string>
+
+    <!-- BleManager -->
+    <string name="ble_scan_error">Scanner error: %1$d</string>
+    <string name="ble_aim">Aim at the target</string>
+    <string name="ble_read_error">Measurement not read</string>
+</resources>

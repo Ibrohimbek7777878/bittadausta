@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="{{ user.language|default:'uz' }}" data-lang="{{ user.language|default:'uz' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Bittada Usta</title>
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="stylesheet" href="/static/client_erp/css/redesign.css?v=10">
+<link rel="stylesheet" href="/static/bom/css/bom-card.css?v=16">
+<link rel="stylesheet" href="/static/client_erp/css/laylo-popup.css?v=3">
+{% if is_telegram %}<script src="https://telegram.org/js/telegram-web-app.js" crossorigin="anonymous"></script>{% endif %}
+</head>
+<body>
+
+<div class="rc-shell">
+  <!-- Desktop sidebar -->
+  <aside class="rc-sidebar" id="rc-sidebar"></aside>
+
+  <!-- Main -->
+  <div class="rc-main">
+    <div class="rc-topbar">
+      <button class="rc-btn-ghost rc-burger" style="width:38px;height:38px;padding:0" onclick="RcShell.openDrawer()"><i class="fas fa-bars"></i></button>
+      <button class="rc-btn-ghost rc-back" id="rc-back" style="width:38px;height:38px;padding:0;display:none" onclick="Router.back()"><i class="fas fa-arrow-left"></i></button>
+      <div class="rc-topbar-title" id="rc-title">Bosh sahifa</div>
+      <span class="rc-coins" id="rc-coins" style="display:none;cursor:pointer" title="Tanga hamyoni" onclick="Router.go('/tanga')">🪙 <span id="rc-coins-val">0</span></span>
+      <button class="rc-btn-ghost" id="rc-theme-btn" style="width:38px;height:38px;padding:0" onclick="RcShell.toggleTheme()"><i class="fas fa-sun"></i></button>
+      <!-- Til almashtirgich (i18n) — profil tugmasi yonida -->
+      <button class="rc-btn-ghost" id="rc-lang-btn" title="Til / Язык / Language"
+              style="width:38px;height:38px;padding:0;font-size:15px;line-height:1"
+              onclick="I18n.menu()">🌐</button>
+      <div class="rc-avatar" style="width:38px;height:38px;font-size:13px;cursor:pointer" onclick="Router.go('/settings')" id="rc-avatar">{{ user.full_name|slice:":2"|upper }}</div>
+    </div>
+
+    <div class="rc-content"><div id="app"></div></div>
+  </div>
+</div>
+
+<!-- Bottom nav (mobil) -->
+<nav class="rc-bottomnav" id="rc-bottomnav"></nav>
+
+<script>
+window.__USER_DATA__ = {
+  id: {{ user.id }},
+  username: "{{ user.username }}",
+  full_name: "{{ user.full_name|escapejs }}",
+  can_revert_finance: {% if user.username == "bigone_cl2" or user.username == "artom_cl" or user.username == "ibrohim_cl" %}true{% else %}false{% endif %},
+  features: {{ features|default:"null"|safe }},
+  plan: {{ plan|default:"null"|safe }},
+  coins: {{ user.coins|default:0 }},
+  oferta_accepted: {{ user.oferta_accepted|yesno:"true,false" }}
+};
+window.__LOGIN_AWARD__ = {{ login_award|default:"[]"|safe }};
+</script>
+
+<!-- Reused infra -->
+<!-- i18n (UZ/RU/EN) — BARCHA boshqa skriptlardan OLDIN yuklanishi shart -->
+<!-- 🐞 Xato jurnali — BARCHA skriptlardan OLDIN yuklanishi shart
+     (undan keyingi har qanday xato ushlanadi) -->
+<script src="/static/client_erp/js/components/errlog.js?v=2"></script>
+<script src="/static/client_erp/js/i18n/i18n.js?v=5"></script>
+<script src="/static/client_erp/js/i18n/uz.js?v=3"></script>
+<script src="/static/client_erp/js/i18n/ru.js?v=4"></script>
+<script src="/static/client_erp/js/i18n/en.js?v=4"></script>
+<script src="/static/client_erp/js/components/utils.js?v=16"></script>
+<script src="/static/client_erp/js/mini-erp.js?v=18"></script>
+
+<!-- Redesign core -->
+<script src="/static/client_erp/js/redesign/redesign-app.js?v=22"></script>
+<script src="/static/client_erp/js/redesign/rc-module-catalog.js?v=7"></script>
+<script src="/static/client_erp/js/redesign/rc-dashboard.js?v=26"></script>
+<script src="/static/client_erp/js/redesign/rc-period.js?v=2"></script>
+<!-- Redesign pages (build-agentlar yaratadi; yo'q bo'lsa 404 — placeholder ishlaydi) -->
+<script src="/static/client_erp/js/redesign/rc-orders.js?v=117" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-order-detail.js?v=80" onerror="void 0"></script>
+<!-- Yangi funksiya izohlari (rc-hint) — boshqa sahifalardan OLDIN yuklanadi -->
+<script src="/static/client_erp/js/redesign/rc-hint.js?v=3" onerror="void 0"></script>
+<!-- Tanishtiruv (onboarding tour) — birinchi kirishda o'zi boshlanadi -->
+<script src="/static/client_erp/js/redesign/rc-tour.js?v=3" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-finance.js?v=90" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-analytics.js?v=99" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-clients.js?v=101" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-settings.js?v=11" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-misc.js?v=116" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-components.js?v=2" onerror="void 0"></script><script src="/static/client_erp/js/redesign/rc-yangi.js?v=2" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-tariff.js?v=96" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-wallet.js?v=4" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-pay.js?v=5" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-actions.js?v=2" onerror="void 0"></script>
+<script src="/static/client_erp/js/redesign/rc-glive.js?v=26" onerror="void 0"></script>
+<script src="/static/bom/js/bom-card.js?v=21" onerror="void 0"></script>
+
+<!-- Feature parity: BLE lazer + Galereya (editor/o'lchov/AI/VR) + Laylo AI FAB -->
+<script src="/static/client_erp/js/components/ble-adapter.js?v=21"></script>
+<script src="/static/client_erp/js/components/gallery.js?v=104"></script>
+<script src="/static/client_erp/js/components/laylo-popup.js?v=3"></script>
+
+<script>
+(function () {
+  RcShell.initTheme();
+  document.getElementById('rc-sidebar').innerHTML = RcShell.sidebarHtml();
+  document.getElementById('rc-bottomnav').innerHTML = RcShell.bottomHtml();
+  // 🪙 Tanga hamyoni pill — boshlang'ich balans (__USER_DATA__.coins)
+  if (window.Wallet) Wallet.paint();
+  // 🎙️ Gemini Live FAB (real-time ovozli boshqaruv)
+  if (window.RcGLive && RcGLive.init) { try { RcGLive.init(); } catch (e) {} }
+  // coins pill dashboard yuklangач yangilanadi
+  var _oldSend = null;
+  // 🎯 "Bugun ilovaga kir" — WS ulanishidan OLDIN (HTTP sahifa yuklanishida)
+  // bajarilgani uchun jonli push'ni kutmasdan, shu yerda darhol ko'rsatamiz.
+  (window.__LOGIN_AWARD__ || []).forEach(function (a) {
+    setTimeout(function () {
+      if (window.Toast && Toast.xp) Toast.xp(a.xp, a.coins);
+      if (window.CoinBurst && CoinBurst.award) CoinBurst.award();
+    }, 600);
+  });
+})();
+
+// ── 1-marta ro'yxatdan o'tish: oferta qabul + ism (Payme rozilik) ──
+(function () {
+  var U = window.__USER_DATA__ || {};
+  if (U.oferta_accepted) return;              // allaqachon qabul qilgan — chiqmaydi
+  if (document.getElementById('rc-onb')) return;
+  var nm0 = (U.full_name || '').trim();
+  var looksAuto = /^tg_\d+$/i.test(nm0);       // avto-nom (tg_123...) → bo'sh deb olamiz
+  var ov = document.createElement('div');
+  ov.id = 'rc-onb';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.62);backdrop-filter:blur(6px);display:flex;align-items:flex-end;justify-content:center';
+  ov.innerHTML =
+    '<div style="width:100%;max-width:480px;background:var(--sfc);border:1px solid var(--brd);border-radius:24px 24px 0 0;padding:24px 20px calc(24px + env(safe-area-inset-bottom,0));max-height:92vh;overflow-y:auto;animation:rc-sheetup .34s cubic-bezier(.2,.8,.3,1) both">' +
+      '<div style="text-align:center;margin-bottom:18px"><div style="font-size:42px">👋</div>' +
+      '<div style="font-weight:800;font-size:19px;color:var(--txt);margin-top:6px">Xush kelibsiz!</div>' +
+      '<div style="font-size:13px;color:var(--mut);margin-top:4px">Boshlashdan oldin ma\'lumotlarni to\'ldiring</div></div>' +
+      '<div style="margin-bottom:14px"><div style="font-size:12px;color:var(--mut);font-weight:600;margin-bottom:6px">Ism Familiya *</div>' +
+      '<input id="rc-onb-name" autocomplete="name" style="width:100%;padding:14px 16px;border:1.5px solid var(--brd2);border-radius:14px;background:var(--sfc2);color:var(--txt);font-size:15px;font-weight:600;outline:none" placeholder="Ismingizni kiriting" value="' + (looksAuto ? '' : nm0.replace(/"/g, '&quot;')) + '"></div>' +
+      '<label style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--sfc2);border:1px solid var(--brd);border-radius:14px;cursor:pointer;margin-bottom:16px">' +
+      '<input type="checkbox" id="rc-onb-chk" style="margin-top:2px;width:18px;height:18px;accent-color:var(--acc);flex:none">' +
+      '<span style="font-size:12.5px;color:var(--txt);line-height:1.6">Men <a href="/oferta/" target="_blank" style="color:var(--acc-text);font-weight:700">ommaviy ofertani</a>, ' +
+      '<a href="/terms/" target="_blank" style="color:var(--acc-text);font-weight:700">foydalanish shartlarini</a> va ' +
+      '<a href="/privacy/" target="_blank" style="color:var(--acc-text);font-weight:700">maxfiylik siyosatini</a> o\'qib chiqdim va qabul qilaman</span></label>' +
+      '<button id="rc-onb-go" disabled style="width:100%;padding:15px;background:var(--acc);color:var(--acc-ink);border:none;border-radius:14px;font-weight:800;font-size:15px;cursor:pointer;opacity:.5;transition:opacity .2s">Qabul qilaman va davom etaman</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  var nm = document.getElementById('rc-onb-name'), chk = document.getElementById('rc-onb-chk'), go = document.getElementById('rc-onb-go');
+  function refresh() { var ok = chk.checked && nm.value.trim().length >= 2; go.disabled = !ok; go.style.opacity = ok ? '1' : '.5'; }
+  nm.addEventListener('input', refresh);
+  chk.addEventListener('change', refresh);
+  go.addEventListener('click', function () {
+    if (go.disabled) return;
+    go.disabled = true; go.textContent = 'Saqlanmoqda…';
+    if (!(window.WS && WS.send)) { go.disabled = false; go.textContent = 'Qabul qilaman va davom etaman'; return; }
+    WS.send('onboarding.accept', { full_name: nm.value.trim() }, function (msg) {
+      if (msg && msg.ok) {
+        U.oferta_accepted = true;
+        try { if (window.STATE && STATE.user) STATE.user.full_name = nm.value.trim(); } catch (e) {}
+        ov.remove();
+        try { if (window.Toast) Toast.success('Xush kelibsiz!'); } catch (e) {}
+      } else {
+        go.disabled = false; go.textContent = 'Qabul qilaman va davom etaman';
+        try { if (window.Toast) Toast.error((msg && msg.error) || 'Xatolik'); } catch (e) {}
+      }
+    });
+  });
+  setTimeout(function () { try { if (nm && !nm.value) nm.focus(); } catch (e) {} }, 350);
+})();
+</script>
+{% if is_telegram %}
+<script>(function(){var tg=window.Telegram&&Telegram.WebApp;if(tg){tg.ready();tg.expand();document.body.classList.add('tg-webapp');}})();</script>
+{% endif %}
+</body>
+</html>

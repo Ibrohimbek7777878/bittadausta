@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bittada Usta — Kirish</title>
+<script>
+  // Mavzuni sahifa chizilishidan OLDIN o'rnatish (miltillashsiz)
+  (function(){ try {
+    var t = localStorage.getItem('rc-theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', t);
+  } catch(e) { document.documentElement.setAttribute('data-theme','dark'); } })();
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+<style>
+/* ── Redesign tokenlari (login uchun inline, redesign.css bilan bir xil) ── */
+:root{
+  --bg:#0D0C10; --bg2:#141318; --sfc:#1E1D24; --sfc2:#29282F;
+  --txt:#F5F4F7; --mut:#9B9AA3; --brd:rgba(255,255,255,.08); --brd2:rgba(255,255,255,.15);
+  --acc:#DCF262; --acc-d:#C9E04F; --acc-ink:#1B1A20; --acc-text:#DCF262;
+  --pch:#F5A48B; --cyan:#A6E6F2; --lav:#C9B4F7; --danger:#F58B8B;
+  --radius:22px; --radius-sm:14px; --pill:999px;
+  --shadow:0 14px 30px rgba(0,0,0,.40); --shadow-sm:0 6px 14px rgba(0,0,0,.28);
+  --inset-acc:inset 0 -3px 6px rgba(0,0,0,.14), inset 0 2px 4px rgba(255,255,255,.45);
+  --field:rgba(255,255,255,.04);
+}
+:root[data-theme="light"]{
+  --bg:#F3F1EA; --bg2:#ECEAE1; --sfc:#FFFFFF; --sfc2:#F1EFE8;
+  --txt:#1B1A20; --mut:#6E6C76; --brd:rgba(0,0,0,.08); --brd2:rgba(0,0,0,.14);
+  --acc-ink:#1B1A20; --danger:#DC5B5B; --acc-text:#5C8A0C;
+  --shadow:0 14px 30px rgba(90,80,60,.14); --shadow-sm:0 6px 14px rgba(90,80,60,.10);
+  --field:rgba(0,0,0,.03);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+/* Brauzer standart fokus-outline'ini olib tashlaymiz — o'rniga laym border+glow ishlatiladi */
+input,textarea,select,button{ outline:none; -webkit-tap-highlight-color:transparent }
+input:focus,textarea:focus,select:focus,button:focus{ outline:none }
+/* Barcha havolalar theme-aware (dark=laym, light=to'q yashil) — brauzer ko'ki EMAS */
+a{ color:var(--acc-text); text-decoration:none; font-weight:600 }
+a:hover{ color:var(--acc-d) }
+html,body{height:100%}
+body{
+  font-family:'Plus Jakarta Sans','Inter',system-ui,-apple-system,sans-serif;
+  background:var(--bg); color:var(--txt);
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:20px; -webkit-font-smoothing:antialiased;
+  transition:background-color .3s ease, color .3s ease;
+  overflow:hidden;
+}
+/* Ambient fon nurlari */
+body::before{
+  content:''; position:fixed; inset:-30%; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(closest-side, rgba(220,242,98,.16), transparent 70%) -12% 8% / 55% 55% no-repeat,
+    radial-gradient(closest-side, rgba(201,180,247,.14), transparent 70%) 110% 20% / 55% 60% no-repeat,
+    radial-gradient(closest-side, rgba(245,164,139,.12), transparent 70%) 85% 108% / 60% 55% no-repeat;
+  filter:blur(8px);
+  animation:floaty 16s ease-in-out infinite alternate;
+}
+@keyframes floaty{ from{transform:translateY(-10px)} to{transform:translateY(10px)} }
+:root[data-theme="light"] body::before{ opacity:.75 }
+
+/* Mavzu tugmasi */
+.theme-toggle{
+  position:fixed; top:20px; right:20px; z-index:5;
+  width:44px; height:44px; border-radius:var(--pill);
+  background:var(--sfc); border:1px solid var(--brd); color:var(--txt);
+  font-size:16px; display:flex; align-items:center; justify-content:center;
+  cursor:pointer; box-shadow:var(--shadow-sm); transition:.2s;
+}
+.theme-toggle:hover{ transform:translateY(-2px); border-color:var(--brd2) }
+:root[data-theme="light"] .theme-toggle .fa-sun{display:none}
+:root[data-theme="dark"] .theme-toggle .fa-moon{display:none}
+:root:not([data-theme="light"]) .theme-toggle .fa-moon{display:none}
+
+.login-card{
+  width:100%; max-width:410px; position:relative; z-index:1;
+  background:var(--sfc); border:1px solid var(--brd);
+  border-radius:var(--radius); padding:38px 30px 30px;
+  box-shadow:var(--shadow);
+  animation:cardin .5s cubic-bezier(.2,.9,.3,1.1) both;
+}
+@keyframes cardin{ from{opacity:0; transform:translateY(16px) scale(.98)} to{opacity:1; transform:none} }
+
+.login-logo{ text-align:center; margin-bottom:28px }
+.logo-mark{
+  width:76px; height:76px; margin:0 auto 16px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(150deg,var(--acc),var(--acc-d));
+  box-shadow:var(--inset-acc), 0 10px 24px rgba(220,242,98,.28);
+  overflow:hidden;
+}
+.logo-mark img{ width:100%; height:100%; object-fit:cover; border-radius:50% }
+.login-logo h2{ font-size:21px; font-weight:800; letter-spacing:-.4px; color:var(--txt) }
+.login-logo p{ font-size:12.5px; color:var(--mut); margin-top:5px; font-weight:500 }
+
+.login-error{
+  background:rgba(245,139,139,.12); border:1px solid rgba(245,139,139,.35);
+  border-radius:var(--radius-sm); padding:12px 15px; color:var(--danger);
+  font-size:13px; font-weight:600; margin-bottom:18px; text-align:center;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+
+.login-field{ margin-bottom:16px }
+.login-field label{
+  display:block; font-size:11px; font-weight:700; color:var(--mut);
+  text-transform:uppercase; letter-spacing:.5px; margin-bottom:9px;
+}
+
+.phone-group{
+  display:flex; align-items:stretch; border-radius:var(--radius-sm);
+  border:1.5px solid var(--brd2); background:var(--field); overflow:hidden;
+  transition:.2s;
+}
+.phone-group:focus-within{ border-color:var(--acc); box-shadow:0 0 0 3px rgba(220,242,98,.18) }
+.phone-prefix{
+  display:flex; align-items:center; gap:6px;
+  padding:0 14px; font-size:15px; font-weight:700; color:var(--txt);
+  white-space:nowrap; user-select:none; border-right:1px solid var(--brd);
+}
+.phone-prefix .flag{ font-size:18px }
+.phone-group input{
+  flex:1; min-width:0; padding:14px 16px; border:none; background:transparent;
+  color:var(--txt); font-size:16px; font-weight:600; letter-spacing:.5px;
+}
+.phone-group input::placeholder{ color:var(--mut); font-weight:400; letter-spacing:0 }
+
+.pwd-wrap{ position:relative }
+.pwd-wrap input{
+  width:100%; padding:14px 46px 14px 16px;
+  background:var(--field); border:1.5px solid var(--brd2); border-radius:var(--radius-sm);
+  color:var(--txt); font-size:15px; font-weight:600; transition:.2s;
+}
+.pwd-wrap input:focus{ border-color:var(--acc); box-shadow:0 0 0 3px rgba(220,242,98,.18) }
+.pwd-wrap input::placeholder{ color:var(--mut); font-weight:400 }
+.pwd-toggle{
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  background:none; border:none; color:var(--mut); font-size:16px; padding:6px; transition:.15s;
+}
+.pwd-toggle:hover{ color:var(--txt) }
+
+.login-btn{
+  width:100%; padding:15px; margin-top:8px;
+  background:var(--acc); color:var(--acc-ink); border:none; border-radius:var(--radius-sm);
+  font-size:15px; font-weight:800; letter-spacing:.2px; font-family:inherit;
+  cursor:pointer; transition:all .2s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:var(--inset-acc), 0 8px 20px rgba(220,242,98,.22);
+}
+.login-btn:hover{ background:var(--acc-d); transform:translateY(-2px); box-shadow:var(--inset-acc), 0 12px 28px rgba(220,242,98,.32) }
+.login-btn:active{ transform:translateY(0) }
+.login-btn:disabled{ opacity:.6; cursor:not-allowed; transform:none }
+.login-btn .spinner{ display:none; width:18px; height:18px; border:2px solid rgba(27,26,32,.25); border-top-color:var(--acc-ink); border-radius:50%; animation:spin .6s linear infinite }
+.login-btn.loading .spinner{ display:block }
+.login-btn.loading .btn-text{ display:none }
+@keyframes spin{ to{ transform:rotate(360deg) } }
+
+/* OTP */
+#otp-box{ text-align:center; padding:4px 0; animation:cardin .35s ease both }
+.otp-emoji{ font-size:42px; margin-bottom:10px }
+.otp-title{ font-weight:800; font-size:16px; margin-bottom:6px; color:var(--txt) }
+.otp-sub{ font-size:13px; color:var(--mut); line-height:1.55; margin-bottom:16px }
+.otp-sub b{ color:var(--txt) }
+#otp-input{
+  width:100%; text-align:center; letter-spacing:10px; font-size:26px; font-weight:800;
+  padding:15px; border-radius:var(--radius-sm);
+  border:1.5px solid var(--brd2); background:var(--field); color:var(--txt);
+  transition:.2s;
+}
+#otp-input:focus{ border-color:var(--acc); box-shadow:0 0 0 3px rgba(220,242,98,.18) }
+
+/* Usul tanlash tugmalari (professional ikonka-badge) */
+.method-btn{ display:flex; align-items:center; gap:13px; text-align:left; width:100%; margin:0;
+  padding:12px 14px; border:1.5px solid var(--brd); border-radius:16px;
+  background:var(--sfc2); color:var(--txt); cursor:pointer; font-family:inherit;
+  transition:border-color .18s ease, transform .14s ease, box-shadow .18s ease }
+.method-btn:hover{ border-color:var(--acc); transform:translateY(-1px); box-shadow:var(--shadow-sm) }
+.method-btn:active{ transform:translateY(0) }
+.method-btn .m-ico{ width:44px; height:44px; border-radius:13px; flex:none; display:flex;
+  align-items:center; justify-content:center; color:#fff; font-size:19px; box-shadow:0 4px 12px rgba(0,0,0,.18) }
+.method-btn .m-tx{ flex:1; min-width:0 }
+.method-btn .m-tx b{ display:block; font-size:14px; font-weight:700; color:var(--txt) }
+.method-btn .m-tx small{ font-size:11.5px; color:var(--mut) }
+.method-btn .m-ch{ color:var(--mut); font-size:12px; flex:none }
+#otp-input::placeholder{ letter-spacing:8px; color:var(--mut) }
+.otp-actions{ margin-top:16px; display:flex; gap:18px; justify-content:center }
+.otp-actions button{
+  background:none; border:none; color:var(--mut); font-size:12.5px; font-weight:600;
+  cursor:pointer; font-family:inherit; transition:.15s;
+}
+.otp-actions button:hover{ color:var(--txt) }
+
+.login-footer{ text-align:center; margin-top:24px; font-size:12px; color:var(--mut); line-height:1.7 }
+.login-footer a{ color:var(--acc-text); font-weight:700 }
+.qr-badge{
+  display:inline-flex; align-items:center; gap:6px; margin-top:14px;
+  background:var(--field); border:1px solid var(--brd); border-radius:var(--pill);
+  padding:6px 14px; font-size:11px; font-weight:600; color:var(--mut);
+}
+
+@media(max-width:420px){
+  .login-card{ padding:30px 22px 24px; border-radius:20px }
+  .theme-toggle{ top:14px; right:14px }
+}
+</style>
+</head>
+<body>
+
+<button type="button" class="theme-toggle" id="theme-toggle" title="Mavzu (yorug'/qorong'i)">
+    <i class="fas fa-sun"></i><i class="fas fa-moon"></i>
+</button>
+
+<div class="login-card">
+    <div class="login-logo">
+        <div class="logo-mark"><img src="/static/client_erp/img/logo.png" alt="Bittada"></div>
+        <h2>Bittada Usta</h2>
+        <p>Mebelchi ustalar uchun</p>
+    </div>
+
+    {% if error %}
+    <div class="login-error"><i class="fas fa-exclamation-triangle"></i> {{ error }}</div>
+    {% endif %}
+
+    <form method="POST" id="login-form">
+        {% csrf_token %}
+        <div class="login-field">
+            <label><i class="fas fa-phone-alt" style="margin-right:4px"></i> Telefon raqam</label>
+            <div class="phone-group">
+                <div class="phone-prefix"><span class="flag">🇺🇿</span> +998</div>
+                <input type="tel" id="phone-input" placeholder="XX XXX XX XX" required autofocus
+                       maxlength="12" inputmode="numeric" autocomplete="tel-national">
+                <input type="hidden" name="phone" id="phone-hidden">
+            </div>
+        </div>
+        <!-- 24 soatlik demo kirish (2026-09-23, additive) — nomer maydoni pastida -->
+        <button type="button" class="login-btn" id="demo-btn" style="margin-top:10px;background:transparent;border:1.5px dashed var(--acc);color:var(--acc);box-shadow:none">
+            <span class="btn-text"><i class="fas fa-eye"></i> Demo 24 soatlik akkaunt</span>
+            <div class="spinner"></div>
+        </button>
+        <div style="font-size:11px;color:var(--mut);text-align:center;margin-top:6px">Ro‘yxatdan o‘tmasdan sinab ko‘ring — 24 soatdan keyin o‘chadi</div>
+        <!-- Demo tushuntirish oynasi (2026-09-23, additive) -->
+        <div id="demo-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:20px">
+            <div style="background:var(--card,#1B1A20);border:1px solid var(--brd);border-radius:16px;max-width:380px;width:100%;padding:22px 18px;color:var(--txt)">
+                <div style="text-align:center;font-size:40px;margin-bottom:6px">⏳</div>
+                <div style="font-size:16px;font-weight:800;text-align:center;margin-bottom:12px">24 soatlik demo qanday ishlaydi?</div>
+                <div style="font-size:13px;line-height:1.8;color:var(--txt)">
+                    <div>✅ Ro‘yxatdan o‘tmasdan <b>barcha funksiyani</b> sinab ko‘rasiz</div>
+                    <div>⏰ <b>24 soatdan keyin</b> demo akkaunt va kiritgan barcha ma’lumotlaringiz <b>to‘liq o‘chadi</b></div>
+                    <div>🔄 24 soat ichida <b>real akkaunt ochsangiz</b> — ma’lumotlaringiz o‘chmaydi, <b>avtomatik o‘tadi</b></div>
+                    <div>🔒 Bu birovning akkaunti emas — faqat sizga tegishli vaqtinchalik akkaunt</div>
+                </div>
+                <button type="button" class="login-btn" id="demo-start" style="margin-top:14px">
+                    <span class="btn-text"><i class="fas fa-play"></i> Demo boshlash</span>
+                    <div class="spinner"></div>
+                </button>
+                <button type="button" id="demo-close" style="width:100%;margin-top:8px;background:none;border:none;color:var(--mut);font-size:13px;cursor:pointer;padding:8px">Yopish</button>
+            </div>
+        </div>
+        <div class="login-field" id="pwd-field" style="display:none">
+            <label><i class="fas fa-lock" style="margin-right:4px"></i> Parol</label>
+            <div class="pwd-wrap">
+                <input type="password" name="password" id="pwd-input" placeholder="Parolingizni kiriting" autocomplete="current-password">
+                <button type="button" class="pwd-toggle" id="pwd-toggle"><i class="fas fa-eye"></i></button>
+            </div>
+        </div>
+        <button type="submit" class="login-btn" id="login-btn">
+            <span class="btn-text"><i class="fas fa-arrow-right"></i> KIRISH</span>
+            <div class="spinner"></div>
+        </button>
+    </form>
+
+    <!-- Tasdiqlash usulini tanlash -->
+    <div id="method-box" style="display:none">
+        <div class="otp-title" style="margin-bottom:4px">Tasdiqlash usulini tanlang</div>
+        <div class="otp-sub" id="method-phone"></div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+            <button type="button" class="method-btn" data-m="bot" id="m-bot" style="display:none">
+                <span class="m-ico" style="background:linear-gradient(135deg,#39B0E5,#1E86C9)"><i class="fab fa-telegram-plane"></i></span>
+                <span class="m-tx"><b>Telegram tugma</b><small>Bepul · bir bosishda kirish</small></span>
+                <i class="fas fa-chevron-right m-ch"></i></button>
+            <button type="button" class="method-btn" data-m="otp">
+                <span class="m-ico" style="background:linear-gradient(135deg,#7C5CFF,#5B3FD6)"><i class="fas fa-comment-dots"></i></span>
+                <span class="m-tx"><b>Telegram kod</b><small>Telegram «Telegram» xizmatiga kod yuboriladi</small></span>
+                <i class="fas fa-chevron-right m-ch"></i></button>
+            <button type="button" class="method-btn" data-m="sms">
+                <span class="m-ico" style="background:linear-gradient(135deg,#7BC94B,#4FA82E)"><i class="fas fa-sms"></i></span>
+                <span class="m-tx"><b>SMS kod</b><small>Telefon raqamingizga SMS orqali</small></span>
+                <i class="fas fa-chevron-right m-ch"></i></button>
+        </div>
+        <div class="otp-actions" style="margin-top:14px">
+            <button type="button" id="method-back"><i class="fas fa-arrow-left" style="margin-right:4px"></i>Orqaga</button>
+        </div>
+    </div>
+
+    <!-- OTP / SMS kod kiritish -->
+    <div id="otp-box" style="display:none">
+        <div class="otp-emoji" id="otp-emoji">📲</div>
+        <div class="otp-title" id="otp-title">Kod yuborildi</div>
+        <div class="otp-sub" id="otp-sub">Kelgan kodni kiriting.</div>
+        <input type="text" id="otp-input" inputmode="numeric" maxlength="6" placeholder="• • • •">
+        <button type="button" class="login-btn" id="otp-verify" style="margin-top:16px">
+            <span class="btn-text"><i class="fas fa-check"></i> TASDIQLASH</span>
+            <div class="spinner"></div>
+        </button>
+        <div class="otp-actions">
+            <button type="button" id="otp-resend"><i class="fas fa-redo" style="margin-right:4px"></i><span id="otp-resend-txt">Qayta yuborish</span></button>
+            <button type="button" id="otp-cancel"><i class="fas fa-times" style="margin-right:4px"></i>Boshqa usul</button>
+        </div>
+    </div>
+
+    <!-- Ro'yxatdan o'tish (yangi raqam, kod tasdiqlangach) -->
+    <div id="reg-box" style="display:none;animation:cardin .35s ease both">
+        <div style="text-align:center;margin-bottom:14px"><div style="font-size:40px">🎉</div>
+            <div class="otp-title">Ro'yxatdan o'tish</div>
+            <div class="otp-sub" style="margin-bottom:0">Ma'lumotlaringizni to'ldiring</div></div>
+        <div class="login-field">
+            <label><i class="fas fa-user" style="margin-right:4px"></i> Ism Familiya</label>
+            <input id="reg-name" autocomplete="name" placeholder="Ismingiz Familiyangiz"
+                style="width:100%;padding:14px 16px;background:var(--field);border:1.5px solid var(--brd2);border-radius:var(--radius-sm);color:var(--txt);font-size:15px;font-weight:600">
+        </div>
+        <div class="login-field">
+            <label><i class="fas fa-store" style="margin-right:4px"></i> Firma / Brend nomi</label>
+            <input id="reg-org" autocomplete="organization" placeholder="Masalan: BigOne Mebel"
+                style="width:100%;padding:14px 16px;background:var(--field);border:1.5px solid var(--brd2);border-radius:var(--radius-sm);color:var(--txt);font-size:15px;font-weight:600">
+        </div>
+        <label style="display:flex;gap:9px;align-items:flex-start;padding:11px 13px;background:var(--field);border:1px solid var(--brd);border-radius:var(--radius-sm);margin:2px 0 14px;cursor:pointer">
+            <input type="checkbox" id="reg-chk" style="margin-top:2px;width:17px;height:17px;accent-color:var(--acc);flex:none">
+            <span style="font-size:12px;color:var(--txt);line-height:1.55">Men <a href="/oferta/" target="_blank">ommaviy ofertani</a>, <a href="/terms/" target="_blank">foydalanish shartlarini</a> va <a href="/privacy/" target="_blank">maxfiylik siyosatini</a> qabul qilaman</span>
+        </label>
+        <button type="button" class="login-btn" id="reg-ok" disabled style="opacity:.5">
+            <span class="btn-text"><i class="fas fa-check"></i> RO'YXATDAN O'TISH</span><div class="spinner"></div>
+        </button>
+        <div class="otp-actions"><button type="button" id="reg-cancel"><i class="fas fa-arrow-left" style="margin-right:4px"></i>Orqaga</button></div>
+    </div>
+
+    <div class="login-footer">
+        Kirishda muammo bo'lsa yordam oling:<br>
+        <a href="https://telegram.me/bittada_minierp_group" target="_blank" rel="noopener" class="qr-badge" style="text-decoration:none">
+            <i class="fab fa-telegram" style="color:#29A9EB"></i> Texnik bo'lim bilan bog'lanish
+        </a>
+    </div>
+</div>
+
+<script>
+// ── Mavzu almashtirish ──
+(function(){
+    var tt = document.getElementById('theme-toggle');
+    tt.addEventListener('click', function(){
+        var cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        var next = cur === 'light' ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', next);
+        try { localStorage.setItem('rc-theme', next); } catch(e){}
+    });
+})();
+
+// ── Demo kirish (2026-09-23, additive): avval tushuntirish, keyin boshlash ──
+(function(){
+    var db = document.getElementById('demo-btn');
+    var modal = document.getElementById('demo-modal');
+    var startBtn = document.getElementById('demo-start');
+    var closeBtn = document.getElementById('demo-close');
+    if (!db || !modal) return;
+    db.addEventListener('click', function(){
+        modal.style.display = 'flex';
+    });
+    function closeModal() { modal.style.display = 'none'; }
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+    if (!startBtn) return;
+    startBtn.addEventListener('click', function(){
+        if (startBtn.classList.contains('loading')) return;
+        startBtn.classList.add('loading');
+        fetch('/mini/login/demo/', {method: 'POST', credentials: 'same-origin'})
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                if (d && d.ok) { window.location.href = d.redirect || '/'; return; }
+                alert((d && d.error) || 'Xatolik');
+                startBtn.classList.remove('loading');
+            })
+            .catch(function(){
+                alert('Xatolik. Qayta urining.');
+                startBtn.classList.remove('loading');
+            });
+    });
+})();
+
+(function() {
+    var phoneInput = document.getElementById('phone-input');
+    var phoneHidden = document.getElementById('phone-hidden');
+    var form = document.getElementById('login-form');
+    var btn = document.getElementById('login-btn');
+    var pwdInput = document.getElementById('pwd-input');
+    var pwdToggle = document.getElementById('pwd-toggle');
+
+    phoneInput.addEventListener('input', function() {
+        var raw = this.value.replace(/\D/g, '').slice(0, 9);
+        var formatted = '';
+        if (raw.length > 0) formatted = raw.slice(0, 2);
+        if (raw.length > 2) formatted += ' ' + raw.slice(2, 5);
+        if (raw.length > 5) formatted += ' ' + raw.slice(5, 7);
+        if (raw.length > 7) formatted += ' ' + raw.slice(7, 9);
+        this.value = formatted;
+    });
+
+    var pwdField = document.getElementById('pwd-field');
+    var otpBox = document.getElementById('otp-box');
+    var otpInput = document.getElementById('otp-input');
+    var otpVerify = document.getElementById('otp-verify');
+    var otpToken = null;
+    var lastPhone = null;
+    var refCode = new URLSearchParams(location.search).get('ref') || '';
+
+    function showError(msg) {
+        var box = document.querySelector('.login-error');
+        if (!box) {
+            box = document.createElement('div');
+            box.className = 'login-error';
+            form.parentNode.insertBefore(box, form.style.display === 'none' ? otpBox : form);
+        }
+        box.innerHTML = '<i class="fas fa-exclamation-triangle"></i> ' + msg;
+        box.style.display = '';
+    }
+    function clearError() { var eb = document.querySelector('.login-error'); if (eb) eb.style.display = 'none'; }
+    function resetBtn() { btn.classList.remove('loading'); btn.disabled = false; }
+    function backToForm() { otpBox.style.display = 'none'; form.style.display = ''; resetBtn(); otpToken = null; }
+
+    // ── BEPUL bot «✅ Kirish» tugma oqimi ──
+    var botTimer = null;
+    function stopBotPoll() { if (botTimer) { clearInterval(botTimer); botTimer = null; } }
+    function showBotWait() {
+        clearError();
+        var b = document.getElementById('bot-wait');
+        if (!b) {
+            b = document.createElement('div');
+            b.id = 'bot-wait';
+            b.style.cssText = 'text-align:center;padding:18px 14px;background:var(--sfc);border:1px solid var(--brd);border-radius:14px;margin-top:8px';
+            b.innerHTML =
+                '<div style="font-size:38px;line-height:1">📲</div>' +
+                '<div style="font-weight:800;margin-top:8px;color:var(--txt,#fff)">Telegram\'ga yuborildi</div>' +
+                '<div style="color:var(--mut,#9b9aa3);font-size:13px;margin-top:6px;line-height:1.5">' +
+                'Telegram\'ni oching va <b>«✅ Kirishni tasdiqlash»</b> tugmasini bosing. ' +
+                'Tasdiqlagach avtomatik kirasiz.</div>' +
+                '<div id="bot-wait-spin" style="margin-top:14px;color:var(--acc,#DCF262);font-weight:700;font-size:13px">⏳ Kutilmoqda…</div>' +
+                '<button type="button" id="bot-wait-pwd" style="margin-top:14px;background:none;border:none;color:var(--mut,#9b9aa3);text-decoration:underline;cursor:pointer;font-size:13px">Boshqa usul tanlash</button>';
+            form.parentNode.insertBefore(b, form.nextSibling);
+            b.querySelector('#bot-wait-pwd').addEventListener('click', function () {
+                stopBotPoll(); b.style.display = 'none';
+                if (methodBox) methodBox.style.display = '';
+            });
+        }
+        b.style.display = '';
+        form.style.display = 'none';
+    }
+    function pollBotLogin(token) {
+        stopBotPoll();
+        var tries = 0, max = 90;   // 90 × 2s = 3 daqiqa
+        botTimer = setInterval(function () {
+            tries++;
+            fetch('/mini/login/status/', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token }),
+            }).then(function (r) { return r.json(); }).then(function (d) {
+                if (d.ok && d.redirect) { stopBotPoll(); window.location.href = d.redirect; return; }
+                if (d.expired || tries >= max) {
+                    stopBotPoll();
+                    var sp = document.getElementById('bot-wait-spin');
+                    if (sp) sp.innerHTML = '⌛ Muddat tugadi — qayta urining yoki parol bilan kiring';
+                }
+            }).catch(function () { /* jim — keyingi urinish */ });
+        }, 2000);
+    }
+
+    var curMethod = null;
+    var curRegister = false;   // yangi raqam → ro'yxatdan o'tish rejimi
+    var resendTimer = null;
+    var methodBox = document.getElementById('method-box');
+    var regBox = document.getElementById('reg-box');
+
+    // 1) Telefon → mavjud usullarni bilib (probe), usul tanlash oynasini ko'rsatamiz
+    function showMethods() {
+        clearError();
+        btn.classList.add('loading'); btn.disabled = true;
+        fetch('/mini/login/start/', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: '+998' + lastPhone, probe: true }),
+        }).then(function(r){ return r.json(); }).then(function(d){
+            resetBtn();
+            if (!d.ok) { showError(d.error || 'Xatolik'); return; }
+            curRegister = !!d.register;
+            document.getElementById('m-bot').style.display = (d.has_telegram && !d.register) ? 'flex' : 'none';
+            document.querySelector('#method-box .otp-title').textContent = d.register ? "Ro'yxatdan o'tish" : 'Tasdiqlash usulini tanlang';
+            document.getElementById('method-phone').textContent = (d.register ? 'Yangi raqam · ' : '') + '+998 ' + lastPhone;
+            form.style.display = 'none';
+            methodBox.style.display = '';
+        }).catch(function(){ resetBtn(); showError('Ulanish xatosi. Qayta urining.'); });
+    }
+
+    // 2) Usul tanlandi → kod/tugma yuborish
+    function chooseMethod(m) { curMethod = m; methodBox.style.display = 'none'; startLogin(m); }
+
+    function startLogin(method) {
+        clearError();
+        return fetch('/mini/login/start/', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone: '+998' + lastPhone, method: method, ref: refCode }),
+        }).then(function(r){ return r.json(); }).then(function(d){
+            if (d.ok && d.redirect) { window.location.href = d.redirect; return; }
+            if (d.ok && d.bot_sent && d.token) { showBotWait(); pollBotLogin(d.token); return; }
+            if (d.ok && d.code_sent && d.token) { curRegister = !!d.register; otpToken = d.token; showOtpBox(method); return; }
+            methodBox.style.display = '';   // xato → usul tanlashga qaytamiz
+            showError(d.error || 'Yuborilmadi');
+        }).catch(function(){ methodBox.style.display = ''; showError('Ulanish xatosi.'); });
+    }
+
+    // 3) Kod kiritish oynasi (SMS/OTP uchun turli matn + resend vaqti)
+    function showOtpBox(method) {
+        var meta = (method === 'sms')
+            ? { emoji: '✉️', title: 'SMS yuborildi', sub: 'Telefoningizga kelgan <b>4 xonali kodni</b> kiriting.', wait: 60, len: 4 }
+            : { emoji: '📲', title: "Telegram'ga kod yuborildi", sub: "Telegram «<b>Telegram</b>» xizmatidan kelgan <b>kodni</b> kiriting.", wait: 30, len: 6 };
+        document.getElementById('otp-emoji').textContent = meta.emoji;
+        document.getElementById('otp-title').textContent = meta.title;
+        document.getElementById('otp-sub').innerHTML = meta.sub;
+        otpInput.setAttribute('maxlength', meta.len);
+        otpInput.value = '';
+        form.style.display = 'none'; methodBox.style.display = 'none'; otpBox.style.display = '';
+        setTimeout(function(){ otpInput.focus(); }, 100);
+        startResendTimer(meta.wait);
+    }
+
+    function startResendTimer(sec) {
+        clearInterval(resendTimer);
+        var rb = document.getElementById('otp-resend'), tx = document.getElementById('otp-resend-txt');
+        var left = sec;
+        rb.disabled = true; rb.style.opacity = '.5';
+        tx.textContent = 'Qayta yuborish (' + left + ')';
+        resendTimer = setInterval(function(){
+            left--;
+            if (left <= 0) { clearInterval(resendTimer); rb.disabled = false; rb.style.opacity = ''; tx.textContent = 'Qayta yuborish'; }
+            else tx.textContent = 'Qayta yuborish (' + left + ')';
+        }, 1000);
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        var raw = phoneInput.value.replace(/\D/g, '');
+        if (raw.length < 9) {
+            phoneInput.focus();
+            var pg = document.querySelector('.phone-group');
+            if (pg) { pg.style.borderColor = 'var(--danger)'; setTimeout(function(){ pg.style.borderColor = ''; }, 2000); }
+            return;
+        }
+        lastPhone = raw; phoneHidden.value = '+998' + raw;
+        showMethods();
+    });
+
+    // Usul tugmalari
+    document.querySelectorAll('.method-btn').forEach(function(b){
+        b.addEventListener('click', function(){ chooseMethod(b.getAttribute('data-m')); });
+    });
+    var mBack = document.getElementById('method-back');
+    if (mBack) mBack.onclick = function(){ methodBox.style.display = 'none'; form.style.display = ''; clearError(); };
+
+    // OTP kodni tasdiqlash
+    otpInput.addEventListener('input', function() { this.value = this.value.replace(/\D/g, '').slice(0, 6); });
+    function verifyOtp() {
+        var code = otpInput.value.replace(/\D/g, '');
+        if (code.length < 4) { otpInput.focus(); return; }
+        clearError();
+        otpVerify.classList.add('loading'); otpVerify.disabled = true;
+        fetch('/mini/login/verify/', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: otpToken, code: code }),
+        }).then(function(r) { return r.json(); }).then(function(d) {
+            otpVerify.classList.remove('loading'); otpVerify.disabled = false;
+            if (d.ok && d.register && d.token) { otpToken = d.token; clearInterval(resendTimer); showRegForm(); return; }
+            if (d.ok && d.redirect) { window.location.href = d.redirect; return; }
+            if (d.expired) { backToForm(); showError(d.error || 'Muddat tugadi. Qayta urining.'); return; }
+            showError(d.error || "Kod noto'g'ri"); otpInput.value = ''; otpInput.focus();
+        }).catch(function() { otpVerify.classList.remove('loading'); otpVerify.disabled = false; showError('Ulanish xatosi.'); });
+    }
+    otpVerify.addEventListener('click', verifyOtp);
+    otpInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') verifyOtp(); });
+
+    // ── Ro'yxatdan o'tish formasi (kod tasdiqlangach) ──
+    function showRegForm() {
+        clearError();
+        otpBox.style.display = 'none'; methodBox.style.display = 'none'; form.style.display = 'none';
+        regBox.style.display = '';
+        setTimeout(function(){ var n = document.getElementById('reg-name'); if (n) n.focus(); }, 150);
+    }
+    var regName = document.getElementById('reg-name'),
+        regOrg = document.getElementById('reg-org'),
+        regChk = document.getElementById('reg-chk'),
+        regOk = document.getElementById('reg-ok'),
+        regCancel = document.getElementById('reg-cancel');
+    function regRefresh() { var ok = regChk.checked && regName.value.trim().length >= 2; regOk.disabled = !ok; regOk.style.opacity = ok ? '1' : '.5'; }
+    if (regName) regName.addEventListener('input', regRefresh);
+    if (regChk) regChk.addEventListener('change', regRefresh);
+    if (regCancel) regCancel.onclick = function(){ regBox.style.display = 'none'; methodBox.style.display = ''; clearError(); };
+    if (regOk) regOk.onclick = function() {
+        if (regOk.disabled) return;
+        regOk.classList.add('loading'); regOk.disabled = true;
+        fetch('/mini/login/register/', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: otpToken, full_name: regName.value.trim(), organization: (regOrg.value || '').trim() }),
+        }).then(function(r){ return r.json(); }).then(function(d){
+            regOk.classList.remove('loading');
+            if (d.ok && d.redirect) { window.location.href = d.redirect; return; }
+            regOk.disabled = false; regRefresh();
+            if (d.expired) { regBox.style.display = 'none'; form.style.display = ''; }
+            showError(d.error || 'Xatolik');
+        }).catch(function(){ regOk.classList.remove('loading'); regOk.disabled = false; showError('Ulanish xatosi.'); });
+    };
+
+    var resend = document.getElementById('otp-resend');
+    if (resend) resend.onclick = function() { if (resend.disabled) return; otpInput.value = ''; if (curMethod) startLogin(curMethod); };
+    var otpCancel = document.getElementById('otp-cancel');
+    if (otpCancel) otpCancel.onclick = function() { clearInterval(resendTimer); otpBox.style.display = 'none'; methodBox.style.display = ''; clearError(); };
+
+    pwdToggle.addEventListener('click', function() {
+        var isPassword = pwdInput.type === 'password';
+        pwdInput.type = isPassword ? 'text' : 'password';
+        pwdToggle.innerHTML = '<i class="fas fa-eye' + (isPassword ? '-slash' : '') + '"></i>';
+    });
+
+    phoneInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+        if (pasted.startsWith('998') && pasted.length >= 12) pasted = pasted.slice(3);
+        if (pasted.length > 9) pasted = pasted.slice(0, 9);
+        this.value = pasted;
+        this.dispatchEvent(new Event('input'));
+    });
+})();
+</script>
+</body>
+</html>

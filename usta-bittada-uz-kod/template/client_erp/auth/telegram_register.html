@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MebelCity — Telegram orqali kirish</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<script src="https://telegram.org/js/telegram-web-app.js" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    padding:16px;
+    background:var(--tg-theme-bg-color, #f0f4f0);
+    color:var(--tg-theme-text-color, #1a1a2e);
+    -webkit-font-smoothing:antialiased;
+}
+.tg-card{
+    width:100%;max-width:400px;
+    background:var(--tg-theme-secondary-bg-color, #fff);
+    border-radius:16px;padding:32px 24px;
+    box-shadow:0 4px 20px rgba(0,0,0,.08);
+}
+.tg-logo{text-align:center;margin-bottom:24px}
+.tg-logo i{font-size:48px;color:#0088cc}
+.tg-logo h2{font-size:20px;font-weight:700;margin-top:10px}
+.tg-logo p{font-size:13px;color:var(--tg-theme-hint-color, #8e8e93);margin-top:4px}
+.tg-form-group{margin-bottom:16px}
+.tg-form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--tg-theme-text-color, #333)}
+.tg-form-group input{
+    width:100%;padding:12px 14px;border:1.5px solid var(--tg-theme-hint-color, #ddd);
+    border-radius:10px;font-size:15px;font-family:inherit;
+    background:var(--tg-theme-bg-color, #fff);
+    color:var(--tg-theme-text-color, #1a1a2e);
+    transition:border-color .2s;
+}
+.tg-form-group input:focus{outline:none;border-color:#0088cc}
+.tg-form-group .hint{font-size:11px;color:var(--tg-theme-hint-color, #8e8e93);margin-top:4px}
+.tg-btn{
+    width:100%;padding:14px;border:none;border-radius:10px;
+    font-size:15px;font-weight:600;cursor:pointer;
+    background:var(--tg-theme-button-color, #0088cc);
+    color:var(--tg-theme-button-text-color, #fff);
+    transition:opacity .2s;
+}
+.tg-btn:active{opacity:.7}
+.tg-btn:disabled{opacity:.5;cursor:not-allowed}
+.tg-btn i{margin-right:6px}
+.tg-error{
+    background:#fff5f5;color:#e53e3e;
+    padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;
+    border:1px solid #fed7d7;
+}
+.tg-loading{text-align:center;padding:40px 0}
+.tg-loading i{font-size:32px;color:#0088cc;animation:spin 1s linear infinite}
+.tg-loading p{font-size:14px;margin-top:12px;color:var(--tg-theme-hint-color, #8e8e93)}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.tg-success{text-align:center;padding:24px 0}
+.tg-success i{font-size:48px;color:#38a169}
+.tg-success h3{font-size:18px;margin-top:12px}
+.tg-success p{font-size:13px;color:var(--tg-theme-hint-color, #8e8e93);margin-top:6px}
+</style>
+</head>
+<body>
+<div class="tg-card">
+    <div class="tg-logo">
+        <i class="fab fa-telegram-plane"></i>
+        <h2>Bittada Usta</h2>
+        <p>Telegram orqali kirish</p>
+    </div>
+
+    {% if error %}
+    <div class="tg-error"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i>{{ error }}</div>
+    {% endif %}
+
+    {% if step == 'init' %}
+    <!-- JS Telegram initData ni avtomatik yuboradi -->
+    <div class="tg-loading" id="tg-loading">
+        <i class="fas fa-circle-notch"></i>
+        <p>Telegram tekshirilmoqda...</p>
+    </div>
+    <form method="post" id="tg-init-form" style="display:none">
+        {% csrf_token %}
+        <input type="hidden" name="initData" id="tg-init-data">
+    </form>
+    <script>
+    (function() {
+        var tg = window.Telegram && Telegram.WebApp;
+        if (tg) {
+            tg.ready();
+            tg.expand();
+        }
+        var initData = tg ? tg.initData : '';
+        if (initData) {
+            document.getElementById('tg-init-data').value = initData;
+            document.getElementById('tg-init-form').submit();
+        } else {
+            document.getElementById('tg-loading').innerHTML =
+                '<div class="tg-error"><i class="fas fa-exclamation-circle" style="margin-right:6px"></i>' +
+                'Bu sahifani faqat Telegram orqali ochish mumkin.<br><br>' +
+                '<a href="/mini/login/" style="color:#0088cc">Oddiy kirish sahifasiga o\'tish →</a></div>';
+        }
+    })();
+    </script>
+
+    {% elif step == 'register' %}
+    <!-- So'rovnoma: Ism, Firma, Telefon -->
+    <form method="post" id="tg-register-form">
+        {% csrf_token %}
+        <input type="hidden" name="initData" value="{{ init_data }}">
+        <input type="hidden" name="action" value="register">
+
+        <div class="tg-form-group">
+            <label><i class="fas fa-user" style="margin-right:4px;color:#0088cc"></i> Ism Familiya *</label>
+            <input type="text" name="full_name" value="{{ full_name }}" placeholder="Ali Valiyev" required autofocus>
+        </div>
+
+        <div class="tg-form-group">
+            <label><i class="fas fa-building" style="margin-right:4px;color:#0088cc"></i> Firma / Tashkilot</label>
+            <input type="text" name="organization" value="{{ organization }}" placeholder="MebelCity LLC">
+            <div class="hint">Ixtiyoriy — keyinroq ham to'ldirish mumkin</div>
+        </div>
+
+        <div class="tg-form-group">
+            <label><i class="fas fa-phone" style="margin-right:4px;color:#0088cc"></i> Telefon raqam *</label>
+            {% if phone_verified %}
+            <input type="tel" value="{{ phone }}" readonly style="background:var(--tg-theme-secondary-bg-color,#f0f0f0);opacity:.8;cursor:not-allowed">
+            <input type="hidden" name="phone" value="{{ phone }}">
+            <div class="hint"><i class="fas fa-check-circle" style="color:#38a169;margin-right:3px"></i>Telegram orqali tasdiqlangan</div>
+            {% else %}
+            <input type="tel" name="phone" value="{{ phone }}" placeholder="+998901234567" required>
+            <div class="hint">Telegram raqamingiz yoki asosiy raqamingiz</div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="tg-btn" id="tg-submit-btn">
+            <i class="fas fa-user-plus"></i> Ro'yxatdan o'tish
+        </button>
+    </form>
+    <script>
+    (function() {
+        var tg = window.Telegram && Telegram.WebApp;
+        if (tg) { tg.ready(); tg.expand(); }
+        var form = document.getElementById('tg-register-form');
+        form.addEventListener('submit', function() {
+            var btn = document.getElementById('tg-submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Kuting...';
+        });
+    })();
+    </script>
+
+    {% elif step == 'done' %}
+    <!-- Hisob yaratildi — parol EKRANDA bir marta ko'rsatiladi -->
+    <div style="text-align:center;padding:10px 0">
+        <div style="font-size:44px;margin-bottom:10px">🎉</div>
+        <h3 style="margin:0 0 6px">Hisob yaratildi!</h3>
+        <p style="color:#64748b;font-size:13px;margin:0 0 16px">
+            Login va parolingizni <b>hozir yozib oling</b> — parol faqat shu yerda bir marta ko'rsatiladi
+            (Telegram botga ham yuborildi, agar ulangan bo'lsa).
+        </p>
+        <div style="background:#f8fafc;border:1.5px dashed #94a3b8;border-radius:12px;padding:14px;margin-bottom:16px;text-align:left">
+            <div style="font-size:12px;color:#64748b">📱 Login (telefon)</div>
+            <div style="font-size:18px;font-weight:800;font-family:monospace;margin-bottom:10px">{{ new_login }}</div>
+            <div style="font-size:12px;color:#64748b">🔑 Parol</div>
+            <div style="font-size:24px;font-weight:800;font-family:monospace;letter-spacing:3px;color:#059669">{{ new_password }}</div>
+        </div>
+        <a href="{{ spa_url }}" style="display:block;background:#0088cc;color:#fff;text-decoration:none;padding:13px;border-radius:10px;font-weight:700">
+            Kirish → Bittada Usta
+        </a>
+        <p style="color:#94a3b8;font-size:11px;margin-top:10px">Parolni keyin Sozlamalardan o'zgartirishingiz mumkin</p>
+    </div>
+    {% endif %}
+</div>
+</body>
+</html>

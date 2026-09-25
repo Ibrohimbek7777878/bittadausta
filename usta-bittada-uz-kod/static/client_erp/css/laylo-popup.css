@@ -1,0 +1,563 @@
+/* ═══════════════════════════════════════════════════════════
+   LAYLO AI POPUP — Client ERP (Light theme, full-featured)
+   Uses client_erp CSS variables from base.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* ═══ FAB ═══ */
+.laylo-popup-fab {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 9990;
+    box-shadow: 0 6px 24px rgba(16, 185, 129, 0.35), 0 2px 8px rgba(0,0,0,.1);
+    transition: transform .25s cubic-bezier(.22,.61,.36,1), opacity .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.laylo-popup-fab:hover {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 8px 32px rgba(16, 185, 129, 0.45), 0 4px 12px rgba(0,0,0,.12);
+}
+.laylo-popup-fab-hidden { opacity: 0; pointer-events: none; transform: scale(0.5); }
+
+/* ═══ POPUP PANEL ═══ */
+.laylo-popup {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 500px;
+    max-width: calc(100vw - 32px);
+    height: 75vh;
+    min-height: 480px;
+    max-height: calc(100vh - 40px);
+    background: var(--bg);
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.12), 0 8px 24px rgba(0,0,0,.08), 0 0 0 1px var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 9991;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    animation: layloPopupIn .35s cubic-bezier(.22,.61,.36,1);
+}
+.laylo-popup-hidden { display: none !important; }
+
+@keyframes layloPopupIn {
+    from { opacity: 0; transform: translateY(24px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Animated gradient background ── */
+.laylo-popup::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 8% 92%, rgba(16,185,129,.06) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 50% at 88% 12%, rgba(99,102,241,.07) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(99,102,241,.03) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+    animation: layloGlow 14s ease-in-out infinite alternate;
+}
+@keyframes layloGlow {
+    0% {
+        background:
+            radial-gradient(ellipse 80% 60% at 8% 92%, rgba(16,185,129,.06) 0%, transparent 70%),
+            radial-gradient(ellipse 70% 50% at 88% 12%, rgba(99,102,241,.07) 0%, transparent 70%),
+            radial-gradient(ellipse 50% 40% at 50% 50%, rgba(99,102,241,.03) 0%, transparent 60%);
+    }
+    50% {
+        background:
+            radial-gradient(ellipse 70% 50% at 18% 72%, rgba(99,102,241,.06) 0%, transparent 70%),
+            radial-gradient(ellipse 80% 60% at 78% 22%, rgba(16,185,129,.05) 0%, transparent 70%),
+            radial-gradient(ellipse 60% 45% at 42% 55%, rgba(16,185,129,.04) 0%, transparent 60%);
+    }
+    100% {
+        background:
+            radial-gradient(ellipse 60% 70% at 12% 82%, rgba(99,102,241,.05) 0%, transparent 70%),
+            radial-gradient(ellipse 75% 55% at 82% 18%, rgba(16,185,129,.06) 0%, transparent 70%),
+            radial-gradient(ellipse 55% 50% at 55% 45%, rgba(99,102,241,.04) 0%, transparent 60%);
+    }
+}
+
+/* Subtle floating dots */
+.laylo-popup::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle 2px at 12% 22%, rgba(99,102,241,.1) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 78% 32%, rgba(16,185,129,.08) 0%, transparent 100%),
+        radial-gradient(circle 2px at 42% 72%, rgba(99,102,241,.07) 0%, transparent 100%),
+        radial-gradient(circle 1px at 88% 78%, rgba(16,185,129,.1) 0%, transparent 100%),
+        radial-gradient(circle 1.5px at 22% 52%, rgba(99,102,241,.09) 0%, transparent 100%),
+        radial-gradient(circle 1px at 62% 18%, rgba(16,185,129,.07) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+    animation: layloFloat 20s linear infinite alternate;
+}
+@keyframes layloFloat {
+    0%   { transform: translateY(0) translateX(0); }
+    25%  { transform: translateY(-3px) translateX(2px); }
+    50%  { transform: translateY(-1px) translateX(-2px); }
+    75%  { transform: translateY(-4px) translateX(1px); }
+    100% { transform: translateY(0) translateX(0); }
+}
+
+/* ═══ HEADER ═══ */
+.laylo-popup-header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+    backdrop-filter: blur(12px);
+}
+.laylo-popup-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.laylo-popup-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+}
+.laylo-popup-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    letter-spacing: -.2px;
+}
+.laylo-popup-subtitle {
+    font-size: 11px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.laylo-popup-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+    flex-shrink: 0;
+}
+.laylo-popup-dot.thinking {
+    background: var(--accent2);
+    animation: layloPopupPulse 1s infinite;
+}
+.laylo-popup-dot.recording {
+    background: var(--danger);
+    animation: layloPopupPulse .8s infinite;
+}
+.laylo-popup-dot.speaking {
+    background: var(--accent);
+    animation: layloPopupPulse 1.2s infinite;
+}
+@keyframes layloPopupPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(.7); }
+}
+.laylo-popup-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.laylo-popup-tts-toggle {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+}
+.laylo-popup-tts-toggle.active {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(16,185,129,.06);
+}
+.laylo-popup-tts-toggle:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.laylo-popup-close {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+}
+.laylo-popup-close:hover {
+    color: var(--danger);
+    border-color: var(--danger);
+    background: rgba(239, 68, 68, .04);
+}
+
+/* ═══ CHAT ═══ */
+.laylo-popup-chat {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.laylo-popup-chat::-webkit-scrollbar { width: 3px; }
+.laylo-popup-chat::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ═══ MESSAGES ═══ */
+.laylo-popup-msg {
+    padding: 12px 14px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.65;
+    max-width: 88%;
+    word-break: break-word;
+    animation: layloMsgIn .25s cubic-bezier(.22,.61,.36,1);
+}
+@keyframes layloMsgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.laylo-popup-msg-user {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 10px rgba(16, 185, 129, .2);
+}
+.laylo-popup-msg-bot {
+    background: var(--surface);
+    color: var(--text);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+}
+.laylo-popup-msg-sys {
+    background: rgba(239, 68, 68, 0.05);
+    color: var(--danger);
+    align-self: center;
+    font-size: 12px;
+    text-align: center;
+    border: 1px solid rgba(239, 68, 68, .1);
+    border-radius: 20px;
+    padding: 6px 16px;
+    max-width: 100%;
+}
+
+/* Message header (who + tts button) */
+.laylo-popup-msg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+.laylo-popup-who {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+.laylo-popup-listen-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text2);
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    flex-shrink: 0;
+}
+.laylo-popup-listen-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(16,185,129,.06);
+}
+
+/* Tool badges */
+.laylo-popup-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+}
+.laylo-popup-tool-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--accent2);
+    background: rgba(99,102,241,.06);
+    border: 1px solid rgba(99,102,241,.12);
+}
+.laylo-popup-tool-badge i {
+    font-size: 8px;
+    opacity: .6;
+}
+
+/* Message content styling */
+.laylo-popup-msg img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin: 6px 0;
+}
+.laylo-popup-msg b, .laylo-popup-msg strong {
+    font-weight: 600;
+}
+.laylo-popup-msg a {
+    color: var(--accent2);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(99, 102, 241, .25);
+    transition: border-color .15s;
+}
+.laylo-popup-msg a:hover {
+    border-bottom-color: var(--accent2);
+}
+.laylo-popup-msg code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(0,0,0,.04);
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.laylo-popup-msg table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 6px 0;
+}
+.laylo-popup-msg th {
+    text-align: left;
+    padding: 5px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+    font-weight: 600;
+}
+.laylo-popup-msg td {
+    padding: 5px 8px;
+    border-bottom: 1px solid rgba(0,0,0,.04);
+    color: var(--text);
+}
+
+/* ═══ TYPING DOTS ═══ */
+.laylo-popup-dots {
+    display: flex;
+    gap: 5px;
+    padding: 4px 0;
+}
+.laylo-popup-dots span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    opacity: 0.5;
+    animation: layloDotBounce 1.2s infinite ease-in-out;
+}
+.laylo-popup-dots span:nth-child(2) { animation-delay: .15s; }
+.laylo-popup-dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes layloDotBounce {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.3; }
+    40% { transform: scale(1.1); opacity: 1; }
+}
+
+/* ═══ QUICK ACTIONS ═══ */
+.laylo-popup-actions {
+    position: relative;
+    z-index: 1;
+    padding: 10px 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+    backdrop-filter: blur(8px);
+}
+.laylo-popup-quick {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text2);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+}
+.laylo-popup-quick:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(16, 185, 129, .2);
+    transform: translateY(-1px);
+}
+.laylo-popup-quick i {
+    margin-right: 4px;
+    font-size: 11px;
+}
+
+/* ═══ INPUT BAR ═══ */
+.laylo-popup-input-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    background: var(--surface);
+    backdrop-filter: blur(12px);
+}
+.laylo-popup-mic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: none;
+    color: var(--text2);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+    flex-shrink: 0;
+}
+.laylo-popup-mic:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(16,185,129,.04);
+}
+.laylo-popup-mic.recording {
+    color: #fff;
+    background: var(--danger);
+    border-color: var(--danger);
+    animation: layloMicPulse 1.2s infinite;
+}
+@keyframes layloMicPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.4); }
+    50%      { box-shadow: 0 0 0 8px rgba(239,68,68,0); }
+}
+.laylo-popup-input {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 22px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s;
+}
+.laylo-popup-input::placeholder {
+    color: var(--text2);
+}
+.laylo-popup-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, .08);
+}
+.laylo-popup-send {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .15s, box-shadow .2s;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(16, 185, 129, .25);
+}
+.laylo-popup-send:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 16px rgba(16, 185, 129, .35);
+}
+
+/* ═══ MOBILE ═══ */
+@media (max-width: 580px) {
+    .laylo-popup {
+        width: calc(100vw - 16px);
+        right: 8px;
+        bottom: 68px;
+        height: calc(100vh - 140px);
+        max-height: calc(100vh - 140px);
+        border-radius: 16px;
+    }
+    .laylo-popup-fab {
+        bottom: 74px;
+        right: 14px;
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+}
+@media (max-width: 400px) {
+    .laylo-popup {
+        width: 100vw;
+        height: calc(100vh - 60px);
+        max-height: calc(100vh - 60px);
+        bottom: 0;
+        right: 0;
+        border-radius: 16px 16px 0 0;
+    }
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shartnoma — {{ order.title }}</title>
+<style>
+/* ── PDF blankidagi dizayn 1:1 (Mebel_City_Order_Form_FullPage.pdf) ──
+   Ranglar, ustunlar, ramkalar O'ZGARMAGAN. Faqat Bittada-ERP brendi va
+   QR bloki qo'shildi (katta ERP chekidan — combined_receipt.html). */
+:root{ --primary:#2c4a7c; --accent:#4a7ab8; --line:#c9d2e0; --gray:#5a6a80; }
+*{ box-sizing:border-box; }
+/* ⚠️ 2026-08-25 (2): 9 ta bosqich × 38 ta belgi — bitta A4 betga
+   sig'ishi uchun butun sahifa QATTIQ balandlikka (277mm) qulflanadi,
+   shrift/bo'shliqlar zichlashtirildi, bosqichlar 2 ICHKI ustunga
+   bo'lindi (chapdagi moliya/ulushlar bilan balandligi TENGLASHSIN). */
+html,body{ height:100%; }
+body{ margin:0 auto; padding:12mm 12mm; background:#fff; color:#1a2332;
+      font-family:'Segoe UI',Arial,sans-serif; font-size:9.4pt; line-height:1.4;
+      width:210mm; max-width:210mm; }
+.page{ width:100%; height:257mm; display:flex; flex-direction:column; overflow:hidden; }
+@page{ size:A4; margin:0; }
+@media print{
+  body{ padding:8mm 9mm; width:210mm; }
+  .page{ height:281mm; }
+  .no-print{ display:none !important; }
+}
+
+/* ── SARLAVHA ── */
+.hdr{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-shrink:0; }
+.hdr-mid{ flex:1; text-align:center; }
+.h-title{ font-size:14.5pt; font-weight:800; color:#1a2332; letter-spacing:-.2px; }
+.h-sub{ font-size:9.6pt; font-weight:700; color:#33445c; margin-top:2px; }
+
+/* Bittada-ERP brendi — combined_receipt.html `.inv-logo` dan */
+.brand{ text-align:left; flex-shrink:0; padding-top:1px; }
+.brand-logo{ font-size:12.5pt; font-weight:800; color:var(--primary);
+             letter-spacing:-.5px; line-height:1; white-space:nowrap; }
+.brand-logo span{ color:var(--accent); font-weight:600; }
+.brand-tag{ font-size:6pt; color:var(--gray); margin-top:2px; max-width:110px; }
+
+/* ID + QR — chekdagi `.corner-idqr` dan */
+.idqr{ flex-shrink:0; border:1px solid var(--line); border-radius:7px;
+       overflow:hidden; background:#fff; text-align:center; width:88px; }
+.idqr .cid{ padding:4px 6px; }
+.idqr .lbl{ font-size:5.6pt; color:var(--gray); font-weight:700;
+            letter-spacing:.4px; text-transform:uppercase; }
+.idqr .cid-val{ font-size:10pt; font-weight:800; color:var(--primary); line-height:1.1; }
+.idqr .cqr{ border-top:1px solid var(--line); background:#fafbfc; padding:5px 5px 4px; }
+.idqr .cqr #qr{ width:70px; height:70px; margin:0 auto; line-height:0; }
+.idqr .cqr #qr img,.idqr .cqr #qr canvas{ width:70px !important; height:70px !important; display:block; }
+
+/* ── Mijoz qatori ── */
+.meta{ margin-top:6px; border-top:2px solid var(--primary); padding-top:5px;
+       display:grid; grid-template-columns:1fr 1fr; gap:2px 20px; flex-shrink:0; }
+.meta .r{ display:flex; gap:6px; font-size:8pt; }
+.meta .k{ font-weight:700; color:#33445c; white-space:nowrap; }
+.meta .v{ flex:1; border-bottom:1px solid var(--line); min-height:12px; padding-left:3px; }
+
+/* ── Ikki ustun ── */
+.cols{ display:flex; gap:9px; margin-top:7px; flex:1 1 auto; min-height:0; }
+.col-l{ width:41%; flex-shrink:0; display:flex; flex-direction:column; }
+.col-r{ flex:1; display:flex; flex-direction:column; min-height:0; }
+.sec-h{ background:var(--primary); color:#fff; font-weight:800; font-size:8.2pt;
+        padding:3.5px 8px; letter-spacing:.3px; flex-shrink:0; }
+.box{ border:1px solid var(--line); border-top:none; }
+
+/* Moliya jadvali */
+table{ width:100%; border-collapse:collapse; }
+td{ border-bottom:1px solid var(--line); padding:6px 9px; font-size:8.8pt; }
+td.lbl{ font-weight:600; }
+td.num{ text-align:right; width:36%; border-left:1px solid var(--line);
+        font-variant-numeric:tabular-nums; white-space:nowrap; }
+tr.tot td{ font-weight:800; background:#f2f5fa; }
+tr.profit td{ font-weight:800; background:#eaf2ff; color:var(--primary); font-size:9.6pt; }
+
+/* Ulushlar */
+.sh th{ background:#f2f5fa; font-size:7.8pt; font-weight:700; color:#33445c;
+        padding:5px 9px; border-bottom:1px solid var(--line); text-align:left; }
+.sh td{ height:26px; padding:5px 9px; }
+
+/* Bosqichlar */
+.stg{ padding:5px 7px 6px; flex:1; display:flex; flex-direction:column; min-height:0; }
+.stg-grid{ column-count:2; column-gap:14px; }
+.stg-sec{ break-inside:avoid; -webkit-column-break-inside:avoid; margin-bottom:16px; }
+.stg h4{ margin:0 0 7px; font-size:9.4pt; font-weight:800; color:#1a2332;
+         border-bottom:1px solid #e4e9f0; padding-bottom:3.5px; }
+.ck{ display:flex; align-items:flex-start; gap:6px; font-size:8.6pt; padding:3.5px 0; }
+.bx{ width:8.5px; height:8.5px; border:1px solid #7d8ba0; flex-shrink:0; margin-top:2.5px;
+     display:inline-block; text-align:center; line-height:7px; font-size:6.8pt;
+     color:var(--primary); font-weight:800; }
+.bx.on{ background:var(--primary); border-color:var(--primary); color:#fff; }
+.note{ font-size:7pt; color:var(--gray); font-style:italic; margin-top:8px;
+       border-top:1px solid #e4e9f0; padding-top:5px; flex-shrink:0; }
+.qr-cap{ font-size:6.8pt; color:var(--gray); text-align:center; margin-top:4px; flex-shrink:0; }
+.warn{ background:#fff4e5; border:1px solid #f0b429; padding:5px 8px;
+       font-size:7.6pt; color:#7a4a00; margin-top:5px; }
+.tools{ position:fixed; top:10px; right:10px; display:flex; gap:7px; z-index:9; }
+.tools button{ padding:8px 15px; border:none; border-radius:7px; cursor:pointer;
+               font-weight:700; font-size:12px; background:var(--primary); color:#fff; }
+</style>
+</head>
+<body>
+
+<div class="tools no-print">
+  <button onclick="window.print()">🖨 Chop etish</button>
+</div>
+
+<div class="page">
+<!-- ── SARLAVHA: brend · nom · ID+QR ── -->
+<div class="hdr">
+  <div class="brand">
+    <div class="brand-logo">Bittada<span>-ERP</span></div>
+    <div class="brand-tag">Mebel ishlab chiqarish va savdo tizimi</div>
+  </div>
+  <div class="hdr-mid">
+    <div class="h-title">MEBEL CITY &amp; BIGONE EXPORT</div>
+    <div class="h-sub">BUYURTMA VA ISHLAB CHIQARISH VARAQASI</div>
+  </div>
+  <div class="idqr">
+    <div class="cid">
+      <div class="lbl">ID</div>
+      <div class="cid-val">{{ order.id|stringformat:"05d" }}</div>
+    </div>
+    <div class="cqr">
+      <div id="qr"></div>
+      <div class="lbl">QR kod</div>
+    </div>
+  </div>
+</div>
+
+<div class="meta">
+  <div class="r"><span class="k">Sana:</span><span class="v">{{ order.created_at|date:"d.m.Y" }}</span></div>
+  <div class="r"><span class="k">Manzil:</span><span class="v">{{ customer.address|default:"" }}</span></div>
+  <div class="r"><span class="k">Mijoz I.F.SH:</span><span class="v">{{ customer.full_name|default:order.title }}</span></div>
+  <div class="r"><span class="k">Telefon:</span><span class="v">{{ customer.phone|default:"" }}</span></div>
+</div>
+
+<div class="cols">
+  <!-- ══ CHAP ══ -->
+  <div class="col-l">
+    <div class="sec-h">MOLIYAVIY HISOBOT</div>
+    <div class="box">
+      <table>
+        <tr><td class="lbl">Dogavor summa</td><td class="num">{{ v_contract }}</td></tr>
+        <tr><td class="lbl">Zaklad</td><td class="num">{{ v_income }}</td></tr>
+        {% for r in fin_rows %}
+        <tr><td class="lbl">{{ r.title }}</td>
+            <td class="num">{% if r.amount %}{{ r.fmt }}{% endif %}</td></tr>
+        {% endfor %}
+        <tr class="tot"><td class="lbl">Jami xarajat</td><td class="num">{{ v_expense }}</td></tr>
+        <tr class="profit"><td class="lbl">Sof foyda</td><td class="num">{{ v_profit }}</td></tr>
+      </table>
+    </div>
+    {% if mismatch %}
+    <div class="warn no-print">⚠️ Taqsimlash yig'indisi «Jami xarajat» ga teng emas — tekshiring.</div>
+    {% endif %}
+
+    <div class="sec-h" style="margin-top:11px">MAS'ULLAR VA ULUSHLAR</div>
+    <div class="box">
+      <table class="sh">
+        <tr><th>Xodim I.F.SH</th><th>Vazifasi / Bosqich</th><th style="text-align:right">Ulush</th></tr>
+        {% for s in shares %}
+        <tr><td>{{ s.name }}</td><td>{{ s.role }}</td>
+            <td class="num">{% if s.percent %}{{ s.percent|floatformat:0 }}%{% endif %}</td></tr>
+        {% endfor %}
+        <tr class="tot"><td colspan="2" style="text-align:right">JAMI:</td><td class="num"></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══ O'NG — DINAMIK: zakazning haqiqiy bosqichlari ══ -->
+  <div class="col-r">
+    <div class="sec-h">ISHLAB CHIQARISH BOSQICHLARI</div>
+    <div class="box stg">
+      <div class="stg-grid">
+      {% for st in stages %}
+        <div class="stg-sec">
+        <h4>{{ forloop.counter }}. {{ st.icon }} {{ st.title }}</h4>
+        {% for it in st.items %}
+        <div class="ck"><span class="bx{% if it.done %} on{% endif %}">{% if it.done %}✓{% endif %}</span><span>{{ it.title }}</span></div>
+        {% empty %}
+        <div class="ck"><span class="bx"></span><span style="color:#8b97a8">—</span></div>
+        {% endfor %}
+        </div>
+      {% empty %}
+        <div style="color:#8b97a8;font-size:7.4pt">Bosqichlar belgilanmagan.</div>
+      {% endfor %}
+      </div>
+      <div class="note">Eslatma: Har bir bosqich yakunlanganda mas'ul xodim tomonidan belgilab borilishi shart.</div>
+    </div>
+    <div class="qr-cap">QR kodni skaner qilib buyurtma holatini kuzating</div>
+  </div>
+</div>
+</div><!-- /.page -->
+
+<script src="/static/vendor/qrcode.min.js" onerror="this.dataset.fail=1"></script>
+<script>
+(function () {
+  var url = "{{ share_url|escapejs }}";
+  function draw() {
+    try {
+      if (typeof QRCode === 'undefined') return false;
+      new QRCode(document.getElementById('qr'), {
+        text: url, width: 70, height: 70,
+        colorDark: '#1a2332', colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+      });
+      return true;
+    } catch (e) { return false; }
+  }
+  if (!draw()) {
+    // Kutubxona yuklanmasa — havolani matn bilan ko'rsatamiz (bo'sh qolmasin)
+    var el = document.getElementById('qr');
+    if (el) el.innerHTML = '<div style="font-size:5.4pt;word-break:break-all;'
+      + 'padding:3px;color:#33445c;line-height:1.25">' + url + '</div>';
+  }
+})();
+</script>
+</body>
+</html>

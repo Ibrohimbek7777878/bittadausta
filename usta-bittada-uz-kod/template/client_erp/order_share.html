@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#5C8A0C" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D0C10" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23DCF262'/%3E%3Cstop offset='1' stop-color='%238B5CF6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='26' fill='url(%23g)'/%3E%3Ctext x='50' y='50' dy='.35em' text-anchor='middle' font-family='Arial,sans-serif' font-size='58' font-weight='bold' fill='%23fff'%3E{{ brand|first|upper|urlencode }}%3C/text%3E%3C/svg%3E">
+{% if not_found %}
+<title>Havola topilmadi</title>
+{% else %}
+<title>{% if customer_name %}{{ customer_name }}{% else %}{{ title }}{% endif %} — Buyurtma holati</title>
+<meta property="og:type" content="website">
+<meta property="og:title" content="{% if customer_name %}{{ customer_name }} — {% endif %}{{ title }}">
+<meta property="og:description" content="{{ brand }} · Buyurtma holati: {{ status_label }} ({{ progress }}%)">
+{% if og_image %}<meta property="og:image" content="{{ og_image }}">{% endif %}
+<meta property="og:url" content="{{ page_url }}">
+<meta property="og:site_name" content="Bittada Usta">
+<meta name="twitter:card" content="{% if og_image %}summary_large_image{% else %}summary{% endif %}">
+<meta name="twitter:title" content="{% if customer_name %}{{ customer_name }} — {% endif %}{{ title }}">
+<meta name="twitter:description" content="{{ brand }} · {{ status_label }} ({{ progress }}%)">
+{% if og_image %}<meta name="twitter:image" content="{{ og_image }}">{% endif %}
+{% endif %}
+<style>
+:root{
+  --bg:#F3F1EA;
+  --bg2:#EBE8DE;
+  --card:#ffffff;
+  --txt:#1B1A20;
+  --mut:#6E6C76;
+  --line:rgba(0,0,0,.1);
+  --acc:#5C8A0C;
+  --shadow:0 6px 24px rgba(0,0,0,.06);
+  --shadow-sm:0 2px 8px rgba(0,0,0,.05);
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#0D0C10;
+    --bg2:#151419;
+    --card:#1E1D24;
+    --txt:#F5F4F7;
+    --mut:#9B9AA3;
+    --line:rgba(255,255,255,.1);
+    --acc:#DCF262;
+    --shadow:0 6px 24px rgba(0,0,0,.4);
+    --shadow-sm:0 2px 8px rgba(0,0,0,.3);
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--txt)}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+}
+.wrap{max-width:640px;margin:0 auto;padding:24px 16px 48px}
+a{color:inherit;text-decoration:none}
+
+/* Brand */
+.brand{text-align:center;margin:12px 0 28px}
+.brand-logo{
+  width:76px;height:76px;border-radius:22px;margin:0 auto 14px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#DCF262,#8B5CF6);
+  color:#fff;font-size:36px;font-weight:800;
+  box-shadow:0 8px 24px rgba(139,92,246,.28);
+}
+.brand-name{font-size:24px;font-weight:800;letter-spacing:-.02em}
+.brand-sub{font-size:13px;color:var(--mut);margin-top:2px}
+
+/* Card */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:20px;
+  padding:20px;margin-bottom:16px;box-shadow:var(--shadow-sm);
+}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}
+.order-title{font-size:19px;font-weight:700;letter-spacing:-.01em;flex:1}
+.badge{
+  display:inline-block;padding:5px 12px;border-radius:999px;
+  font-size:12px;font-weight:700;white-space:nowrap;
+  background:color-mix(in srgb,var(--acc) 18%,transparent);
+  color:var(--acc);border:1px solid color-mix(in srgb,var(--acc) 35%,transparent);
+}
+@supports not (background:color-mix(in srgb,red,blue)){
+  .badge{background:rgba(92,138,12,.14);border-color:rgba(92,138,12,.3)}
+}
+
+/* Progress */
+.progress-row{display:flex;align-items:center;justify-content:space-between;font-size:13px;color:var(--mut);margin-bottom:8px}
+.progress-row b{color:var(--txt);font-size:15px}
+.bar{height:10px;border-radius:999px;background:var(--bg2);overflow:hidden}
+.bar>span{
+  display:block;height:100%;border-radius:999px;
+  background:linear-gradient(90deg,#8B5CF6,var(--acc));
+  transition:width .6s ease;min-width:6px;
+}
+.deadline{margin-top:14px;font-size:13px;color:var(--mut);display:flex;align-items:center;gap:6px}
+.deadline b{color:var(--txt)}
+
+/* Section title */
+.sec-title{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.sec-title .count{font-size:12px;font-weight:600;color:var(--mut)}
+
+/* Timeline */
+.timeline{position:relative;padding-left:6px}
+.stage{position:relative;display:flex;gap:14px;padding-bottom:20px}
+.stage:last-child{padding-bottom:0}
+.stage-line{
+  position:absolute;left:19px;top:38px;bottom:-2px;width:2px;background:var(--line);
+}
+.stage:last-child .stage-line{display:none}
+.stage-dot{
+  width:40px;height:40px;min-width:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  background:var(--bg2);border:2px solid var(--line);position:relative;z-index:1;
+}
+.stage-body{flex:1;padding-top:6px}
+.stage-name{font-size:15px;font-weight:600}
+.stage-meta{font-size:12px;color:var(--mut);margin-top:2px}
+.stage.done .stage-dot{background:#16a34a;border-color:#16a34a;color:#fff}
+.stage.done .stage-line{background:#16a34a}
+.stage.done .stage-meta{color:#16a34a}
+.stage.active .stage-dot{
+  border-color:var(--acc);color:var(--acc);
+  box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 55%,transparent);
+  animation:pulse 1.8s infinite;
+}
+.stage.active .stage-name{color:var(--acc)}
+.stage.skipped{opacity:.4}
+.stage.skipped .stage-meta{font-style:italic}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(92,138,12,.4)}
+  70%{box-shadow:0 0 0 12px rgba(92,138,12,0)}
+  100%{box-shadow:0 0 0 0 rgba(92,138,12,0)}
+}
+.check{color:#16a34a;font-weight:700}
+
+/* Grid galleries */
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+@media(max-width:400px){.grid{grid-template-columns:repeat(2,1fr)}}
+.tile{
+  position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;
+  background:var(--bg2);border:1px solid var(--line);cursor:pointer;display:block;
+}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+.tile .cap{
+  position:absolute;left:0;right:0;bottom:0;padding:6px 8px;font-size:11px;color:#fff;
+  background:linear-gradient(transparent,rgba(0,0,0,.65));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tile .vr{
+  position:absolute;top:8px;right:8px;font-size:16px;
+  background:rgba(0,0,0,.5);border-radius:8px;padding:2px 6px;color:#fff;
+}
+.tile.pano{aspect-ratio:16/10}
+
+/* Docs */
+.doc{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+  border:1px solid var(--line);margin-bottom:10px;background:var(--bg2);transition:.15s;
+}
+.doc:last-child{margin-bottom:0}
+.doc:hover{border-color:var(--acc)}
+.doc .ic{font-size:22px}
+.doc .nm{flex:1;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc .dl{font-size:12px;color:var(--acc);font-weight:700}
+
+/* Footer */
+.footer{text-align:center;font-size:12px;color:var(--mut);margin-top:28px}
+
+/* Lightbox */
+.lightbox{
+  position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.lightbox.open{display:flex}
+.lightbox img{max-width:100%;max-height:100%;border-radius:10px}
+.lightbox .close{
+  position:absolute;top:calc(16px + env(safe-area-inset-top));right:20px;
+  font-size:26px;color:#fff;background:rgba(255,255,255,.15);
+  width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;border:none;
+}
+
+/* Customer line */
+.cust-line{font-size:13px;color:var(--mut);margin-top:4px;font-weight:600}
+
+/* Media tiles */
+.tile.hidden-tile{display:none}
+.tile .play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:42px;height:42px;border-radius:50%;background:rgba(0,0,0,.55);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;
+  padding-left:3px;backdrop-filter:blur(2px);border:1.5px solid rgba(255,255,255,.5);
+}
+.tile .vidbg{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2a2a35,#16161c)}
+.tile .vidic{font-size:26px;opacity:.6}
+.more-btn{
+  margin-top:12px;width:100%;padding:11px;border-radius:12px;cursor:pointer;
+  border:1px solid var(--line);background:var(--bg2);color:var(--txt);
+  font-size:13px;font-weight:700;font-family:inherit;
+}
+.more-btn:active{transform:scale(.98)}
+
+/* Gallery viewer */
+.gal{position:fixed;inset:0;background:#000;z-index:200;display:none;flex-direction:column;touch-action:none}
+.gal.open{display:flex}
+.gal-top{
+  position:absolute;top:0;left:0;right:0;z-index:5;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:calc(12px + env(safe-area-inset-top)) 16px 12px;
+  background:linear-gradient(rgba(0,0,0,.55),transparent);color:#fff;
+}
+.gal-count{font-size:14px;font-weight:700;letter-spacing:.02em}
+.gal-close,.gal-dl{
+  width:42px;height:42px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.15);color:#fff;font-size:18px;
+  display:flex;align-items:center;justify-content:center;text-decoration:none;
+}
+.gal-actions{display:flex;gap:10px}
+.gal-stage{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.gal-stage img{max-width:100%;max-height:100%;object-fit:contain;user-select:none;-webkit-user-drag:none;touch-action:none;will-change:transform}
+.gal-stage video{max-width:100%;max-height:100%;background:#000}
+.gal-nav{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:5;
+  width:46px;height:46px;border-radius:50%;border:none;cursor:pointer;
+  background:rgba(255,255,255,.13);color:#fff;font-size:22px;
+  display:flex;align-items:center;justify-content:center;
+}
+.gal-nav:disabled{opacity:.25;pointer-events:none}
+.gal-prev{left:12px}
+.gal-next{right:12px}
+.gal-cap{
+  position:absolute;bottom:calc(14px + env(safe-area-inset-bottom));left:0;right:0;
+  text-align:center;color:#fff;font-size:13px;z-index:5;padding:0 60px;
+  text-shadow:0 1px 4px rgba(0,0,0,.8);pointer-events:none;
+}
+.gal-hint{
+  position:absolute;bottom:calc(48px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,.6);font-size:11px;z-index:5;pointer-events:none;
+}
+@media(hover:none){.gal-nav{width:40px;height:40px;font-size:19px}}
+
+/* Not found */
+.nf{max-width:420px;margin:14vh auto 0;text-align:center;padding:0 24px}
+.nf .emoji{font-size:56px;margin-bottom:16px}
+.nf h1{font-size:22px;font-weight:800;margin-bottom:10px}
+.nf p{color:var(--mut);font-size:15px}
+</style>
+</head>
+<body>
+{% if not_found %}
+<div class="nf">
+  <div class="emoji">🔗</div>
+  <h1>Havola topilmadi yoki eskirgan</h1>
+  <p>Ushbu buyurtma havolasi mavjud emas yoki muddati o'tgan. Iltimos, ustangizdan yangi havola so'rang.</p>
+</div>
+{% else %}
+<div class="wrap">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-logo">{{ brand|first|upper }}</div>
+    <div class="brand-name">{{ brand }}</div>
+    <div class="brand-sub">Buyurtma holati</div>
+  </div>
+
+  <!-- Order card -->
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="order-title">{{ title }}</div>
+        {% if customer_name %}<div class="cust-line">👤 {{ customer_name }}</div>{% endif %}
+      </div>
+      <span class="badge">{{ status_label }}</span>
+    </div>
+    <div class="progress-row">
+      <span>Umumiy jarayon</span>
+      <b>{{ progress }}%</b>
+    </div>
+    <div class="bar"><span style="width:{{ progress }}%"></span></div>
+    {% if deadline %}
+    <div class="deadline">🗓️ Topshirish muddati: <b>{{ deadline|date:"d.m.Y" }}</b></div>
+    {% endif %}
+  </div>
+
+  <!-- Timeline -->
+  {% if stages %}
+  <div class="card">
+    <div class="sec-title">
+      <span>Bosqichlar</span>
+      <span class="count">{{ done_count }} / {{ total_count }} etap tugadi</span>
+    </div>
+    <div class="timeline">
+      {% for s in stages %}
+      <div class="stage{% if s.done %} done{% elif s.active %} active{% elif s.skipped %} skipped{% endif %}">
+        <div class="stage-line"></div>
+        <div class="stage-dot" style="{% if not s.done and not s.active %}color:{{ s.color }}{% endif %}">
+          {% if s.done %}<span class="check" style="color:#fff">✓</span>{% else %}{{ s.icon }}{% endif %}
+        </div>
+        <div class="stage-body">
+          <div class="stage-name">{{ s.title }}</div>
+          <div class="stage-meta">
+            {% if s.done %}
+              ✓ tugadi{% if s.completed_at %} · {{ s.completed_at|date:"d.m.Y" }}{% endif %}
+            {% elif s.active %}
+              jarayonda…
+            {% elif s.skipped %}
+              o'tkazib yuborildi
+            {% else %}
+              kutilmoqda
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Panoramas -->
+  {% if panoramas %}
+  <div class="card">
+    <div class="sec-title"><span>🥽 Vizualizatsiyalar</span></div>
+    <div class="grid">
+      {% for p in panoramas %}
+      <a class="tile pano" target="_blank" rel="noopener"
+         href="{% if p.viewer_url %}{{ p.viewer_url }}{% elif p.url %}{{ p.url }}{% elif p.embed_url %}{{ p.embed_url }}{% else %}#{% endif %}">
+        {% if p.thumbnail %}<img src="{{ p.thumbnail }}" alt="{{ p.title|default:'Panorama' }}" loading="lazy">{% endif %}
+        <span class="vr">🥽</span>
+        {% if p.title %}<span class="cap">{{ p.title }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Rooms -->
+  {% if rooms %}
+  <div class="card">
+    <div class="sec-title"><span>🏠 3D Xona (Konfigurator)</span></div>
+    <div class="grid">
+      {% for r in rooms %}
+      <a class="tile pano" target="_blank" rel="noopener" href="{{ r.viewer_url }}">
+        {% if r.thumbnail %}<img src="{{ r.thumbnail }}" alt="{{ r.name|default:'3D Xona' }}" loading="lazy">{% endif %}
+        <span class="vr">🏠</span>
+        {% if r.name %}<span class="cap">{{ r.name }}</span>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Media (rasm + video) -->
+  {% if media %}
+  <div class="card">
+    <div class="sec-title"><span>🖼️ Rasm va videolar</span><span class="count">{{ media|length }} ta</span></div>
+    <div class="grid" id="mediaGrid">
+      {% for m in media %}
+      <div class="tile{% if forloop.counter0 >= 9 %} hidden-tile{% endif %}" data-i="{{ forloop.counter0 }}" onclick="openGallery({{ forloop.counter0 }})">
+        {% if m.type == 'video' %}
+          {% if m.thumb %}<img src="{{ m.thumb }}" alt="{{ m.name }}" loading="lazy">{% else %}<div class="vidbg"><span class="vidic">🎬</span></div>{% endif %}
+          <span class="play">▶</span>
+        {% else %}
+          <img src="{{ m.thumb|default:m.url }}" alt="{{ m.name|default:'Rasm' }}" loading="lazy">
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% if media|length > 9 %}
+    <button class="more-btn" id="mediaMore" onclick="showAllMedia()">Yana {{ media|length|add:"-9" }} ta ko'rsatish</button>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Docs -->
+  {% if docs %}
+  <div class="card">
+    <div class="sec-title"><span>📄 Fayllar</span></div>
+    {% for d in docs %}
+    <a class="doc" href="{{ d.url }}" target="_blank" rel="noopener" download>
+      <span class="ic">📄</span>
+      <span class="nm">{{ d.name|default:'Fayl' }}</span>
+      <span class="dl">Yuklab olish</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Footer -->
+  <div class="footer">{{ brand }} · Bittada Usta orqali</div>
+
+</div>
+
+<!-- Gallery viewer -->
+<div class="gal" id="gal">
+  <div class="gal-top">
+    <button class="gal-close" onclick="galClose()" aria-label="Yopish">✕</button>
+    <div class="gal-count" id="galCount">1 / 1</div>
+    <div class="gal-actions">
+      <a class="gal-dl" id="galDl" href="#" target="_blank" rel="noopener" download title="Yuklab olish">⭳</a>
+    </div>
+  </div>
+  <button class="gal-nav gal-prev" id="galPrev" onclick="galGo(-1)" aria-label="Oldingi">‹</button>
+  <div class="gal-stage" id="galStage"></div>
+  <button class="gal-nav gal-next" id="galNext" onclick="galGo(1)" aria-label="Keyingi">›</button>
+  <div class="gal-cap" id="galCap"></div>
+  <div class="gal-hint" id="galHint">Kattalashtirish uchun ikki marta bosing</div>
+</div>
+{{ media|json_script:"media-data" }}
+<script>
+(function(){
+  var MEDIA = [];
+  try { MEDIA = JSON.parse(document.getElementById('media-data').textContent) || []; } catch(e){}
+  var idx = 0, scale = 1, tx = 0, ty = 0;
+  var gal = document.getElementById('gal'), stage = document.getElementById('galStage');
+  var elImg = null;
+
+  window.openGallery = function(i){
+    if(!MEDIA.length) return;
+    idx = Math.max(0, Math.min(i, MEDIA.length-1));
+    gal.classList.add('open');
+    document.body.style.overflow='hidden';
+    render();
+  };
+  window.galClose = function(){
+    gal.classList.remove('open');
+    document.body.style.overflow='';
+    stage.innerHTML='';
+  };
+  window.galGo = function(d){
+    var n = idx + d;
+    if(n<0 || n>=MEDIA.length) return;
+    idx = n; render();
+  };
+  window.showAllMedia = function(){
+    var g = document.getElementById('mediaGrid');
+    if(g) g.querySelectorAll('.hidden-tile').forEach(function(t){ t.classList.remove('hidden-tile'); });
+    var b = document.getElementById('mediaMore'); if(b) b.style.display='none';
+  };
+
+  function resetZoom(){ scale=1; tx=0; ty=0; }
+  function applyT(){ if(elImg) elImg.style.transform='translate('+tx+'px,'+ty+'px) scale('+scale+')'; }
+
+  function render(){
+    resetZoom();
+    var m = MEDIA[idx];
+    document.getElementById('galCount').textContent = (idx+1)+' / '+MEDIA.length;
+    document.getElementById('galPrev').disabled = idx<=0;
+    document.getElementById('galNext').disabled = idx>=MEDIA.length-1;
+    document.getElementById('galCap').textContent = m.name || '';
+    var dl = document.getElementById('galDl'); dl.href = m.url; dl.setAttribute('download','');
+    var hint = document.getElementById('galHint');
+    stage.innerHTML='';
+    elImg = null;
+    if(m.type==='video'){
+      if(hint) hint.style.display='none';
+      var v = document.createElement('video');
+      v.src = m.url; v.controls = true; v.autoplay = true; v.playsInline = true;
+      v.setAttribute('playsinline','');
+      stage.appendChild(v);
+    } else {
+      if(hint) hint.style.display='';
+      var im = document.createElement('img');
+      im.src = m.url; im.alt = m.name || '';
+      im.draggable = false;
+      stage.appendChild(im);
+      elImg = im;
+      bindZoom(im);
+    }
+  }
+
+  // ── Zoom (wheel + double-tap + pinch) + pan ──
+  function bindZoom(im){
+    im.addEventListener('wheel', function(e){
+      e.preventDefault();
+      var d = e.deltaY < 0 ? 1.2 : 1/1.2;
+      scale = Math.max(1, Math.min(5, scale*d));
+      if(scale===1){ tx=0; ty=0; }
+      applyT();
+    }, {passive:false});
+
+    var lastTap=0;
+    im.addEventListener('click', function(e){
+      var now = Date.now();
+      if(now-lastTap < 300){
+        if(scale>1){ resetZoom(); } else { scale=2.4; }
+        applyT();
+        e.stopPropagation();
+      }
+      lastTap = now;
+    });
+
+    // Drag pan (mouse) when zoomed
+    var dragging=false, sx=0, sy=0, ox=0, oy=0;
+    im.addEventListener('mousedown', function(e){ if(scale<=1) return; dragging=true; sx=e.clientX; sy=e.clientY; ox=tx; oy=ty; e.preventDefault(); });
+    window.addEventListener('mousemove', function(e){ if(!dragging) return; tx=ox+(e.clientX-sx); ty=oy+(e.clientY-sy); applyT(); });
+    window.addEventListener('mouseup', function(){ dragging=false; });
+  }
+
+  // ── Touch: swipe navigate + pinch zoom + pan ──
+  var t = {x0:0,y0:0,px:0,py:0,d0:0,s0:1,ox:0,oy:0,mode:''};
+  stage.addEventListener('touchstart', function(e){
+    if(e.touches.length===2){
+      t.mode='pinch';
+      t.d0 = dist(e.touches); t.s0 = scale;
+    } else if(e.touches.length===1){
+      t.mode = scale>1 ? 'pan' : 'swipe';
+      t.x0 = t.px = e.touches[0].clientX;
+      t.y0 = t.py = e.touches[0].clientY;
+      t.ox = tx; t.oy = ty;
+    }
+  }, {passive:true});
+  stage.addEventListener('touchmove', function(e){
+    if(t.mode==='pinch' && e.touches.length===2){
+      var d = dist(e.touches);
+      scale = Math.max(1, Math.min(5, t.s0 * d/t.d0));
+      applyT();
+    } else if(t.mode==='pan' && e.touches.length===1){
+      tx = t.ox + (e.touches[0].clientX - t.x0);
+      ty = t.oy + (e.touches[0].clientY - t.y0);
+      applyT();
+    } else if(t.mode==='swipe' && e.touches.length===1){
+      t.px = e.touches[0].clientX; t.py = e.touches[0].clientY;
+    }
+  }, {passive:true});
+  stage.addEventListener('touchend', function(e){
+    if(t.mode==='pinch' && scale<=1.02){ resetZoom(); applyT(); }
+    if(t.mode==='swipe'){
+      var dx = t.px - t.x0, dy = t.py - t.y0;
+      if(Math.abs(dx)>60 && Math.abs(dx)>Math.abs(dy)){ galGo(dx<0?1:-1); }
+    }
+    t.mode='';
+  }, {passive:true});
+  function dist(tt){ var a=tt[0], b=tt[1]; return Math.hypot(a.clientX-b.clientX, a.clientY-b.clientY); }
+
+  // Tap background to close (not the media)
+  stage.addEventListener('click', function(e){ if(e.target===stage) galClose(); });
+
+  document.addEventListener('keydown', function(e){
+    if(!gal.classList.contains('open')) return;
+    if(e.key==='Escape') galClose();
+    else if(e.key==='ArrowLeft') galGo(-1);
+    else if(e.key==='ArrowRight') galGo(1);
+  });
+})();
+</script>
+{% endif %}
+</body>
+</html>

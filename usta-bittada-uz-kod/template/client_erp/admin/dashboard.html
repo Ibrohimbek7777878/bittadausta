@@ -1,0 +1,1320 @@
+{% extends 'manfacturing/base.html' %}
+{% load static %}
+{% load custom_tags %}
+{% load tags_manfacturing %}
+{% load humanize %}
+
+{% block wrapper_extra_class %}sidebar_minimize{% endblock %}
+{% block sidebar_class %}sidebar sidebar-style-2{% endblock %}
+
+{% block content %}
+<style>
+:root { --mc-red:#b91c1c; --mc-green:#157a3a; --mc-cream:#fffdf7; --mc-dark:#1f2937; }
+.ma { padding:16px; font-family:'Inter',-apple-system,sans-serif; }
+.ma-head { display:flex;align-items:center;gap:12px;margin-bottom:20px; }
+.ma-head h2 { margin:0;font-size:20px;font-weight:800;color:var(--mc-red); }
+.ma-head .sub { font-size:12px;color:#6b7280; }
+
+/* Tabs */
+.ma-tabs { display:flex;gap:0;border-bottom:2px solid #e5e7eb;margin-bottom:16px;overflow-x:auto; }
+.ma-tab { padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;color:#6b7280;
+  border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:.2s; }
+.ma-tab:hover { color:var(--mc-red); }
+.ma-tab.active { color:var(--mc-red);border-bottom-color:var(--mc-red); }
+.ma-tab .badge { background:var(--mc-red);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px; }
+
+/* Panels */
+.ma-panel { display:none; }
+.ma-panel.active { display:block; }
+
+/* Stats cards */
+.ma-stats { display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px; }
+.ma-stat { background:#fff;border-radius:10px;padding:14px 16px;border:1px solid #e5e7eb;text-align:center; }
+.ma-stat .val { font-size:22px;font-weight:800;color:var(--mc-dark); }
+.ma-stat .lbl { font-size:11px;color:#6b7280;margin-top:2px; }
+
+/* Table */
+.ma-tbl { width:100%;border-collapse:collapse;font-size:12px; }
+.ma-tbl th { text-align:left;padding:8px 10px;font-size:10px;font-weight:700;color:#6b7280;text-transform:uppercase;
+  letter-spacing:.5px;border-bottom:2px solid #e5e7eb;background:#f9fafb; }
+.ma-tbl td { padding:8px 10px;border-bottom:1px solid #f3f4f6;vertical-align:middle; }
+.ma-tbl tr:hover { background:#fef2f2; }
+
+/* Badges */
+.ma-badge { padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;display:inline-block; }
+.ma-badge.ok { background:#d1fae5;color:#065f46; }
+.ma-badge.warn { background:#fef3c7;color:#92400e; }
+.ma-badge.err { background:#fee2e2;color:#b91c1c; }
+.ma-badge.info { background:#dbeafe;color:#1e40af; }
+
+/* Buttons */
+.ma-btn { padding:6px 12px;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;transition:.15s; }
+.ma-btn.primary { background:var(--mc-red);color:#fff; }
+.ma-btn.primary:hover { background:#991b1b; }
+.ma-btn.green { background:var(--mc-green);color:#fff; }
+.ma-btn.outline { background:#fff;border:1px solid #d1d5db;color:#374151; }
+.ma-btn.outline:hover { border-color:var(--mc-red);color:var(--mc-red); }
+.ma-btn.sm { padding:4px 8px;font-size:10px; }
+.ma-btn.danger { background:#fff;color:#dc2626;border:1px solid #fecaca; }
+.ma-btn.danger:hover { background:#fef2f2; }
+
+/* Input */
+.ma-input { padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:12px;width:100%;font-family:inherit;box-sizing:border-box; }
+.ma-input:focus { border-color:var(--mc-red);outline:none;box-shadow:0 0 0 2px rgba(185,28,28,.1); }
+select.ma-input { appearance:auto; }
+textarea.ma-input { resize:vertical;min-height:60px; }
+
+/* Cards */
+.ma-card { background:#fff;border-radius:10px;padding:16px;border:1px solid #e5e7eb;margin-bottom:12px; }
+
+/* Level cards */
+.ma-level { display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:700; }
+
+/* Modal */
+.ma-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;align-items:center;justify-content:center;padding:16px; }
+.ma-overlay.show { display:flex; }
+.ma-modal { background:#fff;border-radius:14px;width:520px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,.2); }
+.ma-modal-head { padding:14px 20px;background:linear-gradient(135deg,var(--mc-red),#dc2626);color:#fff;border-radius:14px 14px 0 0;
+  display:flex;align-items:center;justify-content:space-between; }
+.ma-modal-head h5 { margin:0;font-size:15px;font-weight:700; }
+.ma-modal-head .close-btn { background:none;border:none;color:#fff;font-size:20px;cursor:pointer;opacity:.8;padding:0;line-height:1; }
+.ma-modal-head .close-btn:hover { opacity:1; }
+.ma-modal-body { padding:20px; }
+.ma-modal-foot { padding:12px 20px;border-top:1px solid #e5e7eb;display:flex;gap:8px;justify-content:flex-end; }
+
+.ma-form-row { margin-bottom:14px; }
+.ma-form-row label { display:block;font-size:11px;font-weight:600;color:#374151;margin-bottom:4px; }
+.ma-form-row label .req { color:var(--mc-red); }
+.ma-form-row .hint { font-size:10px;color:#9ca3af;margin-top:2px; }
+.ma-form-grid { display:grid;grid-template-columns:1fr 1fr;gap:0 12px; }
+.ma-form-grid .full { grid-column:1/-1; }
+
+/* Checkbox */
+.ma-check { display:flex;align-items:center;gap:8px;cursor:pointer; }
+.ma-check input[type="checkbox"] { width:16px;height:16px;accent-color:var(--mc-red); }
+
+/* Impersonate banner */
+.ma-imp-banner { background:#fef3c7;border:1px solid #fbbf24;border-radius:8px;padding:10px 16px;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;font-size:13px;color:#92400e;font-weight:600; }
+
+/* Action buttons in table */
+.ma-actions { display:flex;gap:4px;white-space:nowrap; }
+
+@media (max-width: 768px) {
+  #panel-analytics .ma-card h4 { font-size:13px; }
+  #panel-analytics > div[style*="grid-template-columns: 1fr 1fr"] { grid-template-columns:1fr !important; }
+}
+</style>
+
+<div class="ma">
+  {% if imp_user %}
+  <div class="ma-imp-banner">
+    <span>⚠️ Admin sifatida ko'rmoqdasiz: <b>{{ imp_user.full_name }}</b> ({{ imp_user.phone }})</span>
+    <a href="{% url 'client_erp:admin-stop-impersonate' %}" class="ma-btn outline sm" style="margin-left:auto">Chiqish</a>
+  </div>
+  {% endif %}
+
+  <div class="ma-head">
+    <h2>🏢 Bittada Usta Admin</h2>
+    <span class="sub">Mebel-City mijozlar boshqaruvi</span>
+  </div>
+
+  <!-- BOM Narx standarti — global, faqat admin -->
+  <a href="/mini/bom-settings/" style="display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:13px 16px;border-radius:11px;background:linear-gradient(135deg,#7c3aed,#4f46e5 55%,#0ea5e9);color:#fff;font-weight:800;font-size:13px;text-decoration:none;box-shadow:0 2px 10px rgba(79,70,229,.32)">
+    <span style="font-size:18px">⚡</span>
+    <span>BOM Narx standarti — kg/dona konvert · chiqindi % · zapas · usluga ulash <span style="opacity:.8;font-weight:600">(global standart)</span></span>
+    <span style="margin-left:auto;font-size:16px">→</span>
+  </a>
+
+  <!-- Stats -->
+  <div class="ma-stats">
+    <div class="ma-stat"><div class="val">{{ stats.total_users }}</div><div class="lbl">Jami mijozlar</div></div>
+    <div class="ma-stat"><div class="val">{{ stats.active_users }}</div><div class="lbl">Faol</div></div>
+    <div class="ma-stat"><div class="val">{{ stats.verified_users }}</div><div class="lbl">Tasdiqlangan</div></div>
+    <div class="ma-stat"><div class="val">{{ stats.total_xp|intcomma }}</div><div class="lbl">Jami XP</div></div>
+    <div class="ma-stat"><div class="val">{{ stats.total_coins|intcomma }}</div><div class="lbl">Jami tanga</div></div>
+    <div class="ma-stat"><div class="val">{{ stats.pending_claims }}</div><div class="lbl">Kutilayotgan sovg'alar</div></div>
+    <div class="ma-stat" style="border-color:#16a34a;background:#f0fdf4"><div class="val" style="color:#16a34a">{{ week_count }}</div><div class="lbl">🆕 Oxirgi hafta register</div></div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="ma-tabs">
+    <button class="ma-tab active" onclick="maTab('users')">👥 Mijozlar <span class="badge">{{ client_users|length }}</span></button>
+    <button class="ma-tab" onclick="maTab('today')" style="color:#16a34a">🆕 Oxirgi hafta (7 kun) <span class="badge" style="background:#16a34a;color:#fff">{{ week_count }}</span></button>
+    <button class="ma-tab" onclick="maTab('levels')">🏆 Darajalar</button>
+    <button class="ma-tab" onclick="maTab('rules')">⚙️ XP/Tanga</button>
+    <button class="ma-tab" onclick="maTab('announcements')">📢 E'lonlar</button>
+    <button class="ma-tab" onclick="maTab('events')">🎉 Tadbiratlar</button>
+    <button class="ma-tab" onclick="maTab('rewards')">🎁 Sovg'alar</button>
+    <button class="ma-tab" onclick="maTab('quests')">📋 Topshiriqlar</button>
+    <button class="ma-tab" onclick="maTab('plans');maLoadPlans()">💳 Tariflar</button>
+    <button class="ma-tab" onclick="maTab('coins');maLoadCoins()">🪙 Tanga</button>
+    <button class="ma-tab" onclick="maTab('payments');maLoadPayments()">💸 To'lovlar</button>
+    <button class="ma-tab" onclick="maTab('analytics');maLoadAnalytics()">📊 Analitika</button>
+  </div>
+
+  <!-- ═══ MIJOZLAR ═══ -->
+  <div class="ma-panel active" id="panel-users">
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+      <input type="text" class="ma-input" style="max-width:300px" placeholder="Qidirish (ism, telefon)..." id="ma-user-search" oninput="maFilterUsers()">
+      <button class="ma-btn primary" onclick="maOpenCreateUser()"><i class="fas fa-plus"></i> Yangi mijoz</button>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="ma-tbl" id="ma-users-table">
+      <thead><tr>
+        <th>#</th><th>Ism</th><th>Telefon</th><th>Username</th><th>Daraja</th><th>XP</th><th>Tanga</th><th>Holat</th><th>Amallar</th>
+      </tr></thead>
+      <tbody>
+        {% for u in client_users %}
+        <tr data-search="{{ u.full_name|lower }} {{ u.phone }} {{ u.username }}">
+          <td>{{ forloop.counter }}</td>
+          <td style="font-weight:600">{{ u.full_name }}</td>
+          <td>{{ u.phone }}</td>
+          <td style="font-size:11px;color:#6b7280">{{ u.username }}</td>
+          <td>
+            {% if u.vip_level %}
+            <span class="ma-level" style="background:{{ u.vip_level.color }}20;color:{{ u.vip_level.color }}">{{ u.vip_level.badge_icon }} {{ u.vip_level.name }}</span>
+            {% else %}<span class="ma-badge info">Start</span>{% endif %}
+          </td>
+          <td>{{ u.xp|intcomma }}</td>
+          <td>{{ u.coins|intcomma }}</td>
+          <td>
+            {% if u.is_blocked %}<span class="ma-badge err">Bloklangan</span>
+            {% elif u.is_verified %}<span class="ma-badge ok">Faol</span>
+            {% else %}<span class="ma-badge warn">Tasdiqlanmagan</span>{% endif %}
+          </td>
+          <td>
+            <div class="ma-actions">
+              <button class="ma-btn outline sm" onclick="maImpersonate({{ u.id }})" title="Kirish"><i class="fas fa-sign-in-alt"></i></button>
+              <button class="ma-btn outline sm" onclick="maNewPassword({{ u.id }})" title="Parol"><i class="fas fa-key"></i></button>
+              {% if u.is_blocked %}
+              <button class="ma-btn outline sm" onclick="maToggle({{ u.id }},'unblock')" title="Blokdan chiqarish"><i class="fas fa-unlock"></i></button>
+              {% else %}
+              <button class="ma-btn danger sm" onclick="maToggle({{ u.id }},'block')" title="Bloklash"><i class="fas fa-ban"></i></button>
+              {% endif %}
+              <button class="ma-btn danger sm" onclick="maDeleteUser({{ u.id }},'{{ u.full_name|escapejs }}')" title="Butunlay o'chirish"><i class="fas fa-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+  </div>
+
+  <!-- ═══ OXIRGI HAFTA REGISTER QILGANLAR (7 kun) ═══ -->
+  <div class="ma-panel" id="panel-today">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <h3 style="margin:0;font-size:16px;color:#16a34a">🆕 Oxirgi hafta (7 kun) <span class="badge" style="background:#16a34a;color:#fff">{{ week_count }}</span></h3>
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-size:12px;color:#6b7280">{{ week_start|date:"d-M" }} — bugun · Eng so'nggi birinchi</span>
+        <a href="{% url 'client_erp:admin-export-users' %}?period=week"
+           class="ma-btn" style="background:#16a34a;color:#fff;text-decoration:none;font-size:12px;padding:6px 12px;border-radius:8px">
+          <i class="fas fa-file-excel"></i> Excel yuklab olish
+        </a>
+      </div>
+    </div>
+    {% if week_users %}
+    <div style="overflow-x:auto">
+    <table class="ma-tbl">
+      <thead><tr><th>#</th><th>Ism</th><th>Telegram</th><th>Telefon</th><th>Username</th><th>Sana</th></tr></thead>
+      <tbody>
+        {% for u in week_users %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td style="font-weight:600">{{ u.full_name|default:"—" }}</td>
+          <td>{% if u.telegram_username %}<a href="https://t.me/{{ u.telegram_username }}" target="_blank" style="color:#2563eb">@{{ u.telegram_username }}</a>{% else %}<span style="color:#9ca3af">—</span>{% endif %}</td>
+          <td style="font-family:monospace">{{ u.phone|default:"—" }}</td>
+          <td style="font-size:11px;color:#6b7280">{{ u.username }}</td>
+          <td style="white-space:nowrap;font-size:12px;color:#16a34a;font-weight:600">{{ u.created_at|date:"d-M H:i" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;color:#94a3b8;padding:16px">Oxirgi 7 kunda hech kim ro'yxatdan o'tmagan</div>
+    {% endif %}
+  </div>
+
+  <!-- ═══ DARAJALAR ═══ -->
+  <div class="ma-panel" id="panel-levels">
+    <div style="margin-bottom:12px"><button class="ma-btn primary" onclick="maOpenLevelModal()"><i class="fas fa-plus"></i> Yangi daraja</button></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+      {% for lvl in levels %}
+      <div class="ma-card" style="border-left:4px solid {{ lvl.color }}">
+        <div style="font-size:24px;text-align:center;margin-bottom:6px">{{ lvl.badge_icon }}</div>
+        <div style="font-weight:700;text-align:center;color:{{ lvl.color }};font-size:15px">{{ lvl.name }}</div>
+        <div style="font-size:11px;color:#6b7280;text-align:center;margin-top:4px">
+          Chegirma: <b>{{ lvl.discount_percent }}%</b> · Komissiya: <b>{{ lvl.referral_commission }}%</b>
+        </div>
+        <div style="font-size:11px;color:#6b7280;text-align:center">Min aylanma: <b>{{ lvl.min_turnover|intcomma }} UZS</b></div>
+        <div style="text-align:center;margin-top:8px">
+          <button class="ma-btn outline sm" onclick='maOpenLevelModal({{ lvl.id }}, "{{ lvl.badge_icon }}", "{{ lvl.name }}", {{ lvl.level_number }}, {{ lvl.min_turnover }}, {{ lvl.discount_percent }}, {{ lvl.referral_commission }}, "{{ lvl.color }}", "{{ lvl.description|escapejs }}")'>✏️ Tahrirlash</button>
+        </div>
+      </div>
+      {% empty %}
+      <div class="ma-card" style="text-align:center;color:#94a3b8;grid-column:1/-1">
+        <p>Darajalar hali yaratilmagan</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ═══ XP/TANGA QOIDALARI ═══ -->
+  <div class="ma-panel" id="panel-rules">
+    <button class="ma-btn primary" onclick="maOpenRuleModal()" style="margin-bottom:12px"><i class="fas fa-plus"></i> Yangi qoida</button>
+    <table class="ma-tbl">
+      <thead><tr><th>Emoji</th><th>Nomi</th><th>XP</th><th>Tanga</th><th>Takroriy</th><th>Faol</th><th>Amallar</th></tr></thead>
+      <tbody>
+        {% for r in rules %}
+        <tr>
+          <td style="font-size:18px">{{ r.icon }}</td>
+          <td style="font-weight:600">{{ r.name }}<br><span style="font-size:10px;color:#94a3b8">{{ r.code }}</span></td>
+          <td style="color:var(--mc-green);font-weight:700">+{{ r.xp_reward }}</td>
+          <td style="color:#b07d12;font-weight:700">+{{ r.coin_reward }}</td>
+          <td>{% if r.is_repeatable %}<span class="ma-badge ok">Ha</span>{% else %}<span class="ma-badge warn">1x</span>{% endif %}</td>
+          <td>{% if r.is_active %}<span class="ma-badge ok">✓</span>{% else %}<span class="ma-badge err">✗</span>{% endif %}</td>
+          <td>
+            <div class="ma-actions">
+              <button class="ma-btn outline sm" onclick='maOpenRuleModal({{ r.id }}, "{{ r.code|escapejs }}", "{{ r.name|escapejs }}", "{{ r.description|escapejs }}", "{{ r.icon }}", {{ r.xp_reward }}, {{ r.coin_reward }}, {{ r.is_repeatable|yesno:"true,false" }}, {{ r.max_per_day|default_if_none:"0" }}, {{ r.is_active|yesno:"true,false" }})' title="Tahrirlash">✏️</button>
+              <button class="ma-btn danger sm" onclick="maDelete('rule',{{ r.id }})" title="O'chirish">🗑</button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" style="text-align:center;color:#94a3b8;padding:20px">Qoida yo'q — yuqoridagi tugmadan qo'shing</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ E'LONLAR ═══ -->
+  <div class="ma-panel" id="panel-announcements">
+    <button class="ma-btn primary" onclick="maOpenAnnouncementModal()" style="margin-bottom:12px"><i class="fas fa-plus"></i> Yangi e'lon</button>
+    <table class="ma-tbl">
+      <thead><tr><th>Turi</th><th>Sarlavha</th><th>Sana</th><th>Holat</th><th>Amallar</th></tr></thead>
+      <tbody>
+        {% for a in announcements %}
+        <tr>
+          <td><span class="ma-badge info">{{ a.get_announcement_type_display }}</span></td>
+          <td style="font-weight:600">{{ a.title }}<br><span style="font-size:10px;color:#94a3b8">{{ a.body|truncatechars:60 }}</span></td>
+          <td style="font-size:11px;color:#6b7280">{{ a.start_date|date:"d.m.Y" }}</td>
+          <td>{% if a.is_active %}<span class="ma-badge ok">Faol</span>{% else %}<span class="ma-badge err">O'chiq</span>{% endif %}</td>
+          <td>
+            <div class="ma-actions">
+              <button class="ma-btn outline sm" onclick='maOpenAnnouncementModal({{ a.id }}, "{{ a.announcement_type }}", "{{ a.title|escapejs }}", "{{ a.body|escapejs }}", {{ a.discount_percent|default_if_none:"0" }}, {{ a.discount_amount|default_if_none:"0" }}, "{{ a.discount_code|default:""|escapejs }}", {{ a.is_active|yesno:"true,false" }}, {{ a.is_pinned|yesno:"true,false" }})' title="Tahrirlash">✏️</button>
+              <button class="ma-btn danger sm" onclick="maDelete('announcement',{{ a.id }})" title="O'chirish">🗑</button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">E'lon yo'q</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ TADBIRATLAR ═══ -->
+  <div class="ma-panel" id="panel-events">
+    <button class="ma-btn primary" onclick="maOpenEventModal()" style="margin-bottom:12px"><i class="fas fa-plus"></i> Yangi tadbirat</button>
+    {% for e in events %}
+    <div class="ma-card">
+      <div style="display:flex;justify-content:space-between;align-items:start;gap:12px">
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <b style="font-size:14px">{{ e.title }}</b>
+            {% if e.is_active %}<span class="ma-badge ok">Faol</span>{% else %}<span class="ma-badge err">O'chiq</span>{% endif %}
+          </div>
+          {% if e.description %}<div style="font-size:12px;color:#4b5563;margin-bottom:4px">{{ e.description|truncatechars:100 }}</div>{% endif %}
+          <div style="font-size:11px;color:#6b7280;display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+            <span>📅 {{ e.event_date|date:"d.m.Y H:i" }}</span>
+            {% if e.location %}<span>📍 {{ e.location }}</span>{% endif %}
+            <span style="color:var(--mc-green);font-weight:600">+{{ e.xp_reward }} XP</span>
+            <span style="color:#b07d12;font-weight:600">+{{ e.coin_reward }} tanga</span>
+            {% if e.max_participants %}<span>👥 max {{ e.max_participants }}</span>{% endif %}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="ma-badge info" style="font-size:9px">QR: {{ e.qr_code }}</span>
+          <div class="ma-actions">
+            <button class="ma-btn outline sm" onclick='maOpenEventModal({{ e.id }}, "{{ e.title|escapejs }}", "{{ e.description|escapejs }}", "{{ e.event_date|date:"Y-m-d\TH:i" }}", "{{ e.location|escapejs }}", "{{ e.location_url|escapejs }}", {{ e.max_participants }}, {{ e.xp_reward }}, {{ e.coin_reward }}, {{ e.is_active|yesno:"true,false" }})' title="Tahrirlash">✏️</button>
+            <button class="ma-btn danger sm" onclick="maDelete('event',{{ e.id }})" title="O'chirish">🗑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div style="text-align:center;color:#94a3b8;padding:20px">Tadbirat yo'q</div>
+    {% endfor %}
+  </div>
+
+  <!-- ═══ SOVG'ALAR ═══ -->
+  <div class="ma-panel" id="panel-rewards">
+    <button class="ma-btn primary" onclick="maOpenRewardModal()" style="margin-bottom:12px"><i class="fas fa-plus"></i> Yangi sovg'a</button>
+    <table class="ma-tbl">
+      <thead><tr><th>Nomi</th><th>Turi</th><th>Narxi</th><th>Zaxira</th><th>Faol</th><th>Amallar</th></tr></thead>
+      <tbody>
+        {% for r in rewards %}
+        <tr>
+          <td style="font-weight:600">{{ r.name }}<br><span style="font-size:10px;color:#94a3b8">{{ r.description|truncatechars:40 }}</span></td>
+          <td><span class="ma-badge info">{{ r.get_reward_type_display }}</span></td>
+          <td style="color:#b07d12;font-weight:700">{{ r.coin_price }} tanga</td>
+          <td>{% if r.stock %}{{ r.stock }}{% else %}∞{% endif %}</td>
+          <td>{% if r.is_active %}<span class="ma-badge ok">✓</span>{% else %}<span class="ma-badge err">✗</span>{% endif %}</td>
+          <td>
+            <div class="ma-actions">
+              <button class="ma-btn outline sm" onclick='maOpenRewardModal({{ r.id }}, "{{ r.name|escapejs }}", "{{ r.description|escapejs }}", "{{ r.reward_type }}", {{ r.coin_price }}, {{ r.discount_value|default_if_none:"0" }}, {{ r.stock }}, {{ r.is_active|yesno:"true,false" }})' title="Tahrirlash">✏️</button>
+              <button class="ma-btn danger sm" onclick="maDelete('reward',{{ r.id }})" title="O'chirish">🗑</button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;color:#94a3b8;padding:20px">Sovg'a yo'q</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% if pending_claims %}
+    <h5 style="margin-top:16px;font-size:13px;color:var(--mc-red)">Kutilayotgan so'rovlar ({{ pending_claims|length }})</h5>
+    {% for c in pending_claims %}
+    <div class="ma-card" style="display:flex;align-items:center;gap:10px">
+      <div style="flex:1"><b>{{ c.user.full_name }}</b> — {{ c.reward.name }} ({{ c.coins_spent }} tanga)</div>
+      <button class="ma-btn green sm" onclick="maClaimAction({{ c.id }},'approve')">✓ Tasdiqlash</button>
+      <button class="ma-btn danger sm" onclick="maClaimAction({{ c.id }},'cancel')">✗ Bekor</button>
+    </div>
+    {% endfor %}
+    {% endif %}
+  </div>
+
+  <!-- ═══ TOPSHIRIQLAR ═══ -->
+  <div class="ma-panel" id="panel-quests">
+    <button class="ma-btn primary" onclick="maOpenQuestModal()" style="margin-bottom:12px"><i class="fas fa-plus"></i> Yangi topshiriq</button>
+    <table class="ma-tbl">
+      <thead><tr><th></th><th>Nomi</th><th>Turi</th><th>Harakat</th><th>XP</th><th>Tanga</th><th>Faol</th><th>Amallar</th></tr></thead>
+      <tbody>
+        {% for q in quests %}
+        <tr>
+          <td style="font-size:16px">{{ q.icon }}</td>
+          <td style="font-weight:600">{{ q.title }}<br><span style="font-size:10px;color:#94a3b8">{{ q.description|truncatechars:40 }}</span></td>
+          <td><span class="ma-badge info">{{ q.get_quest_type_display }}</span></td>
+          <td style="font-size:11px">{{ q.get_action_type_display }} ×{{ q.action_count }}</td>
+          <td style="color:var(--mc-green);font-weight:700">+{{ q.xp_reward }}</td>
+          <td style="color:#b07d12;font-weight:700">+{{ q.coin_reward }}</td>
+          <td>{% if q.is_active %}<span class="ma-badge ok">✓</span>{% else %}<span class="ma-badge err">✗</span>{% endif %}</td>
+          <td>
+            <div class="ma-actions">
+              <button class="ma-btn outline sm" onclick='maOpenQuestModal({{ q.id }}, "{{ q.title|escapejs }}", "{{ q.description|escapejs }}", "{{ q.icon }}", "{{ q.quest_type }}", "{{ q.action_type }}", {{ q.action_count }}, {{ q.xp_reward }}, {{ q.coin_reward }}, "{{ q.start_date|date:"Y-m-d"|default:"" }}", "{{ q.end_date|date:"Y-m-d"|default:"" }}", {{ q.is_active|yesno:"true,false" }})' title="Tahrirlash">✏️</button>
+              <button class="ma-btn danger sm" onclick="maDelete('quest',{{ q.id }})" title="O'chirish">🗑</button>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" style="text-align:center;color:#94a3b8;padding:20px">Topshiriq yo'q</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ═══ TARIFLAR ═══ -->
+  <div class="ma-panel" id="panel-plans">
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+      <button class="ma-btn primary" onclick="maOpenPlanModal()"><i class="fas fa-plus"></i> Yangi tarif</button>
+      <button class="ma-btn outline" onclick="maOpenAssignModal()"><i class="fas fa-user-tag"></i> Foydalanuvchiga tarif tayinlash</button>
+      <button class="ma-btn outline sm" onclick="maLoadPlans()"><i class="fas fa-sync-alt"></i> Yangilash</button>
+    </div>
+    <div id="ma-plans-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+      <div class="ma-card" style="text-align:center;color:#94a3b8;grid-column:1/-1">Yuklanmoqda...</div>
+    </div>
+  </div>
+
+  <!-- ═══ 🪙 TANGA ═══ -->
+  <div class="ma-panel" id="panel-coins">
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+      <button class="ma-btn primary" onclick="maOpenPackModal()"><i class="fas fa-plus"></i> Yangi paket</button>
+      <button class="ma-btn outline" onclick="maOpenGrantModal()"><i class="fas fa-coins"></i> Foydalanuvchiga tanga berish</button>
+      <button class="ma-btn outline sm" onclick="maLoadCoins()"><i class="fas fa-sync-alt"></i> Yangilash</button>
+    </div>
+
+    <div id="ma-coins-status" style="font-size:12px;color:#6b7280;margin-bottom:12px"></div>
+
+    <h4 style="font-size:14px;font-weight:700;margin:6px 0 10px">💰 Tanga paketlari</h4>
+    <div id="ma-packs-list" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:22px">
+      <div class="ma-card" style="text-align:center;color:#94a3b8;grid-column:1/-1">Yuklanmoqda...</div>
+    </div>
+
+    <h4 style="font-size:14px;font-weight:700;margin:6px 0 10px">🤖 AI funksiya narxlari <span style="font-size:11px;color:#9ca3af;font-weight:500">(tanga)</span></h4>
+    <div class="ma-card">
+      <div style="overflow-x:auto">
+        <table class="ma-tbl" id="ma-aiprice-tbl">
+          <thead><tr><th>Funksiya</th><th>Amal kodi</th><th>Narx (tanga)</th><th>Faol</th><th></th></tr></thead>
+          <tbody><tr><td colspan="5" style="text-align:center;color:#94a3b8">Yuklanmoqda...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ 💸 TO'LOVLAR ═══ -->
+  <div class="ma-panel" id="panel-payments">
+    <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+      <button class="ma-btn outline sm" onclick="maLoadPayments()"><i class="fas fa-sync-alt"></i> Yangilash</button>
+      <span id="ma-pay-mode" style="font-size:12px;color:#6b7280"></span>
+    </div>
+    <!-- Payme Merchant API (kassa) — test/integratsiya ma'lumoti -->
+    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:12px;line-height:1.7">
+      <b style="font-size:13px">🔌 Payme Merchant API (kassa)</b>
+      <div style="margin-top:6px;font-family:monospace">
+        Endpoint : <b>https://usta.bittada.uz/api/payments/payme/</b><br>
+        account  : <b>order_id</b> &nbsp;(jadvaldagi <b>order_id</b> ustuni)<br>
+        Summa    : <b>tiyin</b> = UZS × 100
+      </div>
+      <div style="margin-top:6px;color:#6b7280">
+        «Payme tranzaksiya» ustuni — kassa callback holati:
+        <span class="ma-badge warn">Yaratilgan (kutilmoqda)</span> = Payme <code>CreateTransaction</code> yubordi, <code>PerformTransaction</code> kutilmoqda ·
+        <span class="ma-badge ok">To'langan</span> = Perform o'tdi, tanga/tarif berildi ·
+        <b>«Payme murojaat qilmagan»</b> = buyurtma yaratilgan, Payme hali chaqirmagan.
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="ma-tbl" id="ma-pay-tbl">
+        <thead><tr><th>order_id</th><th>Foydalanuvchi</th><th>Maqsad</th><th>Summa (UZS / tiyin)</th><th>Provider</th><th>Status</th><th>Payme tranzaksiya</th><th>Sana</th><th>Amal</th></tr></thead>
+        <tbody><tr><td colspan="9" style="text-align:center;color:#94a3b8">Yuklanmoqda...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ═══ ANALITIKA ═══ -->
+  <div class="ma-panel" id="panel-analytics">
+    <div style="display:flex;gap:8px;margin-bottom:16px;align-items:center;flex-wrap:wrap">
+      <select class="ma-input" style="max-width:180px" id="ma-an-days" onchange="maLoadAnalytics()">
+        <option value="7">Oxirgi 7 kun</option>
+        <option value="30" selected>Oxirgi 30 kun</option>
+        <option value="90">Oxirgi 90 kun</option>
+        <option value="365">Oxirgi 1 yil</option>
+      </select>
+      <button class="ma-btn outline" onclick="maLoadAnalytics()"><i class="fas fa-sync-alt"></i> Yangilash</button>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="ma-stats" id="ma-an-stats" style="grid-template-columns:repeat(auto-fit,minmax(130px,1fr))">
+      <div class="ma-stat"><div class="val">—</div><div class="lbl">Yuklanmoqda...</div></div>
+    </div>
+
+    <!-- Chart -->
+    <div class="ma-card" style="margin-bottom:16px">
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">📈 Kunlik kirishlar</h4>
+      <div style="position:relative;height:280px">
+        <canvas id="ma-an-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- Top users + Recent logins -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="ma-card">
+        <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">🏆 Eng faol foydalanuvchilar</h4>
+        <div style="overflow-x:auto">
+          <table class="ma-tbl" id="ma-an-top-users">
+            <thead><tr><th>Ism</th><th>Jami</th><th>🌐</th><th>📱</th><th>📷</th></tr></thead>
+            <tbody><tr><td colspan="5" style="text-align:center;color:#94a3b8">Yuklanmoqda...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="ma-card">
+        <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">🕐 Oxirgi kirishlar</h4>
+        <div style="overflow-x:auto;max-height:400px;overflow-y:auto">
+          <table class="ma-tbl" id="ma-an-recent">
+            <thead><tr><th>Ism</th><th>Turi</th><th>Vaqt</th></tr></thead>
+            <tbody><tr><td colspan="3" style="text-align:center;color:#94a3b8">Yuklanmoqda...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Failed attempts -->
+    <div class="ma-card" style="margin-top:12px">
+      <h4 style="font-size:14px;font-weight:700;margin-bottom:12px;color:var(--mc-red)">⚠️ Muvaffaqiyatsiz urinishlar</h4>
+      <div style="overflow-x:auto;max-height:300px;overflow-y:auto">
+        <table class="ma-tbl" id="ma-an-failed">
+          <thead><tr><th>Telefon</th><th>Turi</th><th>IP</th><th>Vaqt</th></tr></thead>
+          <tbody><tr><td colspan="4" style="text-align:center;color:#94a3b8">Yuklanmoqda...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ UNIVERSAL MODAL ═══ -->
+<div class="ma-overlay" id="ma-overlay">
+  <div class="ma-modal">
+    <div class="ma-modal-head">
+      <h5 id="ma-modal-title"></h5>
+      <button class="close-btn" onclick="maCloseModal()">×</button>
+    </div>
+    <div class="ma-modal-body" id="ma-modal-body"></div>
+    <div class="ma-modal-foot">
+      <button class="ma-btn outline" onclick="maCloseModal()">Bekor qilish</button>
+      <button class="ma-btn primary" id="ma-modal-save">💾 Saqlash</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+const CSRF = '{{ csrf_token }}';
+
+/* Tarif tayinlash uchun foydalanuvchilar ro'yxati (server render) */
+const MA_USERS = [
+  {% for u in client_users %}{id:{{ u.id }}, name:"{{ u.full_name|escapejs }}", phone:"{{ u.phone|escapejs }}"},{% endfor %}
+];
+
+/* ═══ UTILS ═══ */
+function maTab(name) {
+  document.querySelectorAll('.ma-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ma-panel').forEach(p => p.classList.remove('active'));
+  event.target.closest('.ma-tab').classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+function maFilterUsers() {
+  const q = document.getElementById('ma-user-search').value.toLowerCase();
+  document.querySelectorAll('#ma-users-table tbody tr').forEach(tr => {
+    const s = tr.dataset.search || '';
+    tr.style.display = s.includes(q) ? '' : 'none';
+  });
+}
+
+function maApi(url, body) {
+  return fetch(url, {
+    method:'POST', credentials:'include',
+    headers:{'Content-Type':'application/json','X-CSRFToken':CSRF},
+    body: JSON.stringify(body),
+  }).then(r => r.json());
+}
+
+/* ═══ MODAL SYSTEM ═══ */
+let _maModalCallback = null;
+
+function maOpenModal(title, fields, onSave) {
+  document.getElementById('ma-modal-title').textContent = title;
+  _maModalCallback = onSave;
+
+  let html = '<div class="ma-form-grid">';
+  fields.forEach(f => {
+    const cls = f.full ? ' full' : '';
+    html += `<div class="ma-form-row${cls}">`;
+    if (f.type !== 'checkbox') {
+      html += `<label>${f.label}${f.required ? ' <span class="req">*</span>' : ''}</label>`;
+    }
+
+    if (f.type === 'text' || f.type === 'number' || f.type === 'date' || f.type === 'color') {
+      html += `<input class="ma-input" type="${f.type}" name="${f.name}" value="${f.value != null ? f.value : ''}" placeholder="${f.placeholder || ''}"${f.required ? ' required' : ''}>`;
+    } else if (f.type === 'datetime') {
+      html += `<input class="ma-input" type="datetime-local" name="${f.name}" value="${f.value || ''}"${f.required ? ' required' : ''}>`;
+    } else if (f.type === 'textarea') {
+      html += `<textarea class="ma-input" name="${f.name}" placeholder="${f.placeholder || ''}" rows="3">${f.value || ''}</textarea>`;
+    } else if (f.type === 'select') {
+      html += `<select class="ma-input" name="${f.name}">`;
+      (f.options || []).forEach(o => {
+        html += `<option value="${o.v}"${o.v == f.value ? ' selected' : ''}>${o.l}</option>`;
+      });
+      html += '</select>';
+    } else if (f.type === 'checkbox') {
+      html += `<label class="ma-check"><input type="checkbox" name="${f.name}"${f.value ? ' checked' : ''}> ${f.label}</label>`;
+    }
+
+    if (f.hint) html += `<div class="hint">${f.hint}</div>`;
+    html += '</div>';
+  });
+  html += '</div>';
+
+  document.getElementById('ma-modal-body').innerHTML = html;
+  document.getElementById('ma-overlay').classList.add('show');
+  const firstInput = document.querySelector('#ma-modal-body input, #ma-modal-body textarea, #ma-modal-body select');
+  if (firstInput) setTimeout(() => firstInput.focus(), 100);
+}
+
+document.getElementById('ma-modal-save').onclick = function() {
+  if (!_maModalCallback) return;
+  const data = {};
+  document.querySelectorAll('#ma-modal-body [name]').forEach(el => {
+    if (el.type === 'checkbox') data[el.name] = el.checked;
+    else data[el.name] = el.value;
+  });
+  _maModalCallback(data);
+};
+
+function maCloseModal() {
+  document.getElementById('ma-overlay').classList.remove('show');
+  _maModalCallback = null;
+}
+
+document.getElementById('ma-overlay').addEventListener('click', function(e) {
+  if (e.target === this) maCloseModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') maCloseModal();
+});
+
+/* ═══ UNIVERSAL DELETE ═══ */
+const _deleteLabels = {rule:'qoidani', announcement:"e'lonni", event:'tadbiratni', reward:"sovg'ani", quest:'topshiriqni'};
+function maDelete(type, id) {
+  if (!confirm(`${_deleteLabels[type] || type} o'chirasizmi?`)) return;
+  maApi(`/mini/admin/delete-${type}/${id}/`, {}).then(() => location.reload());
+}
+
+/* ═══ USER ACTIONS ═══ */
+function maImpersonate(id) {
+  // Tab'ni SINXRON (click ichida) ochamiz — aks holda fetch().then() ichidagi
+  // window.open() ko'p brauzerlarda popup-bloker tomonidan jim to'xtatiladi.
+  var tab = window.open('', '_blank');
+  maApi(`/mini/admin/impersonate/${id}/`, {}).then(d => {
+    if (d.ok && tab) tab.location.href = d.redirect;
+    else if (!d.ok && tab) tab.close();
+  });
+}
+
+function maNewPassword(id) {
+  // Taklif parol (tahrirlash mumkin) — admin o'zgartirib saqlashi mumkin
+  var suggestion = String(Math.floor(100000 + Math.random() * 900000));
+  maOpenModal('Parol o\'rnatish', [
+    {name:'password', type:'text', label:'Parol (taklif — tahrirlash mumkin)', value: suggestion, full:true, placeholder:'kamida 4 belgi'}
+  ], function(data) {
+    var pw = (data.password || '').trim();
+    if (pw.length < 4) { alert('Parol kamida 4 ta belgi bo\'lishi kerak'); return; }
+    maApi(`/mini/admin/password/${id}/`, {password: pw}).then(d => {
+      if (d && d.ok) { maCloseModal(); alert('Parol saqlandi: ' + d.password); }
+      else alert((d && d.error) || 'Xatolik');
+    });
+  });
+}
+
+function maToggle(id, action) {
+  maApi(`/mini/admin/toggle/${id}/`, {action}).then(() => location.reload());
+}
+
+function maDeleteUser(id, name) {
+  // Ikki qavat tasdiq — qaytarib bo'lmaydigan amal
+  if (!confirm(`"${name}" akkountini BUTUNLAY o'chirasizmi?\n\nBarcha buyurtma, moliya, mijoz va fayllar o'chadi. Bu amalni QAYTARIB BO'LMAYDI.`)) return;
+  var typed = prompt('Tasdiqlash uchun OCHIRISH deb yozing:');
+  if (!typed || typed.trim().toUpperCase() !== 'OCHIRISH') return;
+  maApi(`/mini/admin/delete-user/${id}/`, {}).then(d => {
+    if (d && d.ok) { alert('Akkount o\'chirildi'); location.reload(); }
+    else alert((d && d.error) || 'Xatolik');
+  });
+}
+
+function maClaimAction(id, action) {
+  maApi(`/mini/admin/claim/${id}/`, {action}).then(() => location.reload());
+}
+
+/* ═══ CREATE USER ═══ */
+function maOpenCreateUser() {
+  maOpenModal('Yangi mijoz yaratish', [
+    {name:'phone', label:'Telefon raqam', type:'text', placeholder:'998...', required:true},
+    {name:'full_name', label:'Ism-familya', type:'text', required:true},
+    {name:'organization', label:'Tashkilot', type:'text', full:true},
+  ], function(data) {
+    if (!data.phone || !data.full_name) return alert('Telefon va ism kerak');
+    maApi('/mini/admin/create-user/', data).then(d => {
+      if (d.ok) {
+        maCloseModal();
+        maOpenModal('Mijoz yaratildi', [
+          {name:'_info', type:'text', label:'Login', value: d.username, full:true},
+          {name:'_pass', type:'text', label:'Parol', value: d.password, full:true},
+        ], () => { maCloseModal(); location.reload(); });
+        document.getElementById('ma-modal-save').textContent = 'OK';
+      } else alert(d.error);
+    });
+  });
+}
+
+/* ═══ LEVELS ═══ */
+function maOpenLevelModal(id, icon, name, num, turnover, discount, commission, color, desc) {
+  const isEdit = !!id;
+  maOpenModal(isEdit ? 'Darajani tahrirlash' : 'Yangi daraja', [
+    {name:'name', label:'Nomi', type:'text', value:name||'', required:true},
+    {name:'level_number', label:'Daraja raqami', type:'number', value:num||1},
+    {name:'badge_icon', label:'Emoji', type:'text', value:icon||'⭐', placeholder:'⭐'},
+    {name:'color', label:'Rang', type:'color', value:color||'#cd7f32'},
+    {name:'min_turnover', label:'Min yillik aylanma (so\'m)', type:'number', value:turnover||0},
+    {name:'discount_percent', label:'Chegirma %', type:'number', value:discount||0},
+    {name:'referral_commission', label:'Tavsiya komissiya %', type:'number', value:commission||0},
+    {name:'description', label:'Tavsif', type:'textarea', value:desc||'', full:true},
+  ], function(data) {
+    if (!data.name) return alert('Nom kerak');
+    if (isEdit) data.id = id;
+    maApi('/mini/admin/save-level/', data).then(d => {
+      if (d.ok) { maCloseModal(); location.reload(); }
+    });
+  });
+}
+
+/* ═══ RULES ═══ */
+function maOpenRuleModal(id, code, name, desc, icon, xp, coin, repeatable, maxDay, active) {
+  const isEdit = !!id;
+  maOpenModal(isEdit ? 'Qoidani tahrirlash' : 'Yangi qoida', [
+    {name:'code', label:'Kod', type:'text', value:code||'', required:true, placeholder:'purchase_per_10k'},
+    {name:'name', label:'Nomi', type:'text', value:name||'', required:true},
+    {name:'icon', label:'Emoji', type:'text', value:icon||'⭐'},
+    {name:'description', label:'Tavsif', type:'textarea', value:desc||'', full:true},
+    {name:'xp_reward', label:'XP mukofoti', type:'number', value:xp||0},
+    {name:'coin_reward', label:'Tanga mukofoti', type:'number', value:coin||0},
+    {name:'max_per_day', label:'Kunlik limit (0=cheksiz)', type:'number', value:maxDay||0},
+    {name:'is_repeatable', label:'Takroriy', type:'checkbox', value:repeatable!==undefined?repeatable:true},
+    {name:'is_active', label:'Faol', type:'checkbox', value:active!==undefined?active:true},
+  ], function(data) {
+    if (!data.code || !data.name) return alert('Kod va nom kerak');
+    if (isEdit) data.id = id;
+    maApi('/mini/admin/save-rule/', data).then(d => {
+      if (d.ok) { maCloseModal(); location.reload(); }
+    });
+  });
+}
+
+/* ═══ ANNOUNCEMENTS ═══ */
+function maOpenAnnouncementModal(id, type, title, body, discPct, discAmt, discCode, active, pinned) {
+  const isEdit = !!id;
+  maOpenModal(isEdit ? "E'lonni tahrirlash" : "Yangi e'lon", [
+    {name:'title', label:'Sarlavha', type:'text', value:title||'', required:true, full:true},
+    {name:'body', label:'Matn', type:'textarea', value:body||'', full:true},
+    {name:'type', label:'Turi', type:'select', value:type||'news', options:[
+      {v:'news',l:'Yangilik'},{v:'promo',l:'Aksiya'},{v:'discount',l:'Chegirma'},{v:'event',l:'Tadbir'}
+    ]},
+    {name:'discount_percent', label:'Chegirma %', type:'number', value:discPct||0},
+    {name:'discount_amount', label:'Chegirma summa', type:'number', value:discAmt||0},
+    {name:'discount_code', label:'Promo kod', type:'text', value:discCode||''},
+    {name:'is_active', label:'Faol', type:'checkbox', value:active!==undefined?active:true},
+    {name:'is_pinned', label:'Muhim (yuqorida tursin)', type:'checkbox', value:pinned||false},
+  ], function(data) {
+    if (!data.title) return alert('Sarlavha kerak');
+    data.target_all = true;
+    data.start_date = new Date().toISOString();
+    if (isEdit) data.id = id;
+    maApi('/mini/admin/save-announcement/', data).then(d => {
+      if (d.ok) { maCloseModal(); location.reload(); }
+    });
+  });
+}
+
+/* ═══ EVENTS ═══ */
+function maOpenEventModal(id, title, desc, date, loc, locUrl, maxP, xp, coin, active) {
+  const isEdit = !!id;
+  maOpenModal(isEdit ? 'Tadbiratni tahrirlash' : 'Yangi tadbirat', [
+    {name:'title', label:'Nomi', type:'text', value:title||'', required:true, full:true},
+    {name:'description', label:'Tavsif', type:'textarea', value:desc||'', full:true},
+    {name:'event_date', label:'Sana va vaqt', type:'datetime', value:date||'', required:true},
+    {name:'location', label:'Joy', type:'text', value:loc||'Mebel-City'},
+    {name:'location_url', label:'Xarita havolasi', type:'text', value:locUrl||'', full:true, placeholder:'https://maps.google.com/...'},
+    {name:'max_participants', label:'Maks ishtirokchilar', type:'number', value:maxP||0, hint:'0 = cheksiz'},
+    {name:'xp_reward', label:'XP mukofoti', type:'number', value:xp!==undefined?xp:500},
+    {name:'coin_reward', label:'Tanga mukofoti', type:'number', value:coin!==undefined?coin:150},
+    {name:'is_active', label:'Faol', type:'checkbox', value:active!==undefined?active:true},
+  ], function(data) {
+    if (!data.title) return alert('Nom kerak');
+    if (!data.event_date) data.event_date = new Date().toISOString();
+    if (isEdit) data.id = id;
+    maApi('/mini/admin/save-event/', data).then(d => {
+      if (d.ok) { maCloseModal(); location.reload(); }
+    });
+  });
+}
+
+/* ═══ REWARDS ═══ */
+function maOpenRewardModal(id, name, desc, type, price, discVal, stock, active) {
+  const isEdit = !!id;
+  maOpenModal(isEdit ? "Sovg'ani tahrirlash" : "Yangi sovg'a", [
+    {name:'name', label:'Nomi', type:'text', value:name||'', required:true, full:true},
+    {name:'description', label:'Tavsif', type:'textarea', value:desc||'', full:true},
+    {name:'reward_type', label:'Turi', type:'select', value:type||'coupon', options:[
+      {v:'coupon',l:'Chegirma kuponi'},{v:'delivery',l:'Bepul yetkazish'},{v:'gift',l:"Jismoniy sovg'a"},{v:'service',l:'Bepul xizmat'}
+    ]},
+    {name:'coin_price', label:'Tanga narxi', type:'number', value:price||0, required:true},
+    {name:'discount_value', label:'Kupon qiymati (so\'m)', type:'number', value:discVal||0},
+    {name:'stock', label:'Zaxira (0=cheksiz)', type:'number', value:stock||0},
+    {name:'is_active', label:'Faol', type:'checkbox', value:active!==undefined?active:true},
+  ], function(data) {
+    if (!data.name) return alert('Nom kerak');
+    if (isEdit) data.id = id;
+    maApi('/mini/admin/save-reward/', data).then(d => {
+      if (d.ok) { maCloseModal(); location.reload(); }
+    });
+  });
+}
+
+/* ═══ QUESTS ═══ */
+function maOpenQuestModal(id, title, desc, icon, qtype, atype, acount, xp, coin, startDate, endDate, active) {
+  const isEdit = !!id;
+  maOpenModal(isEdit ? 'Topshiriqni tahrirlash' : 'Yangi topshiriq', [
+    {name:'title', label:'Nomi', type:'text', value:title||'', required:true, full:true},
+    {name:'description', label:'Tavsif', type:'textarea', value:desc||'', full:true},
+    {name:'icon', label:'Emoji', type:'text', value:icon||'📋'},
+    {name:'quest_type', label:'Turi', type:'select', value:qtype||'daily', options:[
+      {v:'daily',l:'Kunlik'},{v:'weekly',l:'Haftalik'},{v:'onetime',l:'Bir martalik'},{v:'seasonal',l:'Mavsumiy'}
+    ]},
+    {name:'action_type', label:'Harakat turi', type:'select', value:atype||'custom', options:[
+      {v:'login',l:'Ilovaga kirish'},{v:'purchase',l:'Xarid qilish'},{v:'review',l:'Sharh yozish'},
+      {v:'referral',l:"Do'st tavsiya"},{v:'view_products',l:"Mahsulot ko'rish"},{v:'share',l:'Ulashish'},
+      {v:'complete_stage',l:'Etap tugallash'},{v:'complete_order',l:'Buyurtma tugallash'},{v:'custom',l:'Boshqa'}
+    ]},
+    {name:'action_count', label:'Necha marta bajarish', type:'number', value:acount||1},
+    {name:'xp_reward', label:'XP mukofoti', type:'number', value:xp||0},
+    {name:'coin_reward', label:'Tanga mukofoti', type:'number', value:coin||0},
+    {name:'start_date', label:'Boshlanish sana', type:'date', value:startDate||''},
+    {name:'end_date', label:'Tugash sana', type:'date', value:endDate||''},
+    {name:'is_active', label:'Faol', type:'checkbox', value:active!==undefined?active:true},
+  ], function(data) {
+    if (!data.title) return alert('Nom kerak');
+    if (isEdit) data.id = id;
+    maApi('/mini/admin/save-quest/', data).then(d => {
+      if (d.ok) { maCloseModal(); location.reload(); }
+    });
+  });
+}
+
+/* ═══ ANALITIKA ═══ */
+let _anChart = null;
+let _anLoaded = false;
+
+function maLoadAnalytics() {
+  const days = document.getElementById('ma-an-days').value;
+  fetch(`/mini/admin/analytics/?days=${days}`, {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) return;
+      _anLoaded = true;
+      _renderAnStats(d.summary);
+      _renderAnChart(d.chart);
+      _renderAnTopUsers(d.top_users);
+      _renderAnRecent(d.recent);
+      _renderAnFailed(d.failed);
+    });
+}
+
+function _renderAnStats(s) {
+  const items = [
+    {v: s.total_logins, l: 'Jami kirishlar', c: 'var(--mc-dark)'},
+    {v: s.web_logins, l: '🌐 Web', c: '#3b82f6'},
+    {v: s.telegram_logins, l: '📱 Telegram', c: '#0088cc'},
+    {v: s.qr_logins, l: '📷 QR', c: '#8b5cf6'},
+    {v: s.active_today, l: 'Bugun faol', c: 'var(--mc-green)'},
+    {v: s.active_week, l: 'Hafta faol', c: '#f59e0b'},
+    {v: s.failed_attempts, l: '⚠️ Xatoliklar', c: 'var(--mc-red)'},
+  ];
+  document.getElementById('ma-an-stats').innerHTML = items.map(i =>
+    `<div class="ma-stat"><div class="val" style="color:${i.c}">${i.v}</div><div class="lbl">${i.l}</div></div>`
+  ).join('');
+}
+
+function _renderAnChart(c) {
+  const ctx = document.getElementById('ma-an-chart');
+  if (_anChart) _anChart.destroy();
+  _anChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: c.labels,
+      datasets: [
+        {label:'🌐 Web', data:c.web, backgroundColor:'rgba(59,130,246,.7)', borderRadius:4, barPercentage:.7},
+        {label:'📱 Telegram', data:c.telegram, backgroundColor:'rgba(0,136,204,.7)', borderRadius:4, barPercentage:.7},
+        {label:'📷 QR', data:c.qr, backgroundColor:'rgba(139,92,246,.7)', borderRadius:4, barPercentage:.7},
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend:{position:'top', labels:{font:{size:11,weight:'600'},usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:12}},
+        tooltip:{mode:'index',intersect:false}
+      },
+      scales: {
+        x: {stacked:true, grid:{display:false}, ticks:{font:{size:10},maxRotation:45,autoSkip:true,maxTicksLimit:15}},
+        y: {stacked:true, beginAtZero:true, ticks:{font:{size:10},stepSize:1}},
+      }
+    }
+  });
+}
+
+const _typeLabels = {web:'🌐 Web', telegram:'📱 Telegram', qr:'📷 QR'};
+const _typeBadge = {web:'info', telegram:'ok', qr:'warn'};
+
+function _renderAnTopUsers(users) {
+  const tbody = document.querySelector('#ma-an-top-users tbody');
+  if (!users.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8">Ma\'lumot yo\'q</td></tr>'; return; }
+  tbody.innerHTML = users.map(u =>
+    `<tr><td style="font-weight:600;font-size:11px">${u.user__full_name}<br><span style="color:#94a3b8;font-size:10px">${u.user__phone}</span></td>` +
+    `<td style="font-weight:700">${u.login_count}</td>` +
+    `<td style="color:#3b82f6">${u.web_count}</td>` +
+    `<td style="color:#0088cc">${u.tg_count}</td>` +
+    `<td style="color:#8b5cf6">${u.qr_count}</td></tr>`
+  ).join('');
+}
+
+function _renderAnRecent(list) {
+  const tbody = document.querySelector('#ma-an-recent tbody');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#94a3b8">Ma\'lumot yo\'q</td></tr>'; return; }
+  tbody.innerHTML = list.map(r =>
+    `<tr><td style="font-size:11px;font-weight:600">${r.name}<br><span style="color:#94a3b8;font-size:10px">${r.phone}</span></td>` +
+    `<td><span class="ma-badge ${_typeBadge[r.type]||'info'}">${_typeLabels[r.type]||r.type}</span></td>` +
+    `<td style="font-size:10px;color:#6b7280">${r.time}</td></tr>`
+  ).join('');
+}
+
+function _renderAnFailed(list) {
+  const tbody = document.querySelector('#ma-an-failed tbody');
+  if (!list.length) { tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#94a3b8">Xatoliklar yo\'q 👍</td></tr>'; return; }
+  tbody.innerHTML = list.map(r =>
+    `<tr><td style="font-size:11px">${r.phone}</td>` +
+    `<td><span class="ma-badge ${_typeBadge[r.type]||'info'}">${_typeLabels[r.type]||r.type}</span></td>` +
+    `<td style="font-size:10px;color:#6b7280">${r.ip}</td>` +
+    `<td style="font-size:10px;color:#6b7280">${r.time}</td></tr>`
+  ).join('');
+}
+
+/* ═══ TARIFLAR (ClientPlan) ═══ */
+let _maPlans = [];
+let _maFeatures = [];
+let _maLimitDefs = [];
+
+function maLoadPlans() {
+  fetch('/mini/admin/plans/', {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) return;
+      _maPlans = d.plans || [];
+      _maFeatures = d.features || [];
+      _maLimitDefs = d.limit_defs || [];
+      _renderPlans();
+    });
+}
+
+function _renderPlans() {
+  const box = document.getElementById('ma-plans-list');
+  if (!_maPlans.length) {
+    box.innerHTML = '<div class="ma-card" style="text-align:center;color:#94a3b8;grid-column:1/-1">Tarif yo\'q — «Yangi tarif» tugmasidan qo\'shing</div>';
+    return;
+  }
+  box.innerHTML = _maPlans.map(p => {
+    const color = p.color || '#4f46e5';
+    return `<div class="ma-card" style="border-left:4px solid ${color}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="font-size:22px">${p.icon || '💳'}</span>
+        <span style="font-weight:800;font-size:15px;color:${color}">${_esc(p.name)}</span>
+        ${p.is_free ? '<span class="ma-badge ok">Standart</span>' : ''}
+        ${p.is_active ? '' : '<span class="ma-badge err">O\'chiq</span>'}
+      </div>
+      <div style="font-size:13px;color:#374151;font-weight:700">${Number(p.price_uzs||0).toLocaleString('ru-RU')} UZS <span style="color:#9ca3af;font-weight:500">/ ${p.period_days} kun</span></div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px">🪙 ${p.coin_grant} tanga · ${p.ai_included ? '🤖 AI' : 'AI yo\'q'} · 🔑 ${(p.feature_keys||[]).length} feature</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:2px">${_planLimitsSummary(p.limits)}</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:2px">👥 ${p.user_count} foydalanuvchi</div>
+      <div style="display:flex;gap:4px;margin-top:8px">
+        <button class="ma-btn outline sm" onclick="maEditPlan(${p.id})">✏️ Tahrirlash</button>
+        <button class="ma-btn outline sm" onclick="maOpenAssignModal(null, ${p.id})">👤 Tayinlash</button>
+        <button class="ma-btn danger sm" onclick="maDeletePlan(${p.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function _esc(s) {
+  return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+
+function _planLimitsSummary(limits) {
+  const keys = limits ? Object.keys(limits) : [];
+  if (!keys.length) return '♾️ Limitsiz';
+  const defs = _maLimitDefs || [];
+  const parts = keys.map(k => {
+    const def = defs.find(d => d.key === k);
+    const val = limits[k];
+    if (def) return `${def.label} ${val}${def.unit ? ' ' + def.unit : ''}`;
+    return `${k}: ${val}`;
+  });
+  return '📊 ' + parts.join(' · ');
+}
+
+function maEditPlan(id) {
+  const p = _maPlans.find(x => x.id === id);
+  if (p) maOpenPlanModal(p);
+}
+
+function maDeletePlan(id) {
+  const p = _maPlans.find(x => x.id === id);
+  const name = p ? p.name : '';
+  if (!confirm(`"${name}" tarifini o'chirasizmi?`)) return;
+  maApi(`/mini/admin/delete-plan/${id}/`, {}).then(d => {
+    if (d.ok) maLoadPlans();
+    else alert(d.error || 'Xatolik');
+  });
+}
+
+function maOpenPlanModal(plan) {
+  const isEdit = !!(plan && plan.id);
+  const feats = _maFeatures || [];
+  const selected = (plan && plan.feature_keys) || [];
+  const fields = [
+    {name:'name', label:'Nomi', type:'text', value:(plan&&plan.name)||'', required:true, full:true},
+    {name:'slug', label:'Slug (bo\'sh=avto)', type:'text', value:(plan&&plan.slug)||''},
+    {name:'icon', label:'Emoji/Ikonka', type:'text', value:(plan&&plan.icon)||'💳'},
+    {name:'price_uzs', label:'Narx (UZS)', type:'number', value:(plan&&plan.price_uzs)||0},
+    {name:'period_days', label:'Davr (kun)', type:'number', value:(plan&&plan.period_days)||30},
+    {name:'coin_grant', label:'Har davrda tanga', type:'number', value:(plan&&plan.coin_grant)||0},
+    {name:'sort', label:'Tartib', type:'number', value:(plan&&plan.sort)||0},
+    {name:'color', label:'Rang', type:'color', value:(plan&&plan.color)||'#4f46e5'},
+    {name:'ai_included', label:'AI kiritilgan', type:'checkbox', value:!!(plan&&plan.ai_included)},
+    {name:'is_free', label:'Standart (bepul) tarif', type:'checkbox', value:!!(plan&&plan.is_free)},
+    {name:'is_active', label:'Faol', type:'checkbox', value: plan ? !!plan.is_active : true},
+    {name:'description', label:'Tavsif', type:'textarea', value:(plan&&plan.description)||'', full:true},
+  ];
+  // FEATURES checkbox matritsasi (bo'sh = hammasi ruxsat etilgan)
+  feats.forEach(f => {
+    fields.push({name:'feat_'+f.key, label:`${f.label} <span style="color:#9ca3af">[${f.category}]</span>`, type:'checkbox', value: selected.indexOf(f.key) !== -1});
+  });
+  // MIQDORIY LIMITLAR (kvota) — bo'sh = cheksiz
+  const limDefs = _maLimitDefs || [];
+  const planLimits = (plan && plan.limits) || {};
+  limDefs.forEach(def => {
+    const lv = planLimits[def.key];
+    fields.push({
+      name: 'limit_' + def.key,
+      label: `${def.label}${def.unit ? ' (' + def.unit + ')' : ''}`,
+      type: 'number',
+      value: (lv != null && lv >= 0) ? lv : '',
+      placeholder: 'cheksiz (bo\'sh)',
+    });
+  });
+
+  maOpenModal(isEdit ? 'Tarifni tahrirlash' : 'Yangi tarif', fields, function(data) {
+    if (!data.name) return alert('Nom kerak');
+    const feature_keys = [];
+    feats.forEach(f => { if (data['feat_'+f.key]) feature_keys.push(f.key); });
+    const limits = {};
+    limDefs.forEach(def => {
+      const raw = data['limit_' + def.key];
+      if (raw === '' || raw == null) return;         // bo'sh = cheksiz
+      const n = parseInt(raw, 10);
+      if (isNaN(n) || n < 0) return;                  // <0 = cheksiz
+      limits[def.key] = n;
+    });
+    const payload = {
+      name: data.name, slug: data.slug, icon: data.icon,
+      price_uzs: data.price_uzs, period_days: data.period_days, coin_grant: data.coin_grant,
+      sort: data.sort, color: data.color, description: data.description,
+      ai_included: data.ai_included, is_free: data.is_free, is_active: data.is_active,
+      feature_keys: feature_keys,
+      limits: limits,
+    };
+    if (isEdit) payload.id = plan.id;
+    maApi('/mini/admin/save-plan/', payload).then(d => {
+      if (d.ok) { maCloseModal(); maLoadPlans(); }
+      else alert(d.error || 'Xatolik');
+    });
+  });
+}
+
+function maOpenAssignModal(presetUserId, presetPlanId) {
+  if (!MA_USERS.length) return alert('Foydalanuvchi yo\'q');
+  const userOpts = MA_USERS.map(u => ({v:u.id, l:`${u.name} (${u.phone})`}));
+  const planOpts = [{v:'', l:'— Tarifni olib tashlash —'}].concat(
+    (_maPlans || []).map(p => ({v:p.id, l:`${p.name} (${p.period_days} kun)`}))
+  );
+  maOpenModal('Foydalanuvchiga tarif tayinlash', [
+    {name:'user_id', label:'Foydalanuvchi', type:'select', value:presetUserId||'', options:userOpts, full:true},
+    {name:'plan_id', label:'Tarif', type:'select', value:(presetPlanId!=null?presetPlanId:''), options:planOpts, full:true},
+    {name:'days', label:'Muddat (kun, bo\'sh=tarif davri)', type:'number', value:'', full:true, hint:'Bo\'sh qoldirilsa tarifning standart davri ishlatiladi'},
+  ], function(data) {
+    if (!data.user_id) return alert('Foydalanuvchi tanlang');
+    maApi('/mini/admin/assign-plan/', {user_id:data.user_id, plan_id:data.plan_id, days:data.days}).then(d => {
+      if (d.ok) {
+        maCloseModal();
+        alert(d.removed ? 'Tarif olib tashlandi' : ('Tarif tayinlandi. Amal qiladi: ' + (d.expires || '')));
+      } else alert(d.error || 'Xatolik');
+    });
+  });
+}
+
+/* ═══ 🪙 TANGA ═══ */
+let _maPacks = [];
+let _maPrices = [];
+
+function maLoadCoins() {
+  fetch('/mini/admin/coins/', {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) return;
+      _maPacks = d.packs || [];
+      _maPrices = d.prices || [];
+      const st = document.getElementById('ma-coins-status');
+      if (st) st.innerHTML = d.coins_enabled
+        ? '🟢 AI-tanga tizimi <b>YOQILGAN</b> — narxlar amal qiladi'
+        : '⚪ AI-tanga tizimi <b>o\'chiq</b> (standart) — hech kim bloklanmaydi, narxlar faqat tayyorlanadi';
+      _renderPacks();
+      _renderAiPrices();
+    });
+}
+
+function _renderPacks() {
+  const box = document.getElementById('ma-packs-list');
+  if (!_maPacks.length) {
+    box.innerHTML = '<div class="ma-card" style="text-align:center;color:#94a3b8;grid-column:1/-1">Paket yo\'q — «Yangi paket» tugmasidan qo\'shing</div>';
+    return;
+  }
+  box.innerHTML = _maPacks.map(p => {
+    const color = p.color || '#f59e0b';
+    return `<div class="ma-card" style="border-left:4px solid ${color}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+        <span style="font-size:22px">🪙</span>
+        <span style="font-weight:800;font-size:15px;color:${color}">${_esc(p.name)}</span>
+        ${p.is_active ? '' : '<span class="ma-badge err">O\'chiq</span>'}
+      </div>
+      <div style="font-size:13px;color:#374151;font-weight:700">${Number(p.total_coins||0).toLocaleString('ru-RU')} tanga <span style="color:#9ca3af;font-weight:500">(${p.coins}+${p.bonus_coins} bonus)</span></div>
+      <div style="font-size:13px;color:#374151;font-weight:700;margin-top:2px">${Number(p.price_uzs||0).toLocaleString('ru-RU')} UZS</div>
+      <div style="display:flex;gap:4px;margin-top:8px">
+        <button class="ma-btn outline sm" onclick="maEditPack(${p.id})">✏️ Tahrirlash</button>
+        <button class="ma-btn danger sm" onclick="maDeletePack(${p.id})">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function _renderAiPrices() {
+  const tb = document.querySelector('#ma-aiprice-tbl tbody');
+  if (!_maPrices.length) { tb.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8">Yo\'q</td></tr>'; return; }
+  tb.innerHTML = _maPrices.map(p => `<tr>
+    <td>${_esc(p.label)}${p.exists ? '' : ' <span style="font-size:10px;color:#9ca3af">(default)</span>'}</td>
+    <td><code style="font-size:11px;color:#6b7280">${_esc(p.action_key)}</code></td>
+    <td><input class="ma-input" type="number" style="max-width:90px;padding:4px 6px" value="${p.coin_cost}" id="aip-cost-${p.action_key}"></td>
+    <td style="text-align:center"><input type="checkbox" id="aip-act-${p.action_key}" ${p.is_active ? 'checked' : ''}></td>
+    <td><button class="ma-btn primary sm" onclick="maSaveAiPrice('${p.action_key}')">💾</button></td>
+  </tr>`).join('');
+}
+
+function maSaveAiPrice(key) {
+  const p = _maPrices.find(x => x.action_key === key) || {};
+  const cost = document.getElementById('aip-cost-'+key).value;
+  const active = document.getElementById('aip-act-'+key).checked;
+  maApi('/mini/admin/save-aiprice/', {action_key:key, label:p.label||'', coin_cost:cost, is_active:active}).then(d => {
+    if (d.ok) maLoadCoins();
+    else alert(d.error || 'Xatolik');
+  });
+}
+
+function maEditPack(id) {
+  const p = _maPacks.find(x => x.id === id);
+  if (p) maOpenPackModal(p);
+}
+
+function maDeletePack(id) {
+  const p = _maPacks.find(x => x.id === id);
+  if (!confirm(`"${p ? p.name : ''}" paketini o'chirasizmi?`)) return;
+  maApi(`/mini/admin/delete-pack/${id}/`, {}).then(d => {
+    if (d.ok) maLoadCoins();
+    else alert(d.error || 'Xatolik');
+  });
+}
+
+function maOpenPackModal(pack) {
+  const isEdit = !!(pack && pack.id);
+  const fields = [
+    {name:'name', label:'Nomi', type:'text', value:(pack&&pack.name)||'', required:true, full:true},
+    {name:'coins', label:'Asosiy tanga', type:'number', value:(pack&&pack.coins)||0},
+    {name:'bonus_coins', label:'Bonus tanga', type:'number', value:(pack&&pack.bonus_coins)||0},
+    {name:'price_uzs', label:'Narx (UZS)', type:'number', value:(pack&&pack.price_uzs)||0},
+    {name:'sort', label:'Tartib', type:'number', value:(pack&&pack.sort)||0},
+    {name:'color', label:'Rang', type:'color', value:(pack&&pack.color)||'#f59e0b'},
+    {name:'is_active', label:'Faol', type:'checkbox', value: pack ? !!pack.is_active : true},
+  ];
+  maOpenModal(isEdit ? 'Paketni tahrirlash' : 'Yangi tanga paketi', fields, function(data) {
+    if (!data.name) return alert('Nom kerak');
+    const payload = {
+      name:data.name, coins:data.coins, bonus_coins:data.bonus_coins,
+      price_uzs:data.price_uzs, sort:data.sort, color:data.color, is_active:data.is_active,
+    };
+    if (isEdit) payload.id = pack.id;
+    maApi('/mini/admin/save-pack/', payload).then(d => {
+      if (d.ok) { maCloseModal(); maLoadCoins(); }
+      else alert(d.error || 'Xatolik');
+    });
+  });
+}
+
+function maOpenGrantModal(presetUserId) {
+  if (!MA_USERS.length) return alert('Foydalanuvchi yo\'q');
+  const userOpts = MA_USERS.map(u => ({v:u.id, l:`${u.name} (${u.phone})`}));
+  maOpenModal('Foydalanuvchiga tanga berish', [
+    {name:'user_id', label:'Foydalanuvchi', type:'select', value:presetUserId||'', options:userOpts, full:true},
+    {name:'amount', label:'Miqdor (tanga)', type:'number', value:'', full:true},
+    {name:'reason', label:'Sabab', type:'text', value:'', full:true, placeholder:'ixtiyoriy'},
+  ], function(data) {
+    if (!data.user_id) return alert('Foydalanuvchi tanlang');
+    if (!data.amount || Number(data.amount) <= 0) return alert('Musbat miqdor kiriting');
+    maApi('/mini/admin/grant-coins/', {user_id:data.user_id, amount:data.amount, reason:data.reason}).then(d => {
+      if (d.ok) { maCloseModal(); alert('Berildi: ' + d.granted + ' tanga. Yangi balans: ' + d.balance); }
+      else alert(d.error || 'Xatolik');
+    });
+  });
+}
+
+/* ═══ 💸 TO'LOVLAR ═══ */
+let _maPayments = [];
+let _maBillingLive = false;
+
+function maLoadPayments() {
+  fetch('/mini/admin/payments/', {headers:{'X-Requested-With':'XMLHttpRequest'}})
+    .then(r => r.json())
+    .then(d => {
+      if (!d.ok) return;
+      _maPayments = d.payments || [];
+      _maBillingLive = !!d.billing_live;
+      const m = document.getElementById('ma-pay-mode');
+      if (m) m.innerHTML = _maBillingLive
+        ? '🟢 Real rejim (LIVE) — qo\'lda tasdiq o\'chirilgan (provayder webhook\'i tasdiqlaydi)'
+        : '⚪ Sandbox rejim — to\'lovni qo\'lda tasdiqlash mumkin (real pul yo\'q)';
+      _renderPayments();
+    });
+}
+
+const _payStatusBadge = {paid:'ok', pending:'warn', created:'info', failed:'err', cancelled:'err'};
+
+const _txnBadge = {1:'warn', 2:'ok', '-1':'err', '-2':'err'};
+
+function _renderPayments() {
+  const tb = document.querySelector('#ma-pay-tbl tbody');
+  if (!_maPayments.length) { tb.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#94a3b8">To\'lov yo\'q</td></tr>'; return; }
+  tb.innerHTML = _maPayments.map(p => {
+    const badge = _payStatusBadge[p.status] || 'info';
+    const canConfirm = !_maBillingLive && (p.status === 'pending' || p.status === 'created');
+    const action = canConfirm
+      ? `<button class="ma-btn green sm" onclick="maConfirmPayment(${p.id})">✓ Tasdiqlash</button>`
+      : (p.fulfilled ? '<span class="ma-badge ok">Bajarildi</span>' : '—');
+    // Payme Merchant tranzaksiyasi (kassa callback holati)
+    const t = p.payme_txn;
+    const txn = t
+      ? `<span class="ma-badge ${_txnBadge[String(t.state)] || 'info'}">${_esc(t.state_label)}</span>
+         <br><span style="font-size:9px;color:#94a3b8;font-family:monospace">${_esc(t.payme_id||'')}</span>`
+      : '<span style="font-size:10px;color:#94a3b8">— Payme murojaat qilmagan (kutilmoqda)</span>';
+    const co = p.checkout_url
+      ? `<br><a href="${_esc(p.checkout_url)}" target="_blank" rel="noopener" style="font-size:10px;color:#2563eb">🔗 checkout</a>`
+      : '';
+    return `<tr>
+      <td style="font-weight:800;font-family:monospace;font-size:14px">${p.order_id ?? p.id}${co}</td>
+      <td style="font-weight:600">${_esc(p.user_name)}<br><span style="font-size:10px;color:#94a3b8">${_esc(p.username)}</span></td>
+      <td>${_esc(p.purpose_label)}</td>
+      <td style="font-weight:700">${Number(p.amount_uzs||0).toLocaleString('ru-RU')} UZS
+        <br><span style="font-size:10px;color:#6b7280;font-family:monospace">${Number(p.amount_tiyin||0).toLocaleString('ru-RU')} tiyin</span></td>
+      <td>${_esc(p.provider_label)}</td>
+      <td><span class="ma-badge ${badge}">${_esc(p.status_label)}</span></td>
+      <td>${txn}</td>
+      <td style="font-size:10px;color:#6b7280">${_esc(p.created_at)}</td>
+      <td>${action}</td>
+    </tr>`;
+  }).join('');
+}
+
+function maConfirmPayment(id) {
+  if (!confirm('To\'lov #' + id + ' — sandbox tasdiqlansinmi?\n\nTanga beriladi / tarif tayinlanadi (real pul harakati yo\'q).')) return;
+  maApi('/mini/admin/confirm-payment/', {payment_id: id}).then(d => {
+    if (d.ok) { alert('Tasdiqlandi. Status: ' + d.status + (d.fulfilled ? ' · bajarildi' : '')); maLoadPayments(); }
+    else alert(d.error || 'Xatolik');
+  });
+}
+</script>
+{% endblock %}

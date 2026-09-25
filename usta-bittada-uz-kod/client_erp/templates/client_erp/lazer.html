@@ -1,0 +1,256 @@
+{% comment %}
+client_erp/templates/client_erp/lazer.html — LAZER KO'PRIGI (2026-08-17)
+
+Nega alohida sahifa: barcha ustalar ilovaga BOT ichidan kiradi, Telegram esa
+Android WebView'da ochiladi va WebView'da Web Bluetooth API umuman yo'q.
+Shu sababli lazer SHU sahifada (Chrome'da) ulanadi va har o'lchov WS orqali
+foydalanuvchining o'z guruhiga yuboriladi — bot ichidagi oyna uni qabul qilib
+o'lcham maydoniga yozadi.
+
+Sahifa ATAYLAB juda sodda: bitta ulash tugmasi, bitta o'lchash tugmasi,
+katta raqam. Telefonni cho'ntakka solib ishlash uchun.
+{% endcomment %}<!-- -->
+<title>Lazer — Bittada Usta</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>
+  :root{--bg:#14171b;--sfc:#1b1f24;--sfc2:#22272e;--txt:#e7e4de;--mut:#9aa3ad;
+        --acc:#DCF262;--ink:#14171b;--brd:#2d333b;--ok:#3ddc97;--err:#f0705a}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--txt);
+       font-family:'Plus Jakarta Sans',Inter,system-ui,sans-serif;
+       -webkit-user-select:none;user-select:none}
+  .wrap{max-width:460px;margin:0 auto;padding:16px}
+  .card{background:var(--sfc);border:1px solid var(--brd);border-radius:16px;padding:14px;margin-bottom:12px}
+  h1{font-size:17px;margin:2px 0 2px}
+  .sub{font-size:11.5px;color:var(--mut);line-height:1.55}
+  .big{font-size:52px;font-weight:800;text-align:center;letter-spacing:-1px;
+       padding:14px 0 6px;line-height:1}
+  .unit{font-size:20px;color:var(--mut);font-weight:700}
+  button{width:100%;border:none;border-radius:14px;padding:16px;font-size:16px;
+         font-weight:800;cursor:pointer;font-family:inherit}
+  .b1{background:var(--acc);color:var(--ink)}
+  .b2{background:var(--sfc2);color:var(--txt);border:1px solid var(--brd)}
+  .st{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 12px;
+      background:var(--sfc2);border-radius:12px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--mut);flex:none}
+  .dbg{font-family:ui-monospace,monospace;font-size:10px;color:var(--mut);
+       word-break:break-all;margin-top:8px;line-height:1.5}
+  .row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;
+       border-bottom:1px solid var(--brd)}
+  .row:last-child{border-bottom:none}
+</style>
+
+<div class="wrap">
+  <div class="card">
+    <h1>📡 Lazer o‘lchagich</h1>
+    <div class="sub">Bu sahifa <b>Chrome</b>da turadi va lazerni ushlab turadi.
+      O‘lchaganingizda raqam <b>bot ichidagi ilovaga o‘zi tushadi</b>.<br>
+      Shu oynani yopmang — cho‘ntakka solib qo‘yishingiz mumkin.</div>
+  </div>
+
+  <div class="card">
+    <div class="st"><span class="dot" id="dot"></span><span id="st">Ulanmagan</span></div>
+    <div class="big"><span id="mm">—</span> <span class="unit">mm</span></div>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="b1" id="btnConn">🔌 Lazerni ulash</button>
+      <button class="b1" id="btnMeas" style="display:none">📏 O‘LCHASH</button>
+      <button class="b1" id="btnBack" style="display:none;background:#1a73e8;color:#fff">← Ilovaga qaytish</button>
+      <button class="b2" id="btnOff" style="display:none">Uzish</button>
+    </div>
+    <div class="dbg" id="dbg"></div>
+    <div id="hint" class="sub" style="display:none;margin-top:10px;background:var(--sfc2);
+         padding:10px 11px;border-radius:11px;line-height:1.6">
+      ✅ <b>Lazer ulandi.</b> Endi ilovaga qaytsangiz ham ishlaydi —
+      o‘lcham maydonini bosib lazerda o‘lchasangiz, raqam <b>o‘zi yoziladi</b>.<br>
+      <span style="opacity:.75">Shu oynani yopmang, faqat orqaga o‘ting.</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-weight:800;font-size:13px;margin-bottom:6px">Yuborilgan o‘lchovlar</div>
+    <div id="hist"><div class="sub">Hali yo‘q</div></div>
+  </div>
+</div>
+
+<script src="/static/client_erp/js/components/errlog.js?v=2"></script>
+<script src="/static/client_erp/js/components/ble-adapter.js?v=21"></script>
+<script>
+(function () {
+  var USERNAME = "{{ lazer_username|escapejs }}";
+  var KEY = "{{ lazer_key|escapejs }}";
+  var el = function (i) { return document.getElementById(i); };
+  var ws = null, wsOk = false, hist = [];
+
+  function setSt(t, c) { el('st').textContent = t; el('dot').style.background = c || 'var(--mut)'; }
+  function dbg(t) { el('dbg').textContent = t || ''; }
+
+  // ── O'lchovni serverga yuborish ────────────────────────────────────────
+  // ⚠️ WS EMAS, HTTP: tashqi brauzerda sessiya (cookie) YO'Q, WS esa auth
+  // talab qiladi. Shuning uchun qisqa muddatli imzolangan KALIT bilan
+  // oddiy POST — server uni tekshirib, bot oynasiga uzatadi.
+  var wsOk = true, hist = [];
+
+  function push(mm) {
+    var row = { mm: mm, t: new Date().toLocaleTimeString().slice(0, 5), st: '...' };
+    hist.unshift(row); hist = hist.slice(0, 12); render();
+    fetch('/mini/api/lazer-push/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ k: KEY, mm: mm })
+    }).then(function (r) { return r.json().catch(function () { return { ok: false }; }); })
+      .then(function (j) {
+        row.st = j && j.ok ? 'ok' : 'err';
+        if (j && !j.ok && j.error) setSt(j.error, 'var(--err)');
+        render();
+      })
+      .catch(function () { row.st = 'err'; render(); });
+  }
+
+  function render() {
+    el('hist').innerHTML = hist.map(function (h) {
+      var c = h.st === 'ok' ? 'var(--ok)' : h.st === 'err' ? 'var(--err)' : 'var(--mut)';
+      var t = h.st === 'ok' ? 'yuborildi ✓' : h.st === 'err' ? 'yuborilmadi' : 'yuborilmoqda';
+      return '<div class="row"><span>' + h.t + '</span><b>' + h.mm + ' mm</b>'
+        + '<span style="color:' + c + '">' + t + '</span></div>';
+    }).join('') || '<div class="sub">Hali yo\'q</div>';
+  }
+
+  // Toast yo'q — adapter uni chaqiradi, shuning uchun soddasini beramiz
+  window.Toast = { success: function (m) { setSt(m, 'var(--ok)'); },
+                   error: function (m) { setSt(m, 'var(--err)'); },
+                   info: function (m) { setSt(m, 'var(--mut)'); } };
+
+  BLE.init();
+  // Har o'lchovda: ekranga + serverga
+  BLE._onMeasure = function (mm) { el('mm').textContent = mm; push(mm); dbg(BLE._dbgLast || ''); };
+
+  // ── Bluetooth yo'q brauzer — BOSHI BERK EMAS ────────────────────────
+  // 2026-08-24: foydalanuvchi Telegram'ning ICHKI brauzerida ochib qolgan
+  // edi va «Bu brauzerda Bluetooth yo'q» yozuvidan narига o'tolmasdi.
+  // Endi shu yerdan HAQIQIY Chrome'ga o'tkazamiz.
+  var isAndroid = /Android/i.test(navigator.userAgent || '');
+  var isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+
+  // Telegram'ning ICHKI brauzeri — ishonchli belgi
+  var inTgView = !!(window.TelegramWebviewProxy || window.TelegramWebview
+                 || (window.Telegram && window.Telegram.WebView));
+
+  function toChrome() {
+    var url = location.href;
+    // ⚠️ 2026-08-24: `location.href='intent://…'` Telegram WebView'da
+    // ERR_UNKNOWN_URL_SCHEME berib butun sahifani o'ldirardi.
+    // Endi intent YASHIRIN IFRAME ichida sinaladi — muvaffaqiyatsiz
+    // bo'lsa faqat iframe yiqiladi, sahifa TIRIK qoladi.
+    if (isAndroid && !inTgView) {
+      setSt('Chrome ochilmoqda…', 'var(--mut)');
+      try {
+        var f = document.createElement('iframe');
+        f.style.display = 'none';
+        f.src = 'intent://' + url.replace(/^https?:\/\//, '')
+              + '#Intent;scheme=https;package=com.android.chrome;'
+              + 'S.browser_fallback_url=' + encodeURIComponent(url) + ';end';
+        document.body.appendChild(f);
+        setTimeout(function () {
+          try { f.parentNode && f.parentNode.removeChild(f); } catch (e) {}
+          if (!document.hidden) tgHint();      // hali shu yerdamiz → yo'l ko'rsatamiz
+        }, 1500);
+        return;
+      } catch (e) {}
+    }
+    tgHint();
+  }
+
+  // Telegram ichki brauzeri: yagona ishonchli yo'l — ⋮ menyu
+  function tgHint() {
+    var box = el('btnConn').parentNode;
+    if (!document.getElementById('tghint')) {
+      var d = document.createElement('div');
+      d.id = 'tghint';
+      d.style.cssText = 'margin-top:12px;padding:12px;border-radius:10px;'
+        + 'background:rgba(255,255,255,.06);font-size:13px;line-height:1.6;text-align:left';
+      d.innerHTML = 'Chrome o‘zi ochilmadi. Qo‘lda oching:<br>'
+        + '<b>1.</b> Yuqori o‘ngdagi <b>⋮</b> tugmasini bosing<br>'
+        + '<b>2.</b> <b>«Brauzerda ochish»</b> ni tanlang<br>'
+        + '<b>3.</b> Chrome tanlansin — lazer o‘sha yerda ulanadi';
+      box.appendChild(d);
+    }
+    copyLink();
+  }
+
+  function copyLink() {
+    var url = location.href;
+    var done = function () {
+      setSt('Havola nusxalandi — Chrome\'ga qo\'ying', 'var(--ok)');
+    };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(done, function () { manual(url); });
+        return;
+      }
+    } catch (e) {}
+    manual(url);
+  }
+
+  function manual(url) {
+    var ta = document.createElement('textarea');
+    ta.value = url;
+    ta.style.cssText = 'width:100%;height:70px;font-size:11px;margin-top:10px';
+    el('btnConn').parentNode.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); } catch (e) {}
+    setSt('Havolani nusxalab Chrome\'ga qo\'ying', 'var(--mut)');
+  }
+
+  if (!navigator.bluetooth) {
+    if (isIOS) {
+      // Halol: iPhone'ning HECH BIR brauzerida Web Bluetooth yo'q
+      setSt('iPhone Bluetooth o‘lchagichni qo‘llamaydi — Android telefon yoki kompyuter kerak', 'var(--err)');
+      el('btnConn').textContent = '🔗 Havolani nusxalash';
+      el('btnConn').onclick = copyLink;
+    } else {
+      setSt(inTgView
+        ? 'Telegram brauzerida Bluetooth yo‘q — Chrome’da oching'
+        : 'Bu brauzerda Bluetooth yo‘q — Chrome’da ochish kerak', 'var(--err)');
+      el('btnConn').textContent = '🌐 Chrome’da ochish';
+      el('btnConn').onclick = toChrome;
+    }
+    if (window.ErrLog) ErrLog.push('ble', 'Bluetooth yo\'q brauzer', {
+      extra: { ua: (navigator.userAgent || '').slice(0, 200), page: 'lazer' }
+    });
+  }
+
+  if (navigator.bluetooth) el('btnConn').onclick = function () {
+    BLE.connect();
+    var t = setInterval(function () {
+      if (BLE._connected) {
+        clearInterval(t);
+        setSt('Ulandi ✓', 'var(--ok)');
+        el('btnConn').style.display = 'none';
+        el('btnMeas').style.display = '';
+        el('btnOff').style.display = '';
+        el('btnBack').style.display = '';
+        el('hint').style.display = '';
+        dbg(BLE._dbgLast || '');
+      }
+    }, 400);
+    setTimeout(function () { clearInterval(t); }, 60000);
+  };
+  el('btnMeas').onclick = function () { BLE.measure(); setTimeout(function () { dbg(BLE._dbgLast || ''); }, 400); };
+
+  // ← Ilovaga qaytish: Telegram bo'lsa Telegram'ga, aks holda oynani yopadi.
+  // Yopilmasa (brauzer ruxsat bermasa) — orqaga qaytadi.
+  el('btnBack').onclick = function () {
+    setSt('Lazer ulangan — ilovada ishlashda davom eting', 'var(--ok)');
+    try { if (window.close) window.close(); } catch (e) {}
+    setTimeout(function () {
+      try { location.href = 'tg://resolve'; } catch (e) {}
+      setTimeout(function () { if (history.length > 1) history.back(); }, 700);
+    }, 250);
+  };
+  el('btnOff').onclick = function () {
+    BLE.disconnect();
+    setSt('Uzildi', 'var(--mut)');
+    el('btnConn').style.display = ''; el('btnMeas').style.display = 'none'; el('btnOff').style.display = 'none';
+  };
+})();
+</script>

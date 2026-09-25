@@ -1,0 +1,21 @@
+{% extends "client_erp/base.html" %}
+{% block title %}3D Zamer{% endblock %}
+{% block extra_css %}
+<style>
+.zi-wrap { position: relative; width: 100%; height: calc(100vh - 140px); min-height: 500px; }
+.zi-frame { width: 100%; height: 100%; border: none; border-radius: 12px; background: var(--surface); }
+.zi-back { margin-bottom: 10px; }
+@media (max-width: 767px) {
+    .zi-wrap { height: calc(100vh - 200px); }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="zi-back">
+    <a href="../" style="color:var(--text2);font-size:13px;text-decoration:none"><i class="fas fa-arrow-left mr-1"></i> Zamerlar ro'yxatiga</a>
+</div>
+<div class="zi-wrap">
+    <iframe src="{{ iframe_url }}" class="zi-frame" allow="camera;microphone" allowfullscreen></iframe>
+</div>
+{% endblock %}

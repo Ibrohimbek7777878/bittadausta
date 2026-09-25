@@ -1,0 +1,94 @@
+# Bittada Usta — imzosiz APK yig'ish (GitHub Actions)
+# ────────────────────────────────────────────────────────────
+# MAQSAD: telefonda sinab ko'rish uchun APK.
+# Bu yerda IMZO KALITI YO'Q — `keystore.properties` va `*.jks`
+# GitHub'ga hech qachon yuklanmaydi (.gitignore).
+# Shuning uchun faqat `assembleDebug` ishlatiladi.
+#
+# Play Market uchun AAB serverda (yoki kompyuterda) alohida,
+# imzo kaliti bilan yig'iladi — bu yerda emas.
+
+name: APK yig'ish (imzosiz, sinov uchun)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:      # Actions sahifasidan qo'lda ishga tushirish
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Kodni olish
+        uses: actions/checkout@v4
+
+      # AGP 9.0.1 JDK 17'da ISHLAMAYDI — 21 kerak.
+      # (birinchi build aynan shu sababdan yiqilgan edi)
+      - name: JDK 21 o'rnatish
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Gradle sozlash (kesh bilan)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: gradlew'ga ijro huquqi
+        run: chmod +x ./gradlew
+
+      # `gradle/gradle-daemon-jvm.properties` (updateDaemonJvm yaratgan)
+      # Gradle'ni foojay.io'dan JDK YUKLAB OLISHGA majbur qiladi va
+      # setup-java o'rnatgan JDK 21 ni e'tiborsiz qoldiradi. CI'da bu
+      # keraksiz va yiqiladi — shuning uchun olib tashlaymiz.
+      # (Bu faqat CI nusxasida, sizning serveringizdagi fayl tegilmaydi.)
+      - name: Daemon JVM sozlamasini olib tashlash
+        run: rm -f gradle/gradle-daemon-jvm.properties
+
+      - name: Muhitni ko'rsatish (xato bo'lsa shu yordam beradi)
+        run: |
+          echo "--- java ---"; java -version
+          echo "--- JAVA_HOME ---"; echo "$JAVA_HOME"
+          echo "--- gradle wrapper ---"; grep distributionUrl gradle/wrapper/gradle-wrapper.properties
+          echo "--- android sdk ---"; echo "$ANDROID_HOME"; ls "$ANDROID_HOME/platforms" 2>/dev/null || echo "platforms yo'q"
+
+      # `pipefail` SHART: usiz `| tee` Gradle'ning xato kodini yutib yuboradi
+      # va yiqilgan build "yashil" bo'lib ko'rinadi.
+      - name: Debug APK yig'ish
+        shell: bash
+        run: |
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --stacktrace 2>&1 | tee build-log.txt
+
+      # Kompilyatsiya yiqilsa Gradle xatolarni «... N more» bilan KESADI va
+      # asl sabab ko'rinmay qoladi (2026-09-13: 35 xatodan 5 tasi ko'rsatilib,
+      # 30 tasi yashirilgan — sabab topilmagan). Shuning uchun yiqilganda
+      # jurnaldagi BARCHA `e:` qatorlarini alohida chop etamiz.
+      - name: Xatolarni to'liq ko'rsatish
+        if: failure()
+        shell: bash
+        run: |
+          echo "═══════ BARCHA KOMPILYATSIYA XATOLARI ═══════"
+          grep -c '^e: ' build-log.txt || true
+          grep '^e: ' build-log.txt | sed 's|file:///home/runner/work/[^/]*/[^/]*/||' || true
+          echo "═══════ BIRINCHI 5 XATO (asl sabab odatda shu yerda) ═══════"
+          grep '^e: ' build-log.txt | head -5 | sed 's|file:///home/runner/work/[^/]*/[^/]*/||' || true
+
+      # Build yiqilsa ham jurnalni saqlaymiz — xato sababini o'qish uchun.
+      - name: Build jurnalini saqlash
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: build-log.txt
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: APK'ni yuklab qo'yish
+        uses: actions/upload-artifact@v4
+        with:
+          name: bittada-usta-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 30
