@@ -1,0 +1,33 @@
+name: BittadaUsta
+options:
+  bundleIdPrefix: com.bittada
+  deploymentTarget:
+    iOS: "15.0"
+  xcodeVersion: "15.0"
+
+settings:
+  MARKETING_VERSION: "1.60"
+  CURRENT_PROJECT_VERSION: "60"
+
+targets:
+  BittadaUsta:
+    type: application
+    platform: iOS
+    deploymentTarget: "15.0"
+    sources:
+      - path: App
+      - path: Web
+      - path: BLE
+      - path: Lang
+    resources:
+      - path: Resources
+      - path: Lang/Resources
+    info:
+      path: App/Info.plist
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: com.bittada.bittadausta
+      PRODUCT_NAME: Bittada Usta
+      SWIFT_VERSION: "5.0"
+      IPHONEOS_DEPLOYMENT_TARGET: "15.0"
+      TARGETED_DEVICE_FAMILY: "1,2"
+      UI_USER_INTERFACE_STYLE: Dark
